@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+.DS_Store
+.vercel
+*.log
+passwordfile
+passwordfile.pub
