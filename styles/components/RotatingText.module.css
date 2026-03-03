@@ -1,0 +1,26 @@
+.wrapper {
+  display: inline-flex;
+  align-items: flex-start;
+  min-width: 8ch;
+  min-height: 1.15em;
+}
+
+.word {
+  display: inline-block;
+  font-weight: 800;
+  line-height: inherit;
+  transform: translateY(0);
+  opacity: 1;
+  transition: opacity 360ms ease, transform 360ms ease;
+  will-change: opacity, transform;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(6px);
+}

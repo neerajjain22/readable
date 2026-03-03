@@ -3,6 +3,7 @@ import Link from "next/link"
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
 import NewsletterForm from "../components/NewsletterForm"
+import RotatingText from "../components/RotatingText"
 import pageStyles from "../styles/Page.module.css"
 
 const logos = ["GrowthOps", "Northline", "Stacklane", "Ecomera", "Finovo", "CodePeak"]
@@ -81,20 +82,22 @@ export default function HomePage() {
           <div className={pageStyles.container}>
             <div className={pageStyles.grid2} style={{ gap: "40px", alignItems: "center" }}>
               <div>
-                <h1 id="home-hero-title" className={pageStyles.heroTitle} style={{ maxWidth: "12ch" }}>
-                  Understand How AI Sees Your Brand.
+                <h1 id="home-hero-title" className={pageStyles.heroTitle}>
+                  Understand How AI Influences Your
+                  <br />
+                  <RotatingText words={["Brand", "Buyers", "Category", "Growth"]} />
                 </h1>
                 <p className={pageStyles.heroDescription} style={{ marginTop: "24px" }}>
-                  Readable helps you monitor how LLMs represent you, track AI-driven traffic, and structure
-                  your site for AI agents.
+                  Readable helps you understand how AI positions your brand, measure its influence on
+                  buyers, and improve the content that shapes decisions.
                 </p>
 
                 <div style={{ marginTop: "32px", display: "flex", gap: "16px", flexWrap: "wrap" }}>
                   <Link href="/contact" className={pageStyles.searchButton}>
                     Book a Demo
                   </Link>
-                  <Link href="/platform" className={pageStyles.pageLink}>
-                    Explore Platform
+                  <Link href="/platform/ai-visibility" className={pageStyles.pageLink}>
+                    Start Free
                   </Link>
                 </div>
 
