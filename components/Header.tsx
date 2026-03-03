@@ -16,7 +16,7 @@ const navLinks: NavLink[] = [
     items: [
       { href: "/platform/ai-visibility", label: "AI Visibility" },
       { href: "/platform/agent-analytics", label: "Agent Analytics" },
-      { href: "/platform#agent-ready-pages", label: "Agent-Ready Pages" },
+      { href: "/platform/agent-ready-pages", label: "Agent-Ready Pages" },
     ],
   },
   {

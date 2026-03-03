@@ -1,0 +1,244 @@
+.page {
+  min-height: 100vh;
+}
+
+.heroSection {
+  padding-top: 120px;
+  padding-bottom: 112px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sectionAlt {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-light);
+}
+
+.finalSection {
+  padding: 96px 0;
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+  align-items: center;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  color: var(--color-primary);
+}
+
+.subheading {
+  margin: 24px 0 0;
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--color-primary);
+  max-width: 42ch;
+}
+
+.description {
+  margin: 20px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.75;
+  max-width: 68ch;
+}
+
+.actions {
+  margin-top: 32px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+
+.primaryButton {
+  color: var(--color-white);
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+}
+
+.secondaryButton {
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-default);
+}
+
+.visualCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-light);
+  padding: 24px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.2;
+}
+
+.intro {
+  margin-top: 20px;
+  color: var(--color-text-body);
+  line-height: 1.75;
+  max-width: 76ch;
+}
+
+.grid2 {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.grid3 {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.grid5 {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+  padding: 32px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.cardBody {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.7;
+}
+
+.list {
+  margin: 20px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: var(--color-text-body);
+}
+
+.stepNumber {
+  margin: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.crossShell {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  background: var(--color-bg-default);
+  text-align: center;
+}
+
+.crossText {
+  margin: 16px auto 0;
+  color: var(--color-text-body);
+  max-width: 64ch;
+  line-height: 1.75;
+}
+
+.crossActions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ctaShell {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  background: var(--color-bg-light);
+  text-align: center;
+}
+
+.ctaText {
+  margin: 16px auto 0;
+  color: var(--color-text-body);
+  max-width: 64ch;
+  line-height: 1.75;
+}
+
+.ctaActions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .heroGrid,
+  .grid2,
+  .grid3,
+  .grid5 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding-top: 96px;
+    padding-bottom: 80px;
+  }
+
+  .section,
+  .sectionAlt,
+  .finalSection {
+    padding: 64px 0;
+  }
+
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .ctaShell,
+  .crossShell {
+    padding: 32px;
+  }
+}
