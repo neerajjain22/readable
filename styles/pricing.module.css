@@ -1,0 +1,246 @@
+.page {
+  min-height: 100vh;
+}
+
+.heroSection {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sectionAlt {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-light);
+}
+
+.finalSection {
+  padding: 96px 0;
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  color: var(--color-primary);
+}
+
+.subheading {
+  margin: 24px 0 0;
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--color-primary);
+  max-width: 52ch;
+}
+
+.description {
+  margin: 20px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.75;
+  max-width: 74ch;
+}
+
+.note {
+  margin: 20px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  line-height: 1.2;
+  color: var(--color-primary);
+}
+
+.grid3 {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.planCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.planCardFree {
+  background: var(--color-bg-light);
+  border-color: var(--color-border);
+}
+
+.planCardFeatured {
+  background: var(--color-bg-default);
+  border-color: var(--color-border-strong);
+}
+
+.planTitle {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--color-primary);
+}
+
+.planDescription {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.7;
+}
+
+.featureList {
+  margin: 20px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  color: var(--color-text-body);
+  line-height: 1.65;
+}
+
+.planActions {
+  margin-top: 24px;
+}
+
+.planNote {
+  margin: 12px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+
+.primaryButton {
+  color: var(--color-white);
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+}
+
+.secondaryButton {
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-default);
+}
+
+.tableWrap {
+  margin-top: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  background: var(--color-bg-default);
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.comparisonTable th,
+.comparisonTable td {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  color: var(--color-text-body);
+  line-height: 1.6;
+}
+
+.comparisonTable th {
+  color: var(--color-primary);
+  background: var(--color-bg-light);
+  font-weight: 700;
+}
+
+.comparisonTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.faqList {
+  margin-top: 40px;
+  display: grid;
+  gap: 20px;
+}
+
+.faqItem {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+  padding: 24px 28px;
+}
+
+.faqItem summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 1.5;
+}
+
+.faqItem p {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.7;
+}
+
+.ctaShell {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-light);
+  padding: 48px;
+  text-align: center;
+}
+
+.ctaActions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection,
+  .section,
+  .sectionAlt,
+  .finalSection {
+    padding: 64px 0;
+  }
+
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .ctaShell {
+    padding: 32px;
+  }
+}
