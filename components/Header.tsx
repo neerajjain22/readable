@@ -29,6 +29,7 @@ const navLinks: NavLink[] = [
       { href: "/solutions/analytics-teams", label: "Analytics Teams" },
     ],
   },
+  { href: "/case-studies", label: "Case Studies" },
   { href: "/agency-partners", label: "Agency Partners" },
   { href: "/pricing", label: "Pricing" },
   {
@@ -36,7 +37,6 @@ const navLinks: NavLink[] = [
     label: "Resources",
     items: [
       { href: "/blog", label: "Blog" },
-      { href: "/case-studies", label: "Case Studies" },
       { href: "/docs", label: "Documentation" },
       { href: "/whitepapers", label: "Whitepapers" },
     ],
