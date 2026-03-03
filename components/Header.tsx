@@ -3,21 +3,73 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import styles from "../styles/components/Header.module.css"
 
-const navLinks = [
-  { href: "/platform", label: "Platform" },
-  { href: "/solutions", label: "Solutions" },
-  { href: "/industries", label: "Industries" },
+type NavLink = {
+  href: string
+  label: string
+  items?: Array<{ href: string; label: string }>
+}
+
+const navLinks: NavLink[] = [
+  {
+    href: "/platform",
+    label: "Platform",
+    items: [
+      { href: "/platform#ai-visibility", label: "AI Visibility" },
+      { href: "/platform#agent-analytics", label: "Agent Analytics" },
+      { href: "/platform#agent-ready-pages", label: "Agent-Ready Pages" },
+    ],
+  },
+  {
+    href: "/solutions",
+    label: "Solutions",
+    items: [
+      { href: "/solutions", label: "Growth Teams" },
+      { href: "/solutions", label: "Marketing Teams" },
+      { href: "/solutions", label: "Product Teams" },
+      { href: "/solutions", label: "Analytics Teams" },
+    ],
+  },
+  {
+    href: "/industries",
+    label: "Industries",
+    items: [
+      { href: "/industries", label: "Ecommerce" },
+      { href: "/industries", label: "B2B SaaS" },
+      { href: "/industries", label: "Developer Tools" },
+      { href: "/industries", label: "Financial Services" },
+    ],
+  },
   { href: "/partners", label: "Agency Partners" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/resources", label: "Resources" },
-  { href: "/about", label: "Company" },
+  {
+    href: "/resources",
+    label: "Resources",
+    items: [
+      { href: "/blog", label: "Blog" },
+      { href: "/case-studies", label: "Case Studies" },
+      { href: "/docs", label: "Documentation" },
+      { href: "/whitepapers", label: "Whitepapers" },
+    ],
+  },
+  {
+    href: "/about",
+    label: "Company",
+    items: [
+      { href: "/about", label: "About" },
+      { href: "/contact", label: "Contact" },
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
+    ],
+  },
 ]
 
 export default function Header() {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   const isActive = (href: string) => router.pathname === href || router.pathname.startsWith(`${href}/`)
+  const hasDropdown = (link: NavLink) => !!link.items && link.items.length > 0
 
   return (
     <header className={styles.header}>
@@ -29,16 +81,54 @@ export default function Header() {
 
           <nav className={styles.desktopNav} aria-label="Primary">
             <ul className={styles.navList}>
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
+              {navLinks.map((link) => {
+                const isOpen = openDropdown === link.label
+
+                if (!hasDropdown(link)) {
+                  return (
+                    <li key={link.href} className={styles.navItem}>
+                      <Link
+                        href={link.href}
+                        className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  )
+                }
+
+                return (
+                  <li
+                    key={link.href}
+                    className={styles.navItem}
+                    onMouseEnter={() => setOpenDropdown(link.label)}
+                    onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+                    <button
+                      type="button"
+                      className={`${styles.navLink} ${styles.navButton} ${
+                        isActive(link.href) ? styles.navLinkActive : ""
+                      }`}
+                      aria-expanded={isOpen}
+                      aria-haspopup="menu"
+                      onClick={() => setOpenDropdown((prev) => (prev === link.label ? null : link.label))}
+                    >
+                      {link.label}
+                      <span className={styles.caret} aria-hidden="true">
+                        ▾
+                      </span>
+                    </button>
+
+                    <div className={`${styles.dropdownPanel} ${isOpen ? styles.dropdownPanelOpen : ""}`} role="menu">
+                      {link.items?.map((item) => (
+                        <Link key={item.href + item.label} href={item.href} className={styles.dropdownLink} role="menuitem">
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
           </nav>
 

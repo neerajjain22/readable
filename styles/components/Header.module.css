@@ -39,11 +39,22 @@
   padding: 0;
 }
 
+.navItem {
+  position: relative;
+}
+
 .navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-primary);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
 
 .navLink:hover,
@@ -52,6 +63,67 @@
 }
 
 .navLinkActive {
+  color: var(--color-accent);
+}
+
+.navButton {
+  line-height: 1.4;
+}
+
+.caret {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.dropdownPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 220px;
+  display: grid;
+  gap: 4px;
+  background: var(--color-bg-default);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 140ms ease, transform 140ms ease, visibility 140ms ease;
+}
+
+/* Bridge eliminates hover gap between trigger and dropdown panel */
+.dropdownPanel::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+}
+
+.dropdownPanelOpen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.dropdownLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+}
+
+.dropdownLink:hover,
+.dropdownLink:focus-visible {
+  background: var(--color-bg-light);
   color: var(--color-accent);
 }
 
