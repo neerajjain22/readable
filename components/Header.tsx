@@ -103,21 +103,19 @@ export default function Header() {
                     className={styles.navItem}
                     onMouseEnter={() => setOpenDropdown(link.label)}
                     onMouseLeave={() => setOpenDropdown(null)}
+                    onFocus={() => setOpenDropdown(link.label)}
                   >
-                    <button
-                      type="button"
-                      className={`${styles.navLink} ${styles.navButton} ${
-                        isActive(link.href) ? styles.navLinkActive : ""
-                      }`}
+                    <Link
+                      href={link.href}
+                      className={`${styles.navLink} ${styles.navButton} ${isActive(link.href) ? styles.navLinkActive : ""}`}
                       aria-expanded={isOpen}
                       aria-haspopup="menu"
-                      onClick={() => setOpenDropdown((prev) => (prev === link.label ? null : link.label))}
                     >
                       {link.label}
                       <span className={styles.caret} aria-hidden="true">
                         ▾
                       </span>
-                    </button>
+                    </Link>
 
                     <div className={`${styles.dropdownPanel} ${isOpen ? styles.dropdownPanelOpen : ""}`} role="menu">
                       {link.items?.map((item) => (
