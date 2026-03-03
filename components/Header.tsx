@@ -29,16 +29,6 @@ const navLinks: NavLink[] = [
       { href: "/solutions/analytics-teams", label: "Analytics Teams" },
     ],
   },
-  {
-    href: "/industries",
-    label: "Industries",
-    items: [
-      { href: "/industries", label: "Ecommerce" },
-      { href: "/industries", label: "B2B SaaS" },
-      { href: "/industries", label: "Developer Tools" },
-      { href: "/industries", label: "Financial Services" },
-    ],
-  },
   { href: "/agency-partners", label: "Agency Partners" },
   { href: "/pricing", label: "Pricing" },
   {
@@ -49,16 +39,6 @@ const navLinks: NavLink[] = [
       { href: "/case-studies", label: "Case Studies" },
       { href: "/docs", label: "Documentation" },
       { href: "/whitepapers", label: "Whitepapers" },
-    ],
-  },
-  {
-    href: "/about",
-    label: "Company",
-    items: [
-      { href: "/about", label: "About" },
-      { href: "/contact", label: "Contact" },
-      { href: "/privacy", label: "Privacy" },
-      { href: "/terms", label: "Terms" },
     ],
   },
 ]
