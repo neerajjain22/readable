@@ -1,90 +1,176 @@
-import Image from "next/image"
+import Link from "next/link"
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
 import Breadcrumbs from "../components/Breadcrumbs"
-import FeatureCard from "../components/FeatureCard"
-import CTASection from "../components/CTASection"
-import styles from "../styles/Page.module.css"
+import styles from "../styles/platform-overview.module.css"
 
 const modules = [
   {
-    id: "ai-visibility",
     title: "AI Visibility",
-    description:
-      "Monitor recommendation share, narrative quality, and category positioning across high-intent prompt sets.",
-    points: ["Prompt intelligence", "Competitor comparison", "Position quality trends"],
-    image: "/images/module-visibility.svg",
+    body: "Understand how LLMs position your brand across high-intent prompts.",
+    href: "/platform/ai-visibility",
   },
   {
-    id: "agent-analytics",
     title: "Agent Analytics",
-    description:
-      "Understand assistant-originated sessions and map behavior to conversion, retention, and revenue signals.",
-    points: ["Agent traffic detection", "Journey-level insights", "Attribution reporting"],
-    image: "/images/module-analytics.svg",
+    body: "Track assistant-originated sessions and measure conversion impact.",
+    href: "/platform/agent-analytics",
   },
   {
-    id: "agent-ready-pages",
     title: "Agent-Ready Pages",
-    description:
-      "Design and optimize pages for retrieval accuracy, recommendation quality, and faster decision-making.",
-    points: ["Page scorecards", "Implementation guidance", "Reusable templates"],
-    image: "/images/module-pages.svg",
+    body: "Publish structured content optimized for AI retrieval and recommendation clarity.",
+    href: "/platform/agent-ready-pages",
   },
+]
+
+const flow = [
+  {
+    label: "1. Position",
+    title: "AI Visibility",
+    body: "AI Visibility shows how AI systems describe and recommend your brand.",
+  },
+  {
+    label: "2. Measure",
+    title: "Agent Analytics",
+    body: "Agent Analytics tracks how AI-driven traffic behaves on your site.",
+  },
+  {
+    label: "3. Improve",
+    title: "Agent-Ready Pages",
+    body: "Agent-Ready Pages help you publish clearer, more structured content for AI systems.",
+  },
+]
+
+const teams = [
+  "Growth & performance teams",
+  "Marketing and content teams",
+  "Product and analytics teams",
+  "Agencies managing multiple brands",
+]
+
+const benefits = [
+  "Unified AI visibility and traffic tracking",
+  "Clear attribution of assistant-driven sessions",
+  "Structured publishing framework",
+  "Executive-ready reporting",
+  "Continuous monitoring",
 ]
 
 export default function PlatformPage() {
   return (
     <Layout>
       <Seo
-        title="Readable Platform | AI Visibility, Agent Analytics, Agent-Ready Pages"
-        description="Explore Readable platform modules and use cases for AI positioning, agent analytics, and conversion-focused pages."
+        title="The Readable Platform | AI Visibility, Agent Analytics, Agent-Ready Pages"
+        description="Explore how Readable modules work together to help teams understand, measure, and improve AI recommendation performance."
         path="/platform"
       />
+
       <main className={styles.page}>
-        <section className={styles.section}>
+        <section className={styles.heroSection}>
           <div className={styles.container}>
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Platform" }]} />
-            <h1 className={styles.heroTitle}>Platform Overview</h1>
-            <p className={styles.heroDescription}>
-              Three integrated modules help teams measure AI presence, understand agent activity, and improve
-              conversion outcomes from AI-driven research.
+            <h1 className={styles.heading}>The Readable Platform</h1>
+            <p className={styles.subheading}>
+              AI Visibility, Agent Analytics, and Agent-Ready Pages — built together to help teams
+              understand, measure, and improve how AI systems recommend their brand.
             </p>
-            <nav className={styles.mtMd} aria-label="Platform anchors">
-              <a href="#ai-visibility" className={styles.inlineLink}>AI Visibility</a>{" · "}
-              <a href="#agent-analytics" className={styles.inlineLink}>Agent Analytics</a>{" · "}
-              <a href="#agent-ready-pages" className={styles.inlineLink}>Agent-Ready Pages</a>
-            </nav>
+            <p className={styles.description}>
+              Readable provides an integrated platform to monitor AI positioning, track agent-driven traffic,
+              and publish structured pages designed for retrieval and recommendation clarity.
+            </p>
+            <div className={styles.actions}>
+              <Link href="/contact" className={styles.primaryButton}>
+                Book a Demo
+              </Link>
+              <Link href="/pricing" className={styles.secondaryButton}>
+                View Pricing
+              </Link>
+            </div>
           </div>
         </section>
 
-        {modules.map((module, index) => (
-          <section key={module.id} id={module.id} className={index % 2 === 0 ? styles.sectionAlt : styles.section}>
-            <div className={styles.container}>
-              <div className={styles.grid2}>
-                <FeatureCard title={module.title} description={module.description} points={module.points} />
-                <div className={styles.card}>
-                  <Image src={module.image} alt={`${module.title} module illustration`} width={640} height={360} />
-                  <h3>Use Cases</h3>
-                  <ul className={styles.list}>
-                    <li>Weekly leadership reporting</li>
-                    <li>Category strategy planning</li>
-                    <li>Content and conversion optimization</li>
-                  </ul>
-                </div>
+        <section className={styles.sectionAlt}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Three Modules. One Integrated Platform.</h2>
+            <p className={styles.intro}>
+              Each module solves a distinct layer of the AI discovery process — together they provide
+              complete visibility and control.
+            </p>
+            <div className={styles.grid3}>
+              {modules.map((module) => (
+                <article key={module.title} className={styles.card}>
+                  <h3 className={styles.cardTitle}>{module.title}</h3>
+                  <p className={styles.cardBody}>{module.body}</p>
+                  <Link href={module.href} className={styles.textLink}>
+                    Learn More
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Built to Work Together</h2>
+            <div className={styles.stack}>
+              {flow.map((step) => (
+                <article key={step.label} className={styles.card}>
+                  <p className={styles.stepLabel}>{step.label}</p>
+                  <h3 className={styles.cardTitle}>{step.title}</h3>
+                  <p className={styles.cardBody}>{step.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.sectionAlt}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Designed for Modern Growth Teams</h2>
+            <div className={styles.grid4}>
+              {teams.map((team) => (
+                <article key={team} className={styles.card}>
+                  <h3 className={styles.cardTitle}>{team}</h3>
+                </article>
+              ))}
+            </div>
+            <p className={styles.intro}>
+              Readable unifies AI positioning, traffic intelligence, and content architecture in one platform.
+            </p>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Why Teams Use Readable</h2>
+            <div className={styles.grid4}>
+              {benefits.map((benefit) => (
+                <article key={benefit} className={styles.card}>
+                  <p className={styles.cardBody}>{benefit}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.finalSection}>
+          <div className={styles.container}>
+            <div className={styles.centerShell}>
+              <h2 className={styles.sectionTitle}>See the Platform in Action.</h2>
+              <p className={styles.centerText}>
+                Get a walkthrough tailored to your category, growth model, and AI presence.
+              </p>
+              <div className={styles.centerActions}>
+                <Link href="/contact" className={styles.primaryButton}>
+                  Book a Demo
+                </Link>
+                <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
+                  Explore AI Visibility
+                </Link>
               </div>
             </div>
-          </section>
-        ))}
-
-        <CTASection
-          title="See the Platform in Action"
-          description="Get a walkthrough tailored to your growth model, category, and content architecture."
-          primaryLabel="Book a Demo"
-          primaryHref="/contact"
-          secondaryLabel="See Pricing"
-          secondaryHref="/pricing"
-        />
+          </div>
+        </section>
       </main>
     </Layout>
   )
