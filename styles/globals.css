@@ -1,0 +1,69 @@
+/* Minimal reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+img,
+svg,
+video,
+canvas {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+/* Design tokens */
+:root {
+    --font-family-base: "Satoshi", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --color-primary: #0b1f3b;
+    --color-accent: #2563eb;
+    --color-accent-hover: #1d4ed8;
+    --color-border: #e2e8f0;
+    --color-border-strong: #cbd5e1;
+    --color-bg-default: #ffffff;
+    --color-bg-light: #f8fafc;
+    --color-text-body: #334155;
+    --color-text-muted: #64748b;
+    --color-text-subtle: #94a3b8;
+    --color-white: #ffffff;
+    --color-focus-ring: rgba(37, 99, 235, 0.24);
+    --color-divider-soft: rgba(255, 255, 255, 0.08);
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 32px;
+    --spacing-xl: 80px;
+    --spacing-2xl: 64px;
+    --spacing-3xl: 56px;
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-pill: 999px;
+
+    --container-max: 1200px;
+    --container-padding: 32px;
+}
+
+body {
+    font-family: var(--font-family-base);
+    color: var(--color-primary);
+    background: var(--color-bg-default);
+    line-height: 1.5;
+}
