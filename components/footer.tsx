@@ -1,80 +1,82 @@
-import * as React from "react"
-import styles from "../styles/Footer.module.css"
+import Link from "next/link"
+import styles from "../styles/components/Footer.module.css"
 
-export default function ReadableFooter() {
-    const sections = [
-        {
-            title: "Platform",
-            links: ["AI Visibility", "Agent Analytics", "Agent-Ready Pages"],
-        },
-        {
-            title: "Solutions",
-            links: [
-                "Increase AI Traffic",
-                "Convert AI Agents",
-                "Improve AI Positioning",
-                "Track AI Revenue",
-            ],
-        },
-        {
-            title: "Industries",
-            links: ["Ecommerce", "B2B SaaS", "Developer Tools", "Financial Services"],
-        },
-        {
-            title: "Agency Partners",
-            links: [
-                "Agency Program",
-                "Become a Partner",
-                "Partner Resources",
-                "Co-Sell Opportunities",
-            ],
-        },
-        {
-            title: "Resources",
-            links: ["Blog", "Research", "Case Studies", "Documentation", "API"],
-        },
-    ]
+const columns = [
+  {
+    title: "Platform",
+    links: [
+      { href: "/platform", label: "AI Visibility" },
+      { href: "/platform", label: "Agent Analytics" },
+      { href: "/platform", label: "Agent-Ready Pages" },
+    ],
+  },
+  {
+    title: "Solutions",
+    links: [
+      { href: "/solutions", label: "Growth Teams" },
+      { href: "/solutions", label: "Marketing Teams" },
+      { href: "/solutions", label: "Product Teams" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { href: "/blog", label: "Blog" },
+      { href: "/case-studies", label: "Case Studies" },
+      { href: "/docs", label: "Docs" },
+      { href: "/resources", label: "Whitepapers" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/partners", label: "Agency Partners" },
+      { href: "/contact", label: "Contact" },
+      { href: "/pricing", label: "Pricing" },
+    ],
+  },
+]
 
-    const bottomLinks = ["About", "Careers", "Contact", "Press", "Privacy Policy", "Terms"]
+export default function Footer() {
+  return (
+    <footer className={styles.footer} aria-label="Site footer">
+      <div className={styles.container}>
+        <div className={styles.grid}>
+          {columns.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <h3 className={styles.title}>{col.title}</h3>
+              <ul className={styles.list}>
+                {col.links.map((link) => (
+                  <li key={link.href + link.label}>
+                    <Link href={link.href} className={styles.link}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
 
-    return (
-        <footer aria-label="Site footer" className={styles.footer}>
-            <div className={styles.container}>
-                <div className={styles.sectionsGrid}>
-                    {sections.map((section) => (
-                        <nav key={section.title} aria-label={section.title}>
-                            <h3 className={styles.sectionTitle}>{section.title}</h3>
-                            <ul className={styles.sectionList}>
-                                {section.links.map((link) => (
-                                    <li key={link}>
-                                        <a href="#" className={styles.link}>
-                                            {link}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </nav>
-                    ))}
-                </div>
-
-                <hr className={styles.separator} />
-
-                <div className={styles.bottom}>
-                    <div>
-                        <p className={styles.brand}>Readable</p>
-                        <p className={styles.tagline}>The AI Visibility &amp; Agent Conversion Platform</p>
-                        <p className={styles.copyright}>© 2026 Readable. All rights reserved.</p>
-                    </div>
-
-                    <nav aria-label="Company links" className={styles.bottomLinks}>
-                        {bottomLinks.map((link) => (
-                            <a key={link} href="#" className={styles.link}>
-                                {link}
-                            </a>
-                        ))}
-                    </nav>
-                </div>
-            </div>
-        </footer>
-    )
+        <div className={styles.bottom}>
+          <div>
+            <p className={styles.brand}>Readable</p>
+            <p className={styles.text}>The AI Visibility & Agent Analytics Platform</p>
+          </div>
+          <div className={styles.bottomLinks}>
+            <Link href="/privacy" className={styles.link}>
+              Privacy
+            </Link>
+            <Link href="/terms" className={styles.link}>
+              Terms
+            </Link>
+            <Link href="/faq" className={styles.link}>
+              FAQ
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
 }

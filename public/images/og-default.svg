@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0B1F3B"/>
+  <rect x="80" y="80" width="1040" height="470" rx="24" fill="#F8FAFC"/>
+  <text x="140" y="280" font-family="Arial" font-size="72" fill="#0B1F3B" font-weight="700">Readable</text>
+  <text x="140" y="340" font-family="Arial" font-size="34" fill="#2563EB">AI Visibility &amp; Agent Analytics</text>
+</svg>

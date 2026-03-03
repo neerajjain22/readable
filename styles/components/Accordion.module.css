@@ -1,0 +1,9 @@
+.list { border-top: 1px solid var(--color-border); }
+.item { border-bottom: 1px solid var(--color-border); }
+.heading { margin:0; }
+.trigger { width: 100%; background: transparent; border:0; padding: var(--spacing-md) 0; display:flex; justify-content:space-between; align-items:center; text-align:left; color: var(--color-primary); font-weight: 600; }
+.icon { font-size: 24px; line-height: 1; transition: transform .2s ease; }
+.iconOpen { transform: rotate(45deg); }
+.panel { display:grid; grid-template-rows: 0fr; opacity:0; transition: grid-template-rows .22s ease, opacity .2s ease; }
+.panelOpen { grid-template-rows: 1fr; opacity: 1; }
+.content { overflow: hidden; margin:0; padding-bottom: var(--spacing-md); color: var(--color-text-body); }

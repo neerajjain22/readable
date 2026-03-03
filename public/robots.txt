@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://readable-r1c19idvd-readable2.vercel.app/sitemap.xml

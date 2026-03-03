@@ -1,0 +1,10 @@
+.grid { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--spacing-md); }
+.card { border:1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--spacing-md); background: var(--color-bg-default); position: relative; }
+.recommended { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent) inset; }
+.badge { position:absolute; top:10px; right:10px; margin:0; color: var(--color-accent); font-size: 12px; font-weight: 700; }
+.name { margin:0; font-size: 22px; }
+.price { margin: var(--spacing-sm) 0 0; font-size: 26px; font-weight: 700; }
+.description { margin: var(--spacing-sm) 0 0; color: var(--color-text-body); }
+.features { margin: var(--spacing-md) 0 0; padding-left: 18px; display:grid; gap: 6px; }
+.button { margin-top: var(--spacing-md); display:inline-flex; text-decoration:none; padding: 10px 14px; border-radius: var(--radius-md); background: var(--color-accent); color: var(--color-white); font-weight: 600; }
+@media (max-width: 1024px){ .grid{ grid-template-columns:1fr; } }
