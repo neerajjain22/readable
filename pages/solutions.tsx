@@ -1,34 +1,54 @@
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
 import Breadcrumbs from "../components/Breadcrumbs"
-import FeatureCard from "../components/FeatureCard"
+import Link from "next/link"
 import CTASection from "../components/CTASection"
 import styles from "../styles/Page.module.css"
 
 const solutions = [
   {
-    title: "Growth & Performance Teams",
+    title: "Growth Teams",
     description:
-      "Tie AI-originated discovery to funnel metrics and prioritize the pages that improve pipeline velocity.",
-    points: ["AI contribution to pipeline", "Channel-level benchmarks", "Weekly opportunity insights"],
+      "Understand how AI tools influence your funnel and prioritize the opportunities that move pipeline.",
+    points: [
+      "AI-driven traffic visibility",
+      "Conversion influence insights",
+      "Competitive positioning tracking",
+    ],
+    href: "/solutions/growth-teams",
+    linkLabel: "View Growth Teams",
   },
   {
-    title: "Marketing Teams",
+    title: "Brand Teams",
     description:
-      "Control brand narrative in AI outputs with structured messaging, proof assets, and prompt-level analysis.",
-    points: ["Narrative consistency", "Competitor share tracking", "Campaign-level reporting"],
+      "Monitor how AI systems describe your brand and maintain clear, consistent positioning.",
+    points: [
+      "AI-generated brand summaries",
+      "Competitive narrative comparison",
+      "Category messaging clarity",
+    ],
+    href: "/solutions/brand-teams",
+    linkLabel: "View Brand Teams",
   },
   {
     title: "Product Teams",
     description:
-      "Improve how product capabilities are interpreted in AI recommendations with module-specific pages.",
-    points: ["Capability clarity", "Feature retrieval quality", "Persona-aligned page templates"],
+      "Ensure product capabilities are clearly understood and accurately represented in AI systems.",
+    points: [
+      "Feature positioning visibility",
+      "Competitive feature comparisons",
+      "Product messaging consistency",
+    ],
+    href: "/solutions/product-teams",
+    linkLabel: "View Product Teams",
   },
   {
     title: "Analytics Teams",
     description:
-      "Operationalize AI visibility metrics inside your existing data stack and executive reporting workflows.",
-    points: ["BI export", "Data governance", "Cross-team performance dashboards"],
+      "Measure AI-driven traffic and make visibility insights easy to report across the organization.",
+    points: ["AI traffic measurement", "Attribution clarity", "Executive-ready reporting"],
+    href: "/solutions/analytics-teams",
+    linkLabel: "View Analytics Teams",
   },
 ]
 
@@ -37,7 +57,7 @@ export default function SolutionsPage() {
     <Layout>
       <Seo
         title="Solutions | Readable"
-        description="Discover how growth, marketing, product, and analytics teams use Readable to improve AI visibility and conversion outcomes."
+        description="Discover how growth, brand, product, and analytics teams use Readable to improve AI visibility and conversion outcomes."
         path="/solutions"
       />
       <main className={styles.page}>
@@ -46,8 +66,12 @@ export default function SolutionsPage() {
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Solutions" }]} />
             <h1 className={styles.heroTitle}>Solutions by Team</h1>
             <p className={styles.heroDescription}>
-              Readable supports the full AI discovery workflow, from positioning visibility to conversion and
-              reporting.
+              Readable helps growth, brand, product, and analytics teams understand and improve how AI
+              systems influence discovery and conversion.
+            </p>
+            <p className={styles.heroDescription}>
+              From AI positioning to agent-driven traffic and structured page improvements, each team gets
+              the clarity they need to act.
             </p>
           </div>
         </section>
@@ -56,20 +80,28 @@ export default function SolutionsPage() {
           <div className={styles.container}>
             <div className={styles.grid2}>
               {solutions.map((solution) => (
-                <FeatureCard
-                  key={solution.title}
-                  title={solution.title}
-                  description={solution.description}
-                  points={solution.points}
-                />
+                <article key={solution.title} className={styles.card}>
+                  <h3>{solution.title}</h3>
+                  <p className={styles.text}>{solution.description}</p>
+                  <ul className={styles.list}>
+                    {solution.points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                  <div className={styles.mtMd}>
+                    <Link href={solution.href} className={styles.inlineLink}>
+                      {solution.linkLabel} →
+                    </Link>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
         </section>
 
         <CTASection
-          title="Map Your Team's AI Opportunity"
-          description="Get a tailored plan for your org structure, reporting model, and growth goals."
+          title="Find the Right AI Strategy for Your Team."
+          description="Get a tailored walkthrough based on your goals and reporting model."
           primaryLabel="Book a Demo"
           primaryHref="/contact"
           secondaryLabel="View Platform"

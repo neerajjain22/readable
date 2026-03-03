@@ -13,9 +13,10 @@ const columns = [
   {
     title: "Solutions",
     links: [
-      { href: "/solutions", label: "Growth Teams" },
-      { href: "/solutions", label: "Marketing Teams" },
-      { href: "/solutions", label: "Product Teams" },
+      { href: "/solutions/growth-teams", label: "Growth Teams" },
+      { href: "/solutions/brand-teams", label: "Brand Teams" },
+      { href: "/solutions/product-teams", label: "Product Teams" },
+      { href: "/solutions/analytics-teams", label: "Analytics Teams" },
     ],
   },
   {
