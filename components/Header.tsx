@@ -25,7 +25,7 @@ const navLinks: NavLink[] = [
     items: [
       { href: "/solutions/growth-teams", label: "Growth Teams" },
       { href: "/solutions/brand-teams", label: "Brand Teams" },
-      { href: "/solutions", label: "Product Teams" },
+      { href: "/solutions/product-teams", label: "Product Teams" },
       { href: "/solutions", label: "Analytics Teams" },
     ],
   },
