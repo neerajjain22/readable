@@ -39,7 +39,7 @@ const navLinks: NavLink[] = [
       { href: "/industries", label: "Financial Services" },
     ],
   },
-  { href: "/partners", label: "Agency Partners" },
+  { href: "/agency-partners", label: "Agency Partners" },
   { href: "/pricing", label: "Pricing" },
   {
     href: "/resources",
