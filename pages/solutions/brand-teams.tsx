@@ -75,7 +75,7 @@ export default function BrandTeamsPage() {
               improve how their category story is represented.
             </p>
             <div className={styles.actions}>
-              <Link href="/contact" className={styles.primaryButton}>
+              <Link href="/book-demo" className={styles.primaryButton}>
                 Book a Demo
               </Link>
               <Link href="/platform" className={styles.secondaryButton}>
@@ -134,7 +134,7 @@ export default function BrandTeamsPage() {
             <div className={styles.centerShell}>
               <h2 className={styles.sectionTitle}>Keep Your Brand Position Clear in AI Systems.</h2>
               <div className={styles.centerActions}>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
                 <Link href="/pricing" className={styles.secondaryButton}>

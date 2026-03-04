@@ -82,7 +82,7 @@ export default function AgencyPartnersPage() {
               <Link href="/contact" className={styles.primaryButton}>
                 Apply to Become a Partner
               </Link>
-              <Link href="/contact" className={styles.secondaryButton}>
+              <Link href="/book-demo" className={styles.secondaryButton}>
                 Book a Demo
               </Link>
             </div>
@@ -175,7 +175,7 @@ export default function AgencyPartnersPage() {
                 <Link href="/contact" className={styles.primaryButton}>
                   Apply to Become a Partner
                 </Link>
-                <Link href="/contact" className={styles.secondaryButton}>
+                <Link href="/book-demo" className={styles.secondaryButton}>
                   Book a Demo
                 </Link>
               </div>

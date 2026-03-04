@@ -219,7 +219,7 @@ export default function CaseStudiesPage() {
                 where to improve.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
               </div>

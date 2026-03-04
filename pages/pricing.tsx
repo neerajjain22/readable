@@ -31,7 +31,7 @@ const plans = [
       "Exportable reports",
     ],
     ctaLabel: "Book a Demo",
-    ctaHref: "/contact",
+    ctaHref: "/book-demo",
     note: "Custom pricing based on scope.",
     featured: true,
   },
@@ -47,7 +47,7 @@ const plans = [
       "Priority support",
     ],
     ctaLabel: "Book a Demo",
-    ctaHref: "/contact",
+    ctaHref: "/book-demo",
     note: "Tailored plans for growing organizations.",
     featured: true,
   },
@@ -195,7 +195,7 @@ export default function PricingPage() {
                 <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
                   Start Free
                 </Link>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
               </div>

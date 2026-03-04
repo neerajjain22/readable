@@ -103,7 +103,7 @@ export default function SolutionsPage() {
           title="Find the Right AI Strategy for Your Team."
           description="Get a tailored walkthrough based on your goals and reporting model."
           primaryLabel="Book a Demo"
-          primaryHref="/contact"
+          primaryHref="/book-demo"
           secondaryLabel="View Platform"
           secondaryHref="/platform"
         />

@@ -66,7 +66,7 @@ export default function IndustriesPage() {
           title="See Your Industry Benchmark"
           description="We’ll map your current AI visibility against competitor positioning in your market segment."
           primaryLabel="Book a Demo"
-          primaryHref="/contact"
+          primaryHref="/book-demo"
         />
       </main>
     </Layout>

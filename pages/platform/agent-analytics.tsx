@@ -88,7 +88,7 @@ export default function AgentAnalyticsPage() {
                   to real outcomes.
                 </p>
                 <div className={styles.actions}>
-                  <Link href="/contact" className={styles.primaryButton}>
+                  <Link href="/book-demo" className={styles.primaryButton}>
                     Book a Demo
                   </Link>
                   <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
@@ -204,7 +204,7 @@ export default function AgentAnalyticsPage() {
                 with confidence.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
                 <Link href="/pricing" className={styles.secondaryButton}>

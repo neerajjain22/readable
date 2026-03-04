@@ -114,7 +114,7 @@ export default function Header() {
             <Link href="/contact" className={styles.ghostButton}>
               Contact
             </Link>
-            <Link href="/contact" className={styles.ctaButton}>
+            <Link href="/book-demo" className={styles.ctaButton}>
               Book a Demo
             </Link>
           </div>
@@ -146,7 +146,7 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Link href="/contact" className={styles.ctaButton} onClick={() => setMobileOpen(false)}>
+          <Link href="/book-demo" className={styles.ctaButton} onClick={() => setMobileOpen(false)}>
             Book a Demo
           </Link>
         </nav>

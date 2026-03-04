@@ -93,7 +93,7 @@ export default function AboutPage() {
           title="Build Your AI Influence Strategy"
           description="Talk to our team about your category, current AI positioning, and the fastest path to measurable lift."
           primaryLabel="Book a Demo"
-          primaryHref="/contact"
+          primaryHref="/book-demo"
           secondaryLabel="View Platform"
           secondaryHref="/platform"
         />

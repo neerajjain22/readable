@@ -75,7 +75,7 @@ export default function ProductTeamsPage() {
               summaries, and strengthen how product value is communicated.
             </p>
             <div className={styles.actions}>
-              <Link href="/contact" className={styles.primaryButton}>
+              <Link href="/book-demo" className={styles.primaryButton}>
                 Book a Demo
               </Link>
               <Link href="/platform" className={styles.secondaryButton}>
@@ -134,7 +134,7 @@ export default function ProductTeamsPage() {
             <div className={styles.centerShell}>
               <h2 className={styles.sectionTitle}>Make Your Product Value Clear in AI Systems.</h2>
               <div className={styles.centerActions}>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
                 <Link href="/pricing" className={styles.secondaryButton}>

@@ -983,7 +983,7 @@ export default function HomePage() {
                 <Link href="/platform/ai-visibility" className={pageStyles.searchButton}>
                   Analyze My Brand
                 </Link>
-                <Link href="/contact" className={pageStyles.pageLink}>
+                <Link href="/book-demo" className={pageStyles.pageLink}>
                   Book a Demo
                 </Link>
               </div>

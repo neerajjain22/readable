@@ -74,7 +74,7 @@ export default function AnalyticsTeamsPage() {
               agent-driven sessions, and share clear insights across the organization.
             </p>
             <div className={styles.actions}>
-              <Link href="/contact" className={styles.primaryButton}>
+              <Link href="/book-demo" className={styles.primaryButton}>
                 Book a Demo
               </Link>
               <Link href="/platform" className={styles.secondaryButton}>
@@ -133,7 +133,7 @@ export default function AnalyticsTeamsPage() {
             <div className={styles.centerShell}>
               <h2 className={styles.sectionTitle}>Turn AI Signals Into Clear Reporting.</h2>
               <div className={styles.centerActions}>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
                 <Link href="/pricing" className={styles.secondaryButton}>

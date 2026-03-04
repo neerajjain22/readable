@@ -80,7 +80,7 @@ export default function AIVisibilityPage() {
                   positioning across AI systems.
                 </p>
                 <div className={styles.actions}>
-                  <Link href="/contact" className={styles.primaryButton}>
+                  <Link href="/book-demo" className={styles.primaryButton}>
                     Book a Demo
                   </Link>
                   <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
@@ -182,7 +182,7 @@ export default function AIVisibilityPage() {
                 movement.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/contact" className={styles.primaryButton}>
+                <Link href="/book-demo" className={styles.primaryButton}>
                   Book a Demo
                 </Link>
                 <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
