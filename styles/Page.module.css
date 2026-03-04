@@ -22,6 +22,8 @@
 .pagination { margin-top: var(--spacing-lg); display:flex; gap: var(--spacing-sm); }
 .pageLink { border:1px solid var(--color-border); padding: 8px 12px; border-radius: var(--radius-md); text-decoration:none; color: var(--color-primary); }
 .pageLinkActive { background: var(--color-accent); color: var(--color-white); border-color: var(--color-accent); }
+.linkedinIcon { display:inline-flex; opacity:0.85; transition:opacity .2s ease; }
+.linkedinIcon:hover { opacity:1; }
 .logoMarquee { overflow:hidden; width:100%; }
 .logoTrack { display:flex; align-items:center; width:max-content; animation: logoMarqueeScroll 34s linear infinite; }
 .logoImage { height:40px; width:auto; object-fit:contain; margin:0 48px; opacity:1; transition:opacity .2s ease; flex:0 0 auto; }

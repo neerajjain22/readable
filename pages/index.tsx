@@ -74,24 +74,26 @@ const featureSections = [
 const testimonials = [
   {
     quote:
-      "Readable gave us a clear view of how AI models represent our category and where we were getting lost.",
-    name: "Maya Carter",
-    role: "VP Marketing",
-    company: "GrowthOps",
+      "Setup was 15 mins. No major changes. We didn't know we were getting so much AI traffic. Deploying Agent Website has led to 2x lift in clicks and referrals from AI search.",
+    name: "Joshua D'Costa",
+    role: "Head of Growth & Marketing",
+    company: "Dodo Payments",
+    linkedin: "https://www.linkedin.com/in/joshua-d-costa/",
   },
   {
     quote:
-      "We now track AI-driven traffic with confidence and can explain impact to leadership with real data.",
-    name: "Ethan Brooks",
-    role: "Head of Demand Gen",
-    company: "Northline",
+      "Setup took minutes. Agent Website has led to 2.5X growth in clicks from AI searches on our Shopify product pages.",
+    name: "Rajat Malik",
+    role: "Chief of Staff",
+    company: "BeatO",
+    linkedin: "https://www.linkedin.com/in/rajat-malik-beato-foundersoffice-growth/",
   },
   {
-    quote:
-      "The agent-ready recommendations helped us improve discoverability faster than expected.",
-    name: "Sonia Patel",
-    role: "Director of Digital",
-    company: "Stacklane",
+    quote: "We had no clue we were getting thousands of visits a day from LLMs. ROI is clear from day one.",
+    name: "Arjun Pande",
+    role: "Sr Director, Brand and Strategy",
+    company: ".Store Domain",
+    linkedin: "https://www.linkedin.com/in/arjunpande/",
   },
 ]
 
@@ -895,10 +897,23 @@ export default function HomePage() {
               {testimonials.map((item) => (
                 <article key={item.name} className={pageStyles.card} style={{ padding: "32px" }}>
                   <p style={{ marginTop: 0, lineHeight: 1.7 }}>"{item.quote}"</p>
-                  <p style={{ marginTop: "20px", marginBottom: 0, fontWeight: 700 }}>{item.name}</p>
-                  <p className={pageStyles.text} style={{ marginTop: "4px", marginBottom: 0 }}>
-                    {item.role}, {item.company}
-                  </p>
+                  <div style={{ marginTop: "20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px" }}>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 700 }}>{item.name}</p>
+                      <p className={pageStyles.text} style={{ marginTop: "4px", marginBottom: 0 }}>
+                        {item.role} - {item.company}
+                      </p>
+                    </div>
+                    <a
+                      href={item.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${item.name} LinkedIn profile`}
+                      className={pageStyles.linkedinIcon}
+                    >
+                      <Image src="/images/icons/linkedin.svg" alt="LinkedIn profile" width={20} height={20} />
+                    </a>
+                  </div>
                 </article>
               ))}
             </div>
