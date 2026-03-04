@@ -208,14 +208,30 @@ export default function HomePage() {
 
               <div
                 style={{
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-lg)",
-                  background: "var(--color-bg-light)",
-                  padding: "24px",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "16px",
+                  background: "#F8FAFC",
+                  padding: "20px",
                   display: "grid",
                   gap: "16px",
+                  boxShadow: "0 14px 36px rgba(0,0,0,0.1)",
+                  transform: "translateY(-4px)",
                 }}
               >
+                <div
+                  style={{
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-bg-default)",
+                    padding: "12px 16px",
+                  }}
+                >
+                  <p style={{ margin: 0, fontWeight: 700, lineHeight: 1.3 }}>AI Influence Snapshot</p>
+                  <p className={pageStyles.text} style={{ margin: "4px 0 0", lineHeight: 1.4 }}>
+                    Analyzing: yourbrand.com
+                  </p>
+                </div>
+
                 <article
                   style={{
                     border: "1px solid var(--color-border)",
@@ -227,13 +243,13 @@ export default function HomePage() {
                   <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
                     AI Influence Score
                   </p>
-                  <p style={{ margin: "8px 0 0", fontSize: "28px", fontWeight: 700, lineHeight: 1.1 }}>74 / 100</p>
+                  <p style={{ margin: "8px 0 0", fontSize: "36px", fontWeight: 800, lineHeight: 1.05 }}>74 / 100</p>
                   <div
                     aria-hidden="true"
                     style={{
                       marginTop: "12px",
                       width: "100%",
-                      height: "8px",
+                      height: "10px",
                       borderRadius: "999px",
                       background: "var(--color-border)",
                       overflow: "hidden",
@@ -271,7 +287,7 @@ export default function HomePage() {
                     journeys."
                   </p>
                   <div style={{ marginTop: "12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    {["ChatGPT", "Claude", "Perplexity"].map((source) => (
+                    {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((source) => (
                       <span
                         key={source}
                         style={{
