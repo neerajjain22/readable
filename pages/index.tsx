@@ -212,15 +212,100 @@ export default function HomePage() {
                   borderRadius: "var(--radius-lg)",
                   background: "var(--color-bg-light)",
                   padding: "24px",
+                  display: "grid",
+                  gap: "16px",
                 }}
               >
-                <Image
-                  src="/images/hero-dashboard.svg"
-                  alt="Readable dashboard preview"
-                  width={640}
-                  height={420}
-                  priority
-                />
+                <article
+                  style={{
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-bg-default)",
+                    padding: "16px",
+                  }}
+                >
+                  <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
+                    AI Influence Score
+                  </p>
+                  <p style={{ margin: "8px 0 0", fontSize: "28px", fontWeight: 700, lineHeight: 1.1 }}>74 / 100</p>
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      marginTop: "12px",
+                      width: "100%",
+                      height: "8px",
+                      borderRadius: "999px",
+                      background: "var(--color-border)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "74%",
+                        height: "100%",
+                        background: "var(--color-accent)",
+                      }}
+                    />
+                  </div>
+                  <p className={pageStyles.text} style={{ margin: "10px 0 0" }}>
+                    Strong visibility in category prompts
+                  </p>
+                  <p className={pageStyles.text} style={{ margin: "6px 0 0" }}>
+                    2 positioning issues detected
+                  </p>
+                </article>
+
+                <article
+                  style={{
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-bg-default)",
+                    padding: "16px",
+                  }}
+                >
+                  <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
+                    How AI Describes Your Brand
+                  </p>
+                  <p className={pageStyles.text} style={{ margin: "10px 0 0", fontStyle: "italic", lineHeight: 1.7 }}>
+                    "Readable helps companies understand how AI systems influence brand discovery and buyer
+                    journeys."
+                  </p>
+                  <div style={{ marginTop: "12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    {["ChatGPT", "Claude", "Perplexity"].map((source) => (
+                      <span
+                        key={source}
+                        style={{
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "var(--radius-pill)",
+                          padding: "4px 10px",
+                          fontSize: "12px",
+                          color: "var(--color-text-muted)",
+                          background: "var(--color-bg-light)",
+                        }}
+                      >
+                        {source}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+
+                <article
+                  style={{
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-bg-default)",
+                    padding: "16px",
+                  }}
+                >
+                  <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
+                    Opportunities Detected
+                  </p>
+                  <ul className={pageStyles.list} style={{ marginTop: "10px", gap: "8px" }}>
+                    <li>Competitor mentioned in 3 high value prompts</li>
+                    <li>Product positioning inconsistent</li>
+                    <li>Missing comparison content</li>
+                  </ul>
+                </article>
               </div>
             </div>
           </div>
