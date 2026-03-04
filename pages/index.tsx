@@ -208,120 +208,183 @@ export default function HomePage() {
 
               <div
                 style={{
-                  border: "1px solid #E5E7EB",
-                  borderRadius: "16px",
-                  background: "#F8FAFC",
-                  padding: "20px",
-                  display: "grid",
-                  gap: "16px",
-                  boxShadow: "0 14px 36px rgba(0,0,0,0.1)",
-                  transform: "translateY(-4px)",
+                  background:
+                    "radial-gradient(circle at 70% 20%, rgba(99,102,241,0.18), transparent 60%), radial-gradient(circle at 30% 80%, rgba(99,102,241,0.10), transparent 60%), #F8FAFC",
+                  borderRadius: "20px",
+                  padding: "16px",
                 }}
               >
                 <div
                   style={{
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-md)",
-                    background: "var(--color-bg-default)",
-                    padding: "12px 16px",
-                  }}
-                >
-                  <p style={{ margin: 0, fontWeight: 700, lineHeight: 1.3 }}>AI Influence Snapshot</p>
-                  <p className={pageStyles.text} style={{ margin: "4px 0 0", lineHeight: 1.4 }}>
-                    Analyzing: yourbrand.com
-                  </p>
-                </div>
-
-                <article
-                  style={{
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-md)",
-                    background: "var(--color-bg-default)",
+                    border: "1px solid #E5E7EB",
+                    borderRadius: "18px",
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+                    background: "#FFFFFF",
                     padding: "16px",
+                    display: "grid",
+                    gap: "12px",
+                    transform: "translateY(-3px)",
                   }}
                 >
-                  <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
-                    AI Influence Score
-                  </p>
-                  <p style={{ margin: "8px 0 0", fontSize: "36px", fontWeight: 800, lineHeight: 1.05 }}>74 / 100</p>
                   <div
-                    aria-hidden="true"
                     style={{
-                      marginTop: "12px",
-                      width: "100%",
-                      height: "10px",
-                      borderRadius: "999px",
-                      background: "var(--color-border)",
-                      overflow: "hidden",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "12px",
+                      background: "#FFFFFF",
+                      padding: "12px",
+                      minWidth: 0,
                     }}
                   >
-                    <div
+                    <p
                       style={{
-                        width: "74%",
-                        height: "100%",
-                        background: "var(--color-accent)",
+                        margin: 0,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        color: "#6B7280",
+                        fontWeight: 600,
+                        lineHeight: 1.4,
                       }}
-                    />
+                    >
+                      AI Influence Snapshot
+                    </p>
+                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      Analyzing: yourbrand.com
+                    </p>
                   </div>
-                  <p className={pageStyles.text} style={{ margin: "10px 0 0" }}>
-                    Strong visibility in category prompts
-                  </p>
-                  <p className={pageStyles.text} style={{ margin: "6px 0 0" }}>
-                    2 positioning issues detected
-                  </p>
-                </article>
 
-                <article
-                  style={{
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-md)",
-                    background: "var(--color-bg-default)",
-                    padding: "16px",
-                  }}
-                >
-                  <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
-                    How AI Describes Your Brand
-                  </p>
-                  <p className={pageStyles.text} style={{ margin: "10px 0 0", fontStyle: "italic", lineHeight: 1.7 }}>
-                    "Readable helps companies understand how AI systems influence brand discovery and buyer
-                    journeys."
-                  </p>
-                  <div style={{ marginTop: "12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((source) => (
-                      <span
-                        key={source}
+                  <article
+                    style={{
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "12px",
+                      background: "#FFFFFF",
+                      padding: "12px",
+                      minWidth: 0,
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        color: "#6B7280",
+                        fontWeight: 600,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      AI Influence Score
+                    </p>
+                    <p style={{ margin: "8px 0 0", fontSize: "24px", fontWeight: 600, lineHeight: 1.1 }}>
+                      74 / 100
+                    </p>
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        marginTop: "10px",
+                        width: "100%",
+                        height: "8px",
+                        borderRadius: "999px",
+                        background: "#E5E7EB",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
                         style={{
-                          border: "1px solid var(--color-border)",
-                          borderRadius: "var(--radius-pill)",
-                          padding: "4px 10px",
-                          fontSize: "12px",
-                          color: "var(--color-text-muted)",
-                          background: "var(--color-bg-light)",
+                          width: "74%",
+                          height: "100%",
+                          background: "var(--color-accent)",
                         }}
-                      >
-                        {source}
-                      </span>
-                    ))}
-                  </div>
-                </article>
+                      />
+                    </div>
+                    <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      Strong visibility in category prompts
+                    </p>
+                    <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      2 positioning issues detected
+                    </p>
+                  </article>
 
-                <article
-                  style={{
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-md)",
-                    background: "var(--color-bg-default)",
-                    padding: "16px",
-                  }}
-                >
-                  <p className={pageStyles.text} style={{ margin: 0, fontWeight: 600 }}>
-                    Opportunities Detected
-                  </p>
-                  <ul className={pageStyles.list} style={{ marginTop: "10px", gap: "8px" }}>
-                    <li>Competitor mentioned in 3 high value prompts</li>
-                    <li>Product positioning inconsistent</li>
-                    <li>Missing comparison content</li>
-                  </ul>
-                </article>
+                  <article
+                    style={{
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "12px",
+                      background: "#FFFFFF",
+                      padding: "12px",
+                      minWidth: 0,
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        color: "#6B7280",
+                        fontWeight: 600,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      How AI Describes Your Brand
+                    </p>
+                    <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.6 }}>
+                      "Readable helps companies understand how AI systems influence brand discovery and buyer
+                      journeys."
+                    </p>
+                    <div style={{ marginTop: "10px", display: "flex", gap: "8px", flexWrap: "wrap", minWidth: 0 }}>
+                      {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((source) => (
+                        <span
+                          key={source}
+                          style={{
+                            fontSize: "11px",
+                            padding: "3px 8px",
+                            borderRadius: "999px",
+                            background: "#EEF2FF",
+                            color: "#4338CA",
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {source}
+                        </span>
+                      ))}
+                    </div>
+                  </article>
+
+                  <article
+                    style={{
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "12px",
+                      background: "#FFFFFF",
+                      padding: "12px",
+                      minWidth: 0,
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        color: "#6B7280",
+                        fontWeight: 600,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      Opportunities Detected
+                    </p>
+                    <ul className={pageStyles.list} style={{ marginTop: "10px", gap: "8px" }}>
+                      <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                        Competitor mentioned in 3 high value prompts
+                      </li>
+                      <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                        Product positioning inconsistent
+                      </li>
+                      <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                        Missing comparison content
+                      </li>
+                    </ul>
+                  </article>
+                </div>
               </div>
             </div>
           </div>
