@@ -411,7 +411,7 @@ export default function HomePage() {
               className={pageStyles.text}
               style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 600, margin: 0 }}
             >
-              Teams from more than 100 companies use Readable Everyday
+              Teams from more than 100 companies use Readable everyday
             </p>
             <div className={pageStyles.logoMarquee} style={{ marginTop: "24px" }}>
               <div className={pageStyles.logoTrack}>
@@ -427,9 +427,6 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <p className={pageStyles.text} style={{ marginTop: "20px", marginBottom: 0 }}>
-              Teams from more than 500 companies have already analyzed their AI influence with Readable.
-            </p>
           </div>
         </section>
 
