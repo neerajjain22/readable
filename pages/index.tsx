@@ -511,7 +511,154 @@ export default function HomePage() {
                       padding: "24px",
                     }}
                   >
-                    <Image src={feature.image} alt={feature.alt} width={640} height={420} />
+                    {feature.title === "AI Influence" ? (
+                      <div style={{ display: "grid", gap: "0", minWidth: 0 }}>
+                        <article
+                          style={{
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "16px",
+                            position: "relative",
+                            zIndex: 3,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            Prompt Analysis
+                          </p>
+                          <p style={{ margin: "8px 0 0", color: "#374151", fontSize: "13px", lineHeight: 1.5 }}>
+                            "Best running shoes for beginners"
+                          </p>
+                          <div style={{ marginTop: "10px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                            {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((model) => (
+                              <span
+                                key={model}
+                                style={{
+                                  padding: "3px 8px",
+                                  borderRadius: "999px",
+                                  border: "1px solid #E5E7EB",
+                                  background: "#FFFFFF",
+                                  fontSize: "11px",
+                                  color: "#4B5563",
+                                }}
+                              >
+                                {model}
+                              </span>
+                            ))}
+                          </div>
+                        </article>
+
+                        <article
+                          style={{
+                            marginTop: "-10px",
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "16px",
+                            position: "relative",
+                            zIndex: 2,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            Brand Mentions in AI Responses
+                          </p>
+                          <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
+                            {[
+                              { brand: "Nike", width: "88%" },
+                              { brand: "Adidas", width: "76%" },
+                              { brand: "BrandX", width: "58%" },
+                              { brand: "Hoka", width: "36%" },
+                            ].map((item) => (
+                              <div
+                                key={item.brand}
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "56px minmax(0, 1fr)",
+                                  alignItems: "center",
+                                  gap: "10px",
+                                  minWidth: 0,
+                                }}
+                              >
+                                <span style={{ fontSize: "12px", color: "#4B5563" }}>{item.brand}</span>
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "8px",
+                                    borderRadius: "999px",
+                                    background: "#EEF2FF",
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      width: item.width,
+                                      height: "100%",
+                                      background: "var(--color-accent)",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </article>
+
+                        <article
+                          style={{
+                            marginTop: "-10px",
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "16px",
+                            position: "relative",
+                            zIndex: 1,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            Opportunity Detected
+                          </p>
+                          <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.5 }}>
+                            BrandX missing from responses for "best shoes for marathon training".
+                          </p>
+                          <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.5 }}>
+                            Suggested improvement:
+                            <br />
+                            Add comparison content "BrandX vs Nike running shoes".
+                          </p>
+                        </article>
+                      </div>
+                    ) : (
+                      <Image src={feature.image} alt={feature.alt} width={640} height={420} />
+                    )}
                   </div>
                 ) : null}
               </div>
