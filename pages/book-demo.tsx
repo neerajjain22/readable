@@ -79,7 +79,9 @@ export default function BookDemoPage() {
                 <article key={item.title} className={styles.card}>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
                   <p className={styles.text}>{item.description}</p>
-                  <div className={styles.previewWrap}>{item.preview}</div>
+                  <div className={styles.previewWrap}>
+                    <div className={styles.previewInner}>{item.preview}</div>
+                  </div>
                 </article>
               ))}
             </div>
