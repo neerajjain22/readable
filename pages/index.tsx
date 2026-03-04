@@ -2,30 +2,64 @@ import Image from "next/image"
 import Link from "next/link"
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
-import NewsletterForm from "../components/NewsletterForm"
 import RotatingText from "../components/RotatingText"
 import pageStyles from "../styles/Page.module.css"
 
 const logos = ["GrowthOps", "Northline", "Stacklane", "Ecomera", "Finovo", "CodePeak"]
 
-const features = [
+const aiChannelProblems = [
+  "Don't know how AI describes their brand",
+  "Don't know how often AI recommends competitors",
+  "Don't know how many buyers arrive after asking AI",
+  "Don't structure pages for AI retrieval",
+  "Don't measure AI-influenced pipeline",
+]
+
+const featureSections = [
   {
     title: "AI Influence",
+    heading: "Understand How AI Describes Your Brand",
     description:
-      "Track how models position your brand versus competitors across strategic prompt categories.",
-    points: ["Prompt cluster tracking", "Narrative drift alerts", "Position quality scoring"],
+      "Readable analyzes how AI systems talk about your brand across key prompts and categories — showing where positioning is strong, where competitors appear, and how your narrative evolves.",
+    points: [
+      "AI brand narrative tracking",
+      "Prompt cluster analysis",
+      "Positioning score and improvement signals",
+      "Issue detection in AI responses",
+    ],
+    image: "/images/ai-influence-dashboard.png",
+    alt: "AI Influence dashboard placeholder",
+    reverse: false,
   },
   {
     title: "Agent Analytics",
+    heading: "Measure AI-Driven Traffic and Buyer Journeys",
     description:
-      "Identify assistant and agent-originated traffic, then tie sessions to conversion outcomes.",
-    points: ["AI source attribution", "Journey mapping", "Pipeline impact reporting"],
+      "Readable tracks how AI assistants influence discovery and visits, helping teams understand where AI-driven users enter the funnel and how they convert.",
+    points: [
+      "AI agent visit detection",
+      "AI platform breakdown (ChatGPT, Claude, Gemini, Perplexity)",
+      "Click-through and conversion tracking",
+      "AI-influenced funnel analysis",
+    ],
+    image: "/images/agent-analytics-dashboard.png",
+    alt: "Agent Analytics dashboard placeholder",
+    reverse: true,
   },
   {
-    title: "Agent-Ready Pages",
+    title: "Agent-Optimized Pages",
+    heading: "Create Pages Optimized for AI Systems",
     description:
-      "Ship structured pages designed for retrieval quality, clearer recommendations, and stronger conversion.",
-    points: ["Page templates", "Schema guidance", "Content quality checks"],
+      "Readable helps teams structure and serve content optimized for AI retrieval, improving how AI assistants reference and recommend your brand.",
+    points: [
+      "AI-optimized page versions",
+      "Agent-specific content delivery",
+      "Retrieval-friendly page structures",
+      "Content evaluation and updates",
+    ],
+    image: "/images/agent-optimized-pages.png",
+    alt: "Agent-Optimized Pages dashboard placeholder",
+    reverse: false,
   },
 ]
 
@@ -50,6 +84,44 @@ const testimonials = [
     name: "Sonia Patel",
     role: "Director of Digital",
     company: "Stacklane",
+  },
+]
+
+const solutionsByTeam = [
+  {
+    title: "Growth Teams",
+    description: "Prioritize AI-influenced opportunities tied to pipeline and conversion.",
+    href: "/solutions/growth-teams",
+  },
+  {
+    title: "Brand Teams",
+    description: "Monitor how AI systems describe your brand and competitor narratives.",
+    href: "/solutions/brand-teams",
+  },
+  {
+    title: "Product Teams",
+    description: "Improve how feature and capability messaging is interpreted by AI systems.",
+    href: "/solutions/product-teams",
+  },
+  {
+    title: "Analytics Teams",
+    description: "Measure AI-referred sessions and report AI influence with confidence.",
+    href: "/solutions/analytics-teams",
+  },
+]
+
+const caseStudyHighlights = [
+  {
+    company: "Northline Cloud",
+    summary: "Improved clarity on AI positioning trends and turned insights into faster pipeline actions.",
+  },
+  {
+    company: "VitalBand",
+    summary: "Separated AI-referred traffic from other channels and improved conversion reporting quality.",
+  },
+  {
+    company: "SouqSphere Group",
+    summary: "Aligned multiple brand teams on one view of AI influence and category narrative movement.",
   },
 ]
 
@@ -92,15 +164,6 @@ export default function HomePage() {
                   buyers, and improve the content that shapes decisions.
                 </p>
 
-                <div style={{ marginTop: "32px", display: "flex", gap: "16px", flexWrap: "wrap" }}>
-                  <Link href="/contact" className={pageStyles.searchButton}>
-                    Book a Demo
-                  </Link>
-                  <Link href="/platform/ai-visibility" className={pageStyles.pageLink}>
-                    Start Free
-                  </Link>
-                </div>
-
                 <div
                   style={{
                     marginTop: "32px",
@@ -134,11 +197,11 @@ export default function HomePage() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      Analyze My Site
+                      Analyze My Brand
                     </button>
                   </div>
                   <p className={pageStyles.text} style={{ marginTop: "10px", marginBottom: 0 }}>
-                    Instant high-level analysis. Full breakdown available in demo.
+                    No credit card. Free sign-up.
                   </p>
                 </div>
               </div>
@@ -209,36 +272,90 @@ export default function HomePage() {
 
         <section className={pageStyles.section} style={{ paddingTop: "104px", paddingBottom: "104px" }}>
           <div className={pageStyles.container}>
-            <h2 className={pageStyles.heroTitle}>The Readable Platform</h2>
+            <h2 className={pageStyles.heroTitle}>The AI Channels Problem</h2>
             <p className={pageStyles.heroDescription} style={{ lineHeight: 1.7 }}>
-              Everything you need to monitor and improve how AI systems interpret your brand.
+              Most companies today:
             </p>
-            <div
-              className={pageStyles.grid3}
-              style={{ marginTop: "40px", gap: "32px", gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
-            >
-              {features.map((feature) => (
-                <article
-                  key={feature.title}
-                  className={pageStyles.card}
-                  style={{ padding: "32px", lineHeight: 1.65 }}
-                >
-                  <h3 style={{ marginTop: 0 }}>{feature.title}</h3>
-                  <p className={pageStyles.text} style={{ marginTop: "16px" }}>
-                    {feature.description}
-                  </p>
-                  <ul className={pageStyles.list} style={{ marginTop: "20px" }}>
-                    {feature.points.map((point) => (
-                      <li key={point}>{point}</li>
-                    ))}
-                  </ul>
-                </article>
+            <ul className={pageStyles.list} style={{ marginTop: "20px", gap: "10px" }}>
+              {aiChannelProblems.map((problem) => (
+                <li key={problem}>{problem}</li>
               ))}
-            </div>
+            </ul>
+            <p className={pageStyles.heroDescription} style={{ lineHeight: 1.7, marginTop: "24px" }}>
+              Readable helps teams understand and improve how AI influences discovery, evaluation, and
+              conversion.
+            </p>
           </div>
         </section>
 
         <section className={pageStyles.sectionAlt} style={{ paddingTop: "104px", paddingBottom: "104px" }}>
+          <div className={pageStyles.container}>
+            <h2 className={pageStyles.heroTitle}>See How Readable Works</h2>
+            <p className={pageStyles.heroDescription} style={{ lineHeight: 1.7 }}>
+              Monitor AI influence, measure AI-driven journeys, and improve the pages AI systems rely on.
+            </p>
+          </div>
+        </section>
+
+        {featureSections.map((feature, index) => (
+          <section
+            key={feature.title}
+            className={index % 2 === 0 ? pageStyles.section : pageStyles.sectionAlt}
+            style={{ paddingTop: "104px", paddingBottom: "104px" }}
+          >
+            <div className={pageStyles.container}>
+              <div className={pageStyles.grid2} style={{ gap: "40px", alignItems: "center" }}>
+                {feature.reverse ? (
+                  <div
+                    style={{
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-lg)",
+                      background: "var(--color-bg-default)",
+                      padding: "24px",
+                    }}
+                  >
+                    <Image src={feature.image} alt={feature.alt} width={640} height={420} />
+                  </div>
+                ) : null}
+
+                <div>
+                  <p
+                    className={pageStyles.text}
+                    style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 600, margin: 0 }}
+                  >
+                    {feature.title}
+                  </p>
+                  <h2 className={pageStyles.heroTitle} style={{ marginTop: "12px" }}>
+                    {feature.heading}
+                  </h2>
+                  <p className={pageStyles.heroDescription} style={{ lineHeight: 1.7 }}>
+                    {feature.description}
+                  </p>
+                  <ul className={pageStyles.list} style={{ marginTop: "20px", gap: "10px" }}>
+                    {feature.points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {!feature.reverse ? (
+                  <div
+                    style={{
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-lg)",
+                      background: "var(--color-bg-default)",
+                      padding: "24px",
+                    }}
+                  >
+                    <Image src={feature.image} alt={feature.alt} width={640} height={420} />
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ))}
+
+        <section className={pageStyles.section} style={{ paddingTop: "104px", paddingBottom: "104px" }}>
           <div className={pageStyles.container}>
             <h2 className={pageStyles.heroTitle}>What Teams Are Saying</h2>
             <div className={pageStyles.grid3} style={{ marginTop: "40px", gap: "32px" }}>
@@ -255,19 +372,45 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className={pageStyles.section} style={{ paddingTop: "112px", paddingBottom: "112px" }}>
+        <section className={pageStyles.sectionAlt} style={{ paddingTop: "112px", paddingBottom: "112px" }}>
           <div className={pageStyles.container}>
-            <div className={pageStyles.grid2} style={{ gap: "40px", alignItems: "start" }}>
-              <div>
-                <h2 className={pageStyles.heroTitle}>Built for Agencies and Multi-Brand Teams</h2>
-                <p className={pageStyles.heroDescription} style={{ marginTop: "24px" }}>
-                  Manage clients, publish white-labeled reports, and run repeatable AI visibility programs
-                  without custom tooling for every account.
-                </p>
-              </div>
-              <div style={{ marginTop: "16px" }}>
-                <NewsletterForm />
-              </div>
+            <h2 className={pageStyles.heroTitle}>Solutions by Team</h2>
+            <div className={pageStyles.grid2} style={{ marginTop: "40px", gap: "32px" }}>
+              {solutionsByTeam.map((item) => (
+                <article key={item.title} className={pageStyles.card} style={{ padding: "32px" }}>
+                  <h3 style={{ marginTop: 0 }}>{item.title}</h3>
+                  <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
+                    {item.description}
+                  </p>
+                  <div style={{ marginTop: "16px" }}>
+                    <Link href={item.href} className={pageStyles.inlineLink}>
+                      View {item.title} →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={pageStyles.section} style={{ paddingTop: "104px", paddingBottom: "104px" }}>
+          <div className={pageStyles.container}>
+            <h2 className={pageStyles.heroTitle}>Case Studies</h2>
+            <p className={pageStyles.heroDescription}>Real outcomes from teams using Readable.</p>
+            <div className={pageStyles.grid3} style={{ marginTop: "40px", gap: "32px" }}>
+              {caseStudyHighlights.map((item) => (
+                <article key={item.company} className={pageStyles.card} style={{ padding: "32px" }}>
+                  <h3 style={{ marginTop: 0 }}>{item.company}</h3>
+                  <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
+                    {item.summary}
+                  </p>
+                </article>
+              ))}
+            </div>
+            <div style={{ marginTop: "24px" }}>
+              <Link href="/case-studies" className={pageStyles.inlineLink}>
+                View All Case Studies →
+              </Link>
             </div>
           </div>
         </section>
@@ -283,17 +426,17 @@ export default function HomePage() {
                 margin: "0 auto",
               }}
             >
-              <h2 className={pageStyles.heroTitle}>Start Understanding Your AI Presence</h2>
+              <h2 className={pageStyles.heroTitle}>Understand How AI Is Influencing Your Brand</h2>
               <p className={pageStyles.heroDescription} style={{ marginLeft: "auto", marginRight: "auto" }}>
-                Book a live walkthrough and get a practical roadmap to improve how AI systems recommend your
-                brand.
+                Analyze how AI systems describe your brand, measure their impact on discovery, and identify
+                opportunities to improve.
               </p>
               <div style={{ marginTop: "24px", display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
-                <Link href="/contact" className={pageStyles.searchButton}>
-                  Book a Demo
+                <Link href="/platform/ai-visibility" className={pageStyles.searchButton}>
+                  Analyze My Brand
                 </Link>
-                <Link href="/pricing" className={pageStyles.pageLink}>
-                  See Pricing
+                <Link href="/contact" className={pageStyles.pageLink}>
+                  Book a Demo
                 </Link>
               </div>
             </div>
