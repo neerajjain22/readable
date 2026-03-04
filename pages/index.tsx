@@ -5,7 +5,15 @@ import Seo from "../components/Seo"
 import RotatingText from "../components/RotatingText"
 import pageStyles from "../styles/Page.module.css"
 
-const logos = ["GrowthOps", "Northline", "Stacklane", "Ecomera", "Finovo", "CodePeak"]
+const logos = [
+  { src: "/images/logos/CapillaryTech.webp", alt: "CapillaryTech logo" },
+  { src: "/images/logos/Dominos-logo.png", alt: "Domino's logo" },
+  { src: "/images/logos/Ultrahuman.f1670267324.png", alt: "Ultrahuman logo" },
+  { src: "/images/logos/beato-logo.c19ba735.svg", alt: "BeatO logo" },
+  { src: "/images/logos/plush-images.png", alt: "Plush logo" },
+  { src: "/images/logos/sugarfit-logo-against-light.png", alt: "Sugarfit logo" },
+  { src: "/images/logos/vlcc-personal-care-logo-png_seeklogo-521769.png", alt: "VLCC logo" },
+]
 
 const aiChannelProblems = [
   "Don't know how AI describes their brand",
@@ -396,41 +404,34 @@ export default function HomePage() {
             paddingTop: "64px",
             paddingBottom: "64px",
           }}
-          aria-label="Trusted by modern growth teams"
+          aria-label="Teams from these companies use Readable"
         >
           <div className={pageStyles.container}>
             <p
               className={pageStyles.text}
               style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 600, margin: 0 }}
             >
-              Trusted by Modern Growth Teams
+              Teams from these companies use Readable
             </p>
             <div
-              className={pageStyles.grid3}
-              style={{
-                marginTop: "24px",
-                gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-                gap: "16px",
-              }}
+              className={pageStyles.logoGrid}
+              style={{ marginTop: "24px" }}
             >
               {logos.map((logo) => (
-                <div
-                  key={logo}
-                  style={{
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius-md)",
-                    minHeight: "56px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "var(--color-text-muted)",
-                    background: "var(--color-bg-default)",
-                  }}
-                >
-                  {logo}
+                <div key={logo.src} className={pageStyles.logoItem}>
+                  <Image
+                    src={logo.src}
+                    alt={logo.alt}
+                    width={160}
+                    height={32}
+                    className={pageStyles.logoImage}
+                  />
                 </div>
               ))}
             </div>
+            <p className={pageStyles.text} style={{ marginTop: "20px", marginBottom: 0 }}>
+              Teams from 500+ companies have already analyzed their AI influence with Readable.
+            </p>
           </div>
         </section>
 
