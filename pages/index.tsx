@@ -735,6 +735,153 @@ export default function HomePage() {
                           </p>
                         </article>
                       </div>
+                    ) : feature.title === "Agent-Optimized Pages" ? (
+                      <div style={{ display: "grid", gap: "0", minWidth: 0 }}>
+                        <article
+                          style={{
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "12px",
+                            position: "relative",
+                            zIndex: 2,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            Page Request
+                          </p>
+                          <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                            example.com/running-shoes
+                          </p>
+                          <div style={{ marginTop: "10px", display: "grid", gap: "6px" }}>
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: "11px",
+                                color: "#6B7280",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.05em",
+                              }}
+                            >
+                              Visitor Type Detected
+                            </p>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px", minWidth: 0 }}>
+                              {["Human Visitor", "AI Assistant"].map((label) => (
+                                <div
+                                  key={label}
+                                  style={{
+                                    borderRadius: "10px",
+                                    border: "1px solid #E5E7EB",
+                                    background: "#F8FAFC",
+                                    padding: "8px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                  }}
+                                >
+                                  <span style={{ fontSize: "11px", color: "#4B5563", whiteSpace: "nowrap" }}>{label}</span>
+                                  <span style={{ fontSize: "11px", color: "var(--color-accent)", fontWeight: 700 }}>✓</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </article>
+
+                        <article
+                          style={{
+                            marginTop: "-8px",
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "12px",
+                            position: "relative",
+                            zIndex: 1,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            Dual Content Delivery
+                          </p>
+                          <div
+                            style={{
+                              marginTop: "10px",
+                              display: "grid",
+                              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                              gap: "10px",
+                              minWidth: 0,
+                            }}
+                          >
+                            <div style={{ border: "1px solid #E5E7EB", borderRadius: "12px", padding: "10px", background: "#F8FAFC" }}>
+                              <p style={{ margin: 0, fontSize: "11px", color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                Human Experience
+                              </p>
+                              <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                                <div style={{ height: "36px", borderRadius: "8px", background: "#E2E8F0" }} />
+                                <div style={{ height: "6px", width: "90%", borderRadius: "999px", background: "#CBD5E1" }} />
+                                <div style={{ height: "6px", width: "74%", borderRadius: "999px", background: "#CBD5E1" }} />
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                                  <div style={{ height: "22px", borderRadius: "8px", background: "#E2E8F0" }} />
+                                  <div
+                                    style={{
+                                      height: "22px",
+                                      borderRadius: "8px",
+                                      background: "var(--color-accent)",
+                                      color: "#FFFFFF",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: "10px",
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    Buy
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ border: "1px solid #E5E7EB", borderRadius: "12px", padding: "10px", background: "#F8FAFC" }}>
+                              <p style={{ margin: 0, fontSize: "11px", color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                AI Agent Experience
+                              </p>
+                              <div style={{ marginTop: "8px", display: "grid", gap: "6px" }}>
+                                <div style={{ borderRadius: "7px", background: "#FFFFFF", border: "1px solid #E5E7EB", padding: "6px", fontSize: "10px", color: "#4B5563" }}>
+                                  Product summary
+                                </div>
+                                <div style={{ borderRadius: "7px", background: "#FFFFFF", border: "1px solid #E5E7EB", padding: "6px", fontSize: "10px", color: "#4B5563" }}>
+                                  Key attributes
+                                </div>
+                                <div style={{ borderRadius: "7px", background: "#FFFFFF", border: "1px solid #E5E7EB", padding: "6px", fontSize: "10px", color: "#4B5563" }}>
+                                  Specifications
+                                </div>
+                                <div style={{ borderRadius: "7px", background: "#FFFFFF", border: "1px solid #E5E7EB", padding: "6px", fontSize: "10px", color: "#4B5563" }}>
+                                  Comparison points
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
                     ) : (
                       <Image src={feature.image} alt={feature.alt} width={640} height={420} />
                     )}
