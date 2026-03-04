@@ -101,13 +101,6 @@
   justify-content: center;
 }
 
-.previewInner {
-  width: 100%;
-  max-width: 260px;
-  transform: scale(0.95);
-  transform-origin: top center;
-}
-
 .list {
   margin: 28px 0 0;
   padding-left: 18px;

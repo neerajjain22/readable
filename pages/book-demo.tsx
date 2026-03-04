@@ -2,26 +2,28 @@ import Image from "next/image"
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
 import Breadcrumbs from "../components/Breadcrumbs"
-import AIInfluencePreview from "../components/product-placeholders/AIInfluencePreview"
-import AgentAnalyticsPreview from "../components/product-placeholders/AgentAnalyticsPreview"
-import AgentOptimizedPagesPreview from "../components/product-placeholders/AgentOptimizedPagesPreview"
+import {
+  AIInfluenceDemoPreview,
+  AgentAnalyticsDemoPreview,
+  AgentPagesDemoPreview,
+} from "../components/demo/DemoPreviewCards"
 import styles from "../styles/book-demo.module.css"
 
 const demoItems = [
   {
     title: "AI Influence Dashboard",
     description: "See how AI systems describe your brand and competitors.",
-    preview: <AIInfluencePreview />,
+    preview: <AIInfluenceDemoPreview />,
   },
   {
     title: "Agent Analytics",
     description: "Understand AI-driven visits, referrals, and buyer journeys.",
-    preview: <AgentAnalyticsPreview />,
+    preview: <AgentAnalyticsDemoPreview />,
   },
   {
     title: "Agent-Optimized Pages",
     description: "Learn how to structure pages for AI discovery and recommendation.",
-    preview: <AgentOptimizedPagesPreview />,
+    preview: <AgentPagesDemoPreview />,
   },
 ]
 
@@ -79,9 +81,7 @@ export default function BookDemoPage() {
                 <article key={item.title} className={styles.card}>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
                   <p className={styles.text}>{item.description}</p>
-                  <div className={styles.previewWrap}>
-                    <div className={styles.previewInner}>{item.preview}</div>
-                  </div>
+                  <div className={styles.previewWrap}>{item.preview}</div>
                 </article>
               ))}
             </div>
