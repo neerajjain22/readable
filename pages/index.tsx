@@ -411,26 +411,24 @@ export default function HomePage() {
               className={pageStyles.text}
               style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 600, margin: 0 }}
             >
-              Teams from these companies use Readable
+              Teams from more than 100 companies use Readable Everyday
             </p>
-            <div
-              className={pageStyles.logoGrid}
-              style={{ marginTop: "24px" }}
-            >
-              {logos.map((logo) => (
-                <div key={logo.src} className={pageStyles.logoItem}>
+            <div className={pageStyles.logoMarquee} style={{ marginTop: "24px" }}>
+              <div className={pageStyles.logoTrack}>
+                {[...logos, ...logos].map((logo, index) => (
                   <Image
+                    key={`${logo.src}-${index}`}
                     src={logo.src}
                     alt={logo.alt}
                     width={160}
                     height={32}
                     className={pageStyles.logoImage}
                   />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
             <p className={pageStyles.text} style={{ marginTop: "20px", marginBottom: 0 }}>
-              Teams from 500+ companies have already analyzed their AI influence with Readable.
+              Teams from more than 500 companies have already analyzed their AI influence with Readable.
             </p>
           </div>
         </section>

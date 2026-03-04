@@ -22,9 +22,10 @@
 .pagination { margin-top: var(--spacing-lg); display:flex; gap: var(--spacing-sm); }
 .pageLink { border:1px solid var(--color-border); padding: 8px 12px; border-radius: var(--radius-md); text-decoration:none; color: var(--color-primary); }
 .pageLinkActive { background: var(--color-accent); color: var(--color-white); border-color: var(--color-accent); }
-.logoGrid { display:grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 24px; align-items:center; }
-.logoItem { min-height:56px; display:flex; align-items:center; justify-content:center; }
-.logoImage { height:28px; width:auto; max-width:100%; opacity:0.65; filter:grayscale(100%); transition:opacity .2s ease, filter .2s ease; }
+.logoMarquee { overflow:hidden; width:100%; }
+.logoTrack { display:flex; align-items:center; width:max-content; animation: logoMarqueeScroll 34s linear infinite; }
+.logoImage { height:32px; width:auto; margin:0 40px; opacity:0.75; filter:grayscale(100%); transition:opacity .2s ease, filter .2s ease; flex:0 0 auto; }
 .logoImage:hover { opacity:1; filter:grayscale(0%); }
-@media (max-width: 1024px){ .grid4{ grid-template-columns: repeat(2,minmax(0,1fr)); } .grid3{ grid-template-columns: 1fr 1fr; } .logoGrid{ grid-template-columns: repeat(4,minmax(0,1fr)); } }
-@media (max-width: 768px){ .container{ padding-left:20px; padding-right:20px; } .grid2,.grid3,.grid4{ grid-template-columns:1fr; } .logoGrid{ grid-template-columns: repeat(2,minmax(0,1fr)); gap:16px; } }
+@keyframes logoMarqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (max-width: 1024px){ .grid4{ grid-template-columns: repeat(2,minmax(0,1fr)); } .grid3{ grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px){ .container{ padding-left:20px; padding-right:20px; } .grid2,.grid3,.grid4{ grid-template-columns:1fr; } .logoImage{ height:26px; margin:0 24px; } }
