@@ -69,7 +69,7 @@ export default function AgencyPartnersPage() {
         <section className={styles.heroSection}>
           <div className={styles.container}>
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Agency Partners" }]} />
-            <h1 className={styles.heading}>White-Labeled AI Visibility for Agencies</h1>
+            <h1 className={styles.heading}>White-Labeled AI Influence for Agencies</h1>
             <p className={styles.subheading}>
               Offer AI positioning and agent analytics under your brand — and create a new recurring
               revenue stream.
@@ -108,7 +108,7 @@ export default function AgencyPartnersPage() {
 
         <section className={styles.section}>
           <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>Deliver AI Visibility as a Service</h2>
+            <h2 className={styles.sectionTitle}>Deliver AI Influence as a Service</h2>
             <div className={styles.grid3}>
               {serviceCards.map((card) => (
                 <article key={card.title} className={styles.card}>
@@ -170,7 +170,7 @@ export default function AgencyPartnersPage() {
         <section className={styles.finalSection}>
           <div className={styles.container}>
             <div className={styles.centerShell}>
-              <h2 className={styles.sectionTitle}>Add AI Visibility to Your Agency Offering.</h2>
+              <h2 className={styles.sectionTitle}>Add AI Influence to Your Agency Offering.</h2>
               <div className={styles.centerActions}>
                 <Link href="/contact" className={styles.primaryButton}>
                   Apply to Become a Partner

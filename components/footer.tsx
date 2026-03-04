@@ -5,7 +5,7 @@ const columns = [
   {
     title: "Platform",
     links: [
-      { href: "/platform", label: "AI Visibility" },
+      { href: "/platform", label: "AI Influence" },
       { href: "/platform", label: "Agent Analytics" },
       { href: "/platform", label: "Agent-Ready Pages" },
     ],
@@ -63,7 +63,7 @@ export default function Footer() {
         <div className={styles.bottom}>
           <div>
             <p className={styles.brand}>Readable</p>
-            <p className={styles.text}>The AI Visibility & Agent Analytics Platform</p>
+            <p className={styles.text}>The AI Influence & Agent Analytics Platform</p>
           </div>
           <div className={styles.bottomLinks}>
             <Link href="/privacy" className={styles.link}>

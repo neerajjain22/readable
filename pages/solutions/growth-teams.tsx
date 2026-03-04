@@ -25,7 +25,7 @@ const clarityCards = [
 
 const readableModules = [
   {
-    title: "AI Visibility",
+    title: "AI Influence",
     body: "See how AI tools talk about your brand in high-intent searches.",
   },
   {
@@ -131,7 +131,7 @@ export default function GrowthTeamsPage() {
         <section className={styles.finalSection}>
           <div className={styles.container}>
             <div className={styles.centerShell}>
-              <h2 className={styles.sectionTitle}>Turn AI Visibility Into Clear Growth Signals.</h2>
+              <h2 className={styles.sectionTitle}>Turn AI Influence Into Clear Growth Signals.</h2>
               <div className={styles.centerActions}>
                 <Link href="/contact" className={styles.primaryButton}>
                   Book a Demo

@@ -14,14 +14,14 @@ export type BlogPost = {
 export const blogPosts: BlogPost[] = [
   {
     slug: "ai-visibility-playbook-for-b2b",
-    title: "The AI Visibility Playbook for B2B Teams",
+    title: "The AI Influence Playbook for B2B Teams",
     excerpt:
       "How revenue teams can measure and improve brand presence inside LLM answers and AI buying journeys.",
     author: "Maya Carter",
     role: "VP Marketing",
     publishedAt: "2026-02-08",
     readTime: "7 min read",
-    tags: ["AI Visibility", "B2B", "Positioning"],
+    tags: ["AI Influence", "B2B", "Positioning"],
     coverImage: "/images/blog-ai-visibility.svg",
     content: [
       "AI buying journeys are now a top-of-funnel channel. Prospects ask LLMs for vendor shortlists, feature comparisons, and implementation advice before they ever land on your website.",
@@ -85,7 +85,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: "agency-blueprint-for-ai-services",
-    title: "Agency Blueprint: Packaging AI Visibility as a Service",
+    title: "Agency Blueprint: Packaging AI Influence as a Service",
     excerpt:
       "How agencies can operationalize AI visibility deliverables across multiple clients with repeatable workflows.",
     author: "Jordan Lee",

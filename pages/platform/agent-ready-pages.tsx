@@ -46,7 +46,7 @@ const steps = [
   {
     number: "Step 3",
     title: "Continuous Improvement",
-    body: "Monitor performance alongside AI Visibility and Agent Analytics.",
+    body: "Monitor performance alongside AI Influence and Agent Analytics.",
   },
 ]
 
@@ -181,14 +181,14 @@ export default function AgentReadyPagesPage() {
         <section className={styles.section}>
           <div className={styles.container}>
             <div className={styles.crossShell}>
-              <h2 className={styles.sectionTitle}>Pair with AI Visibility and Agent Analytics</h2>
+              <h2 className={styles.sectionTitle}>Pair with AI Influence and Agent Analytics</h2>
               <p className={styles.crossText}>
-                Understand how your pages are positioned (AI Visibility) and how agent traffic behaves
+                Understand how your pages are positioned (AI Influence) and how agent traffic behaves
                 (Agent Analytics).
               </p>
               <div className={styles.crossActions}>
                 <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
-                  Explore AI Visibility
+                  Explore AI Influence
                 </Link>
                 <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
                   Explore Agent Analytics

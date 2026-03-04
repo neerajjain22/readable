@@ -22,7 +22,7 @@ export default function AboutPage() {
   return (
     <Layout>
       <Seo
-        title="About Readable | From SonicLinker to AI Visibility Platform"
+        title="About Readable | From SonicLinker to AI Influence Platform"
         description="Learn why Readable exists, how the company evolved from SonicLinker, and the team vision behind AI visibility and agent analytics."
         path="/about"
       />
@@ -90,7 +90,7 @@ export default function AboutPage() {
         </section>
 
         <CTASection
-          title="Build Your AI Visibility Strategy"
+          title="Build Your AI Influence Strategy"
           description="Talk to our team about your category, current AI positioning, and the fastest path to measurable lift."
           primaryLabel="Book a Demo"
           primaryHref="/contact"

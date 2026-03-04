@@ -8,7 +8,7 @@ export default function Hero() {
       <div className={styles.container}>
         <div className={styles.layout}>
           <div>
-            <p className={styles.kicker}>AI Visibility & Agent Analytics</p>
+            <p className={styles.kicker}>AI Influence & Agent Analytics</p>
             <h1 id="home-hero-title" className={styles.title}>
               Understand How AI Recommends Your Brand
             </h1>

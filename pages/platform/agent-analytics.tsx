@@ -92,7 +92,7 @@ export default function AgentAnalyticsPage() {
                     Book a Demo
                   </Link>
                   <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
-                    Explore AI Visibility
+                    Explore AI Influence
                   </Link>
                 </div>
               </div>
@@ -183,12 +183,12 @@ export default function AgentAnalyticsPage() {
             <div className={styles.crossShell}>
               <h2 className={styles.sectionTitle}>Looking for AI Positioning Insights?</h2>
               <p className={styles.crossText}>
-                Combine Agent Analytics with AI Visibility to understand both how AI positions your brand and
+                Combine Agent Analytics with AI Influence to understand both how AI positions your brand and
                 how agent traffic behaves.
               </p>
               <div className={styles.crossAction}>
                 <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
-                  Explore AI Visibility
+                  Explore AI Influence
                 </Link>
               </div>
             </div>

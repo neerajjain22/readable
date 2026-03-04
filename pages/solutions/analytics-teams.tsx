@@ -25,7 +25,7 @@ const visibilityCards = [
 
 const readableModules = [
   {
-    title: "AI Visibility",
+    title: "AI Influence",
     body: "Track how your brand appears in AI-driven searches.",
   },
   {

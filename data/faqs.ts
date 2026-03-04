@@ -13,9 +13,9 @@ export const faqItems: FAQItem[] = [
   },
   {
     category: "Platform",
-    question: "What is AI Visibility?",
+    question: "What is AI Influence?",
     answer:
-      "AI Visibility measures how often and how accurately your brand is recommended in model-generated answers for important category and solution prompts.",
+      "AI Influence measures how often and how accurately your brand is recommended in model-generated answers for important category and solution prompts.",
   },
   {
     category: "Platform",

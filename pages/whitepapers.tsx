@@ -5,7 +5,7 @@ import styles from "../styles/Page.module.css"
 
 const papers = [
   {
-    title: "AI Visibility Benchmark Report",
+    title: "AI Influence Benchmark Report",
     summary: "A framework for measuring recommendation quality and category position across prompt clusters.",
   },
   {

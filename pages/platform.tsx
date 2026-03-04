@@ -6,7 +6,7 @@ import styles from "../styles/platform-overview.module.css"
 
 const modules = [
   {
-    title: "AI Visibility",
+    title: "AI Influence",
     body: "Understand how LLMs position your brand across high-intent prompts.",
     href: "/platform/ai-visibility",
   },
@@ -25,8 +25,8 @@ const modules = [
 const flow = [
   {
     label: "1. Position",
-    title: "AI Visibility",
-    body: "AI Visibility shows how AI systems describe and recommend your brand.",
+    title: "AI Influence",
+    body: "AI Influence shows how AI systems describe and recommend your brand.",
   },
   {
     label: "2. Measure",
@@ -59,7 +59,7 @@ export default function PlatformPage() {
   return (
     <Layout>
       <Seo
-        title="The Readable Platform | AI Visibility, Agent Analytics, Agent-Ready Pages"
+        title="The Readable Platform | AI Influence, Agent Analytics, Agent-Ready Pages"
         description="Explore how Readable modules work together to help teams understand, measure, and improve AI recommendation performance."
         path="/platform"
       />
@@ -70,7 +70,7 @@ export default function PlatformPage() {
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Platform" }]} />
             <h1 className={styles.heading}>The Readable Platform</h1>
             <p className={styles.subheading}>
-              AI Visibility, Agent Analytics, and Agent-Ready Pages — built together to help teams
+              AI Influence, Agent Analytics, and Agent-Ready Pages — built together to help teams
               understand, measure, and improve how AI systems recommend their brand.
             </p>
             <p className={styles.description}>
@@ -165,7 +165,7 @@ export default function PlatformPage() {
                   Book a Demo
                 </Link>
                 <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
-                  Explore AI Visibility
+                  Explore AI Influence
                 </Link>
               </div>
             </div>

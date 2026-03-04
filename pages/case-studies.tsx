@@ -107,7 +107,7 @@ export default function CaseStudiesPage() {
         <section className={styles.heroSection}>
           <div className={styles.container}>
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Case Studies" }]} />
-            <h1 className={styles.heading}>How Leading Brands Turn AI Visibility Into Measurable Growth</h1>
+            <h1 className={styles.heading}>How Leading Brands Turn AI Influence Into Measurable Growth</h1>
             <p className={styles.subheading}>
               Public SaaS companies, global e-commerce brands, and direct-to-consumer leaders use Readable
               to uncover hidden AI-driven traffic, improve positioning, and increase conversion from

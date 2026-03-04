@@ -53,7 +53,7 @@ export default function AIVisibilityPage() {
   return (
     <Layout>
       <Seo
-        title="AI Visibility | Readable"
+        title="AI Influence | Readable"
         description="Understand how LLMs position your brand across high-intent prompts and competitive categories."
         path="/platform/ai-visibility"
       />
@@ -65,12 +65,12 @@ export default function AIVisibilityPage() {
               items={[
                 { label: "Home", href: "/" },
                 { label: "Platform", href: "/platform" },
-                { label: "AI Visibility" },
+                { label: "AI Influence" },
               ]}
             />
             <div className={styles.heroGrid}>
               <div>
-                <h1 className={styles.heading}>AI Visibility</h1>
+                <h1 className={styles.heading}>AI Influence</h1>
                 <p className={styles.subheading}>
                   Understand how large language models position your brand across high-intent prompts and
                   competitive categories.
@@ -91,7 +91,7 @@ export default function AIVisibilityPage() {
               <div className={styles.visualCard}>
                 <Image
                   src="/images/module-visibility.svg"
-                  alt="AI Visibility dashboard preview"
+                  alt="AI Influence dashboard preview"
                   width={720}
                   height={440}
                   priority
@@ -117,7 +117,7 @@ export default function AIVisibilityPage() {
 
         <section className={styles.sectionAlt}>
           <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>How AI Visibility Works</h2>
+            <h2 className={styles.sectionTitle}>How AI Influence Works</h2>
             <div className={styles.grid3}>
               {steps.map((step) => (
                 <article key={step.title} className={styles.card}>
@@ -149,7 +149,7 @@ export default function AIVisibilityPage() {
               <div>
                 <h2 className={styles.sectionTitle}>Operational Visibility for Weekly Execution</h2>
                 <p className={styles.description}>
-                  Use AI Visibility to standardize how your team tracks recommendation quality, monitors
+                  Use AI Influence to standardize how your team tracks recommendation quality, monitors
                   competitor movement, and prioritizes where to improve positioning first.
                 </p>
                 <div className={styles.crossLinks}>

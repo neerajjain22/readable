@@ -23,7 +23,7 @@ const plans = [
     name: "Growth",
     description: "For teams ready to measure and act on AI-driven opportunities.",
     features: [
-      "Full AI Visibility",
+      "Full AI Influence",
       "Agent Analytics",
       "Expanded tracking coverage",
       "Historical trend reporting",
@@ -54,7 +54,7 @@ const plans = [
 ]
 
 const comparisonRows = [
-  { feature: "AI Visibility", free: "Included", growth: "Included", scale: "Included" },
+  { feature: "AI Influence", free: "Included", growth: "Included", scale: "Included" },
   { feature: "Agent Analytics", free: "—", growth: "Included", scale: "Included" },
   { feature: "Agent-Ready Pages", free: "—", growth: "Included", scale: "Included" },
   { feature: "Historical tracking", free: "Limited", growth: "Included", scale: "Included" },

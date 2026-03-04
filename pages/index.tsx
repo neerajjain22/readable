@@ -10,7 +10,7 @@ const logos = ["GrowthOps", "Northline", "Stacklane", "Ecomera", "Finovo", "Code
 
 const features = [
   {
-    title: "AI Visibility",
+    title: "AI Influence",
     description:
       "Track how models position your brand versus competitors across strategic prompt categories.",
     points: ["Prompt cluster tracking", "Narrative drift alerts", "Position quality scoring"],
@@ -57,7 +57,7 @@ export default function HomePage() {
   return (
     <Layout>
       <Seo
-        title="Readable | AI Visibility & Agent Analytics Platform"
+        title="Readable | AI Influence & Agent Analytics Platform"
         description="Monitor how AI systems describe your brand, measure agent traffic, and optimize pages for AI-driven conversion."
         path="/"
         structuredData={{
