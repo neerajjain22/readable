@@ -534,28 +534,14 @@ export default function HomePage() {
                               letterSpacing: "0.05em",
                             }}
                           >
-                            Prompt Analysis
+                            AI Category Analysis
                           </p>
-                          <p style={{ margin: "8px 0 0", color: "#374151", fontSize: "13px", lineHeight: 1.5 }}>
-                            "Best running shoes for beginners"
+                          <p style={{ margin: "8px 0 0", color: "#374151", fontSize: "13px", lineHeight: 1.45, fontWeight: 600 }}>
+                            Running Shoes
                           </p>
-                          <div style={{ marginTop: "10px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                            {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((model) => (
-                              <span
-                                key={model}
-                                style={{
-                                  padding: "3px 8px",
-                                  borderRadius: "999px",
-                                  border: "1px solid #E5E7EB",
-                                  background: "#FFFFFF",
-                                  fontSize: "11px",
-                                  color: "#4B5563",
-                                }}
-                              >
-                                {model}
-                              </span>
-                            ))}
-                          </div>
+                          <p style={{ margin: "8px 0 0", color: "#4B5563", fontSize: "12px", lineHeight: 1.5 }}>
+                            AI systems associate brands with specific attributes within a category.
+                          </p>
                         </article>
 
                         <article
@@ -580,43 +566,91 @@ export default function HomePage() {
                               letterSpacing: "0.05em",
                             }}
                           >
-                            Brand Mentions in AI Responses
+                            Brand Influence by Attribute
                           </p>
-                          <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
+                          <div style={{ marginTop: "10px", display: "grid", gap: "12px" }}>
                             {[
-                              { brand: "Nike", width: "88%" },
-                              { brand: "Adidas", width: "76%" },
-                              { brand: "BrandX", width: "58%" },
-                              { brand: "Hoka", width: "36%" },
+                              {
+                                attribute: "Comfort",
+                                values: [
+                                  { brand: "Nike", width: "60%" },
+                                  { brand: "Adidas", width: "48%" },
+                                  { brand: "BrandX", width: "84%" },
+                                  { brand: "Hoka", width: "64%" },
+                                ],
+                              },
+                              {
+                                attribute: "Performance",
+                                values: [
+                                  { brand: "Nike", width: "84%" },
+                                  { brand: "Adidas", width: "70%" },
+                                  { brand: "BrandX", width: "46%" },
+                                  { brand: "Hoka", width: "42%" },
+                                ],
+                              },
+                              {
+                                attribute: "Durability",
+                                values: [
+                                  { brand: "Nike", width: "68%" },
+                                  { brand: "Adidas", width: "66%" },
+                                  { brand: "BrandX", width: "42%" },
+                                  { brand: "Hoka", width: "40%" },
+                                ],
+                              },
+                              {
+                                attribute: "Price",
+                                values: [
+                                  { brand: "Nike", width: "28%" },
+                                  { brand: "Adidas", width: "30%" },
+                                  { brand: "BrandX", width: "64%" },
+                                  { brand: "Hoka", width: "18%" },
+                                ],
+                              },
+                              {
+                                attribute: "Beginner-friendly",
+                                values: [
+                                  { brand: "Nike", width: "50%" },
+                                  { brand: "Adidas", width: "48%" },
+                                  { brand: "BrandX", width: "82%" },
+                                  { brand: "Hoka", width: "46%" },
+                                ],
+                              },
                             ].map((item) => (
-                              <div
-                                key={item.brand}
-                                style={{
-                                  display: "grid",
-                                  gridTemplateColumns: "56px minmax(0, 1fr)",
-                                  alignItems: "center",
-                                  gap: "10px",
-                                  minWidth: 0,
-                                }}
-                              >
-                                <span style={{ fontSize: "12px", color: "#4B5563" }}>{item.brand}</span>
-                                <div
-                                  style={{
-                                    width: "100%",
-                                    height: "8px",
-                                    borderRadius: "999px",
-                                    background: "#EEF2FF",
-                                    overflow: "hidden",
-                                  }}
-                                >
+                              <div key={item.attribute} style={{ display: "grid", gap: "7px", minWidth: 0 }}>
+                                <p style={{ margin: 0, fontSize: "12px", color: "#6B7280", fontWeight: 600 }}>
+                                  {item.attribute}
+                                </p>
+                                {item.values.map((value) => (
                                   <div
+                                    key={value.brand}
                                     style={{
-                                      width: item.width,
-                                      height: "100%",
-                                      background: "var(--color-accent)",
+                                      display: "grid",
+                                      gridTemplateColumns: "84px minmax(0, 1fr)",
+                                      alignItems: "center",
+                                      gap: "10px",
+                                      minWidth: 0,
                                     }}
-                                  />
-                                </div>
+                                  >
+                                    <span style={{ fontSize: "12px", color: "#4B5563" }}>{value.brand}</span>
+                                    <div
+                                      style={{
+                                        width: "100%",
+                                        height: "8px",
+                                        borderRadius: "999px",
+                                        background: "#EEF2FF",
+                                        overflow: "hidden",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          width: value.width,
+                                          height: "100%",
+                                          background: "var(--color-accent)",
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             ))}
                           </div>
@@ -644,15 +678,55 @@ export default function HomePage() {
                               letterSpacing: "0.05em",
                             }}
                           >
+                            Narrative Signals
+                          </p>
+                          <ul className={pageStyles.list} style={{ marginTop: "10px", gap: "8px" }}>
+                            <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                              ✓ BrandX strongly associated with comfort
+                            </li>
+                            <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                              ✓ BrandX recommended for beginners
+                            </li>
+                            <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                              ⚠ Nike dominates performance-related recommendations
+                            </li>
+                            <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                              ⚠ Adidas frequently cited in durability discussions
+                            </li>
+                          </ul>
+                        </article>
+
+                        <article
+                          style={{
+                            marginTop: "-10px",
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "16px",
+                            position: "relative",
+                            zIndex: 0,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
                             Opportunity Detected
                           </p>
                           <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.5 }}>
-                            BrandX missing from responses for "best shoes for marathon training".
+                            BrandX rarely recommended for "performance running shoes".
                           </p>
                           <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.5 }}>
                             Suggested improvement:
                             <br />
-                            Add comparison content "BrandX vs Nike running shoes".
+                            Add product content highlighting race performance features.
                           </p>
                         </article>
                       </div>
