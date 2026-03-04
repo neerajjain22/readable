@@ -478,7 +478,140 @@ export default function HomePage() {
                       padding: "24px",
                     }}
                   >
-                    <Image src={feature.image} alt={feature.alt} width={640} height={420} />
+                    {feature.title === "Agent Analytics" ? (
+                      <div style={{ display: "grid", gap: "0", minWidth: 0, minHeight: "320px", maxHeight: "380px" }}>
+                        <article
+                          style={{
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "12px",
+                            position: "relative",
+                            zIndex: 2,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            AI Agent Sources
+                          </p>
+                          <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
+                            {[
+                              { source: "ChatGPT", width: "92%", visits: "5,153 visits" },
+                              { source: "Perplexity", width: "56%", visits: "157 visits" },
+                              { source: "Gemini", width: "28%", visits: "38 visits" },
+                              { source: "Claude", width: "18%", visits: "18 visits" },
+                            ].map((item) => (
+                              <div
+                                key={item.source}
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "74px minmax(0, 1fr) 78px",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  minWidth: 0,
+                                }}
+                              >
+                                <span style={{ fontSize: "12px", color: "#4B5563" }}>{item.source}</span>
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "6px",
+                                    borderRadius: "999px",
+                                    background: "#EEF2FF",
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      width: item.width,
+                                      height: "100%",
+                                      background: "var(--color-accent)",
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ fontSize: "11px", color: "#6B7280", textAlign: "right" }}>{item.visits}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </article>
+
+                        <article
+                          style={{
+                            marginTop: "-8px",
+                            borderRadius: "16px",
+                            background: "#FFFFFF",
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 12px 30px rgba(0,0,0,0.06)",
+                            padding: "12px",
+                            position: "relative",
+                            zIndex: 1,
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "12px",
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            AI-Influenced Funnel
+                          </p>
+                          <div style={{ marginTop: "10px", display: "grid", gap: "8px" }}>
+                            {[
+                              { stage: "AI Agent Visits", width: "94%", value: "5,366" },
+                              { stage: "Website Visits", width: "72%", value: "2,740" },
+                              { stage: "Product Views", width: "42%", value: "812" },
+                              { stage: "Conversions", width: "16%", value: "64" },
+                            ].map((item) => (
+                              <div
+                                key={item.stage}
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "108px minmax(0, 1fr) 44px",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  minWidth: 0,
+                                }}
+                              >
+                                <span style={{ fontSize: "12px", color: "#4B5563" }}>{item.stage}</span>
+                                <div
+                                  style={{
+                                    width: "100%",
+                                    height: "6px",
+                                    borderRadius: "999px",
+                                    background: "#EEF2FF",
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      width: item.width,
+                                      height: "100%",
+                                      background: "var(--color-accent)",
+                                    }}
+                                  />
+                                </div>
+                                <span style={{ fontSize: "11px", color: "#6B7280", textAlign: "right" }}>{item.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </article>
+                      </div>
+                    ) : (
+                      <Image src={feature.image} alt={feature.alt} width={640} height={420} />
+                    )}
                   </div>
                 ) : null}
 
