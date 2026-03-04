@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
@@ -74,24 +75,26 @@ const studies = [
 const testimonials = [
   {
     quote:
-      "Readable gave us a clearer view of how AI systems were shaping discovery. We now treat AI visibility as part of our regular growth reporting.",
-    name: "Maya Carter",
-    title: "VP Marketing",
-    company: "Northline Cloud",
+      "Setup was 15 mins. No major changes. We didn't know we were getting so much AI traffic. Deploying Agent Website has led to 2x lift in clicks and referrals from AI search.",
+    name: "Joshua D'Costa",
+    role: "Head of Growth & Marketing",
+    company: "Dodo Payments",
+    linkedin: "https://www.linkedin.com/in/joshua-d-costa/",
   },
   {
     quote:
-      "We finally separated AI-referred traffic from everything else and could explain performance with confidence. That changed how we prioritize page updates.",
-    name: "Sonia Patel",
-    title: "Director of Digital",
-    company: "VitalBand",
+      "Setup took minutes. Agent Website has led to 2.5X growth in clicks from AI searches on our Shopify product pages.",
+    name: "Rajat Malik",
+    role: "Chief of Staff",
+    company: "BeatO",
+    linkedin: "https://www.linkedin.com/in/rajat-malik-beato-foundersoffice-growth/",
   },
   {
-    quote:
-      "The platform helped our teams align on one view of AI positioning across brands. Reporting became cleaner, and decisions became faster.",
-    name: "Ahmed Rahman",
-    title: "Group Growth Lead",
-    company: "SouqSphere Group",
+    quote: "We had no clue we were getting thousands of visits a day from LLMs. ROI is clear from day one.",
+    name: "Arjun Pande",
+    role: "Sr Director, Brand and Strategy",
+    company: ".Store Domain",
+    linkedin: "https://www.linkedin.com/in/arjunpande/",
   },
 ]
 
@@ -169,15 +172,38 @@ export default function CaseStudiesPage() {
 
         <section className={styles.section}>
           <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>What Our Customers Say</h2>
+            <h2 className={styles.sectionTitle}>What Teams Are Saying</h2>
             <div className={styles.grid3}>
               {testimonials.map((item) => (
                 <article key={item.name + item.company} className={styles.testimonialCard}>
                   <p className={styles.quote}>{item.quote}</p>
-                  <p className={styles.personName}>{item.name}</p>
-                  <p className={styles.personMeta}>
-                    {item.title}, {item.company}
-                  </p>
+                  <div
+                    style={{
+                      marginTop: "20px",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                    }}
+                  >
+                    <div>
+                      <p className={styles.personName} style={{ margin: 0 }}>
+                        {item.name}
+                      </p>
+                      <p className={styles.personMeta} style={{ marginTop: "4px", marginBottom: 0 }}>
+                        {item.role} - {item.company}
+                      </p>
+                    </div>
+                    <a
+                      href={item.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${item.name} LinkedIn profile`}
+                      className={styles.linkedinIcon}
+                    >
+                      <Image src="/images/icons/linkedin.svg" alt="LinkedIn profile" width={20} height={20} />
+                    </a>
+                  </div>
                 </article>
               ))}
             </div>
