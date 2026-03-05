@@ -1,3 +1,5 @@
+"use client"
+
 import { FormEvent, useState } from "react"
 import styles from "../styles/components/NewsletterForm.module.css"
 

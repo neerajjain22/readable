@@ -1,3 +1,5 @@
+"use client"
+
 import { useMemo, useState } from "react"
 import { FAQItem } from "../data/faqs"
 import Accordion from "./Accordion"

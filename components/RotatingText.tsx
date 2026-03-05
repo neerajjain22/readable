@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useRef, useState } from "react"
 import styles from "../styles/components/RotatingText.module.css"
 
