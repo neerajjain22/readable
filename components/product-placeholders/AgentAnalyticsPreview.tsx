@@ -21,14 +21,6 @@ const dashboardMetrics = [
   { icon: "◉", label: "Average Session Depth", value: "3.8 pages" },
 ]
 
-const trafficSources = [
-  { source: "ChatGPT", width: "52%", value: "52%" },
-  { source: "Perplexity", width: "19%", value: "19%" },
-  { source: "Claude", width: "15%", value: "15%" },
-  { source: "Gemini", width: "9%", value: "9%" },
-  { source: "Other", width: "5%", value: "5%" },
-]
-
 const recentSessions = [
   { source: "ChatGPT", landingPage: "/pricing", pagesViewed: "4", outcome: "Demo Click" },
   { source: "Perplexity", landingPage: "/blog/ai-seo", pagesViewed: "3", outcome: "Signup" },
@@ -36,24 +28,11 @@ const recentSessions = [
   { source: "Gemini", landingPage: "/solutions", pagesViewed: "5", outcome: "Demo Click" },
 ]
 
-const channelComparison = [
-  { channel: "AI Agents", width: "62%", value: "2,418" },
-  { channel: "Organic Search", width: "84%", value: "3,284" },
-  { channel: "Paid Search", width: "58%", value: "2,261" },
-  { channel: "Direct", width: "41%", value: "1,612" },
-]
-
 const conversionFunnel = [
   { label: "AI Visit", value: "2,418", width: "100%" },
   { label: "Product Page Viewed", value: "1,284", width: "88%" },
   { label: "Pricing Viewed", value: "642", width: "76%" },
   { label: "Demo Booked", value: "97", width: "62%" },
-]
-
-const weeklySummary = [
-  { label: "AI Demo Conversions", value: "+22% week over week" },
-  { label: "Top Performing AI Source", value: "ChatGPT" },
-  { label: "Highest Converting Page", value: "/pricing" },
 ]
 
 type AgentAnalyticsPreviewProps = {
@@ -81,27 +60,6 @@ export default function AgentAnalyticsPreview({ variant = "compact" }: AgentAnal
           <section className={styles.previewSection}>
             <div className={styles.sectionLabelRow}>
               <span className={styles.metricIcon} aria-hidden="true">
-                ◎
-              </span>
-              <p className={styles.subLabel}>CHANNEL COMPARISON</p>
-            </div>
-            <p className={styles.sectionCaption}>FUNNEL ATTRIBUTION</p>
-            <div className={styles.sourceStack}>
-              {channelComparison.map((item) => (
-                <div key={item.channel} className={styles.sourceRow}>
-                  <span className={styles.metricText}>{item.channel}</span>
-                  <div className={styles.barTrack}>
-                    <div className={styles.barFill} style={{ width: item.width }} />
-                  </div>
-                  <span className={styles.metricValue}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className={styles.previewSection}>
-            <div className={styles.sectionLabelRow}>
-              <span className={styles.metricIcon} aria-hidden="true">
                 ◆
               </span>
               <p className={styles.subLabel}>AI CONVERSION FUNNEL</p>
@@ -118,23 +76,6 @@ export default function AgentAnalyticsPreview({ variant = "compact" }: AgentAnal
                       v
                     </span>
                   ) : null}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className={styles.previewSection}>
-            <div className={styles.sectionLabelRow}>
-              <span className={styles.metricIcon} aria-hidden="true">
-                ◉
-              </span>
-              <p className={styles.subLabel}>WEEKLY SUMMARY</p>
-            </div>
-            <div className={styles.summaryStack}>
-              {weeklySummary.map((item) => (
-                <div key={item.label} className={styles.summaryRow}>
-                  <span className={styles.metricMuted}>{item.label}</span>
-                  <span className={styles.summaryValue}>{item.value}</span>
                 </div>
               ))}
             </div>
@@ -173,21 +114,6 @@ export default function AgentAnalyticsPreview({ variant = "compact" }: AgentAnal
                     <span className={styles.metricMuted}>{metric.label}</span>
                   </div>
                   <span className={styles.metricEmphasis}>{metric.value}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className={styles.previewSection}>
-            <p className={styles.subLabel}>AI TRAFFIC SOURCES</p>
-            <div className={styles.sourceStack}>
-              {trafficSources.map((item) => (
-                <div key={item.source} className={styles.sourceRow}>
-                  <span className={styles.metricText}>{item.source}</span>
-                  <div className={styles.barTrack}>
-                    <div className={styles.barFill} style={{ width: item.width }} />
-                  </div>
-                  <span className={styles.metricValue}>{item.value}</span>
                 </div>
               ))}
             </div>
