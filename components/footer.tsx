@@ -25,7 +25,7 @@ const columns = [
       { href: "/blog", label: "Blog" },
       { href: "/case-studies", label: "Case Studies" },
       { href: "/docs", label: "Docs" },
-      { href: "/resources", label: "Whitepapers" },
+      { href: "/careers", label: "Careers" },
     ],
   },
   {

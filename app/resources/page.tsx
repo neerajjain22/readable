@@ -3,7 +3,7 @@ import ResourcesPage from "../../legacy-pages/resources"
 
 export const metadata: Metadata = {
   title: "Resources | Readable",
-  description: "Explore Readable resources including blog posts, case studies, documentation, and whitepapers.",
+  description: "Explore Readable resources including blog posts, case studies, documentation, and careers.",
 }
 
 export default ResourcesPage

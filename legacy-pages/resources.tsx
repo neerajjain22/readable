@@ -9,7 +9,7 @@ const resources = [
   { href: "/blog", title: "Blog", summary: "Insights on AI visibility, agent analytics, and GTM execution." },
   { href: "/case-studies", title: "Case Studies", summary: "Real outcomes from B2B teams using Readable." },
   { href: "/docs", title: "Docs", summary: "Guides, references, and implementation resources." },
-  { href: "/resources", title: "Whitepapers", summary: "Frameworks and research for AI-led growth programs." },
+  { href: "/careers", title: "Careers", summary: "Join Readable to help build the future of AI influence." },
 ]
 
 export default function ResourcesPage() {
@@ -17,7 +17,7 @@ export default function ResourcesPage() {
     <Layout>
       <Seo
         title="Resources | Readable"
-        description="Explore Readable resources including blog posts, case studies, documentation, and whitepapers."
+        description="Explore Readable resources including blog posts, case studies, documentation, and careers."
         path="/resources"
       />
       <main className={styles.page}>

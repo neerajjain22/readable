@@ -11,6 +11,15 @@ type ApiAccessRequestInput = {
   details: string
 }
 
+type JobApplicationInput = {
+  name: string
+  email: string
+  linkedin: string
+  portfolio: string
+  role: string
+  intro: string
+}
+
 async function ensureTables() {
   if (initialized) {
     return
@@ -47,6 +56,19 @@ async function ensureTables() {
     );
   `
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS job_applications (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name TEXT,
+      email TEXT,
+      linkedin TEXT,
+      portfolio TEXT,
+      role TEXT,
+      intro TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `
+
   initialized = true
 }
 
@@ -71,5 +93,13 @@ export async function saveApiAccessRequest(input: ApiAccessRequestInput) {
   await sql`
     INSERT INTO api_access_requests (name, email, company, website, use_case, details)
     VALUES (${input.name}, ${input.email}, ${input.company}, ${input.website}, ${input.useCase}, ${input.details})
+  `
+}
+
+export async function saveJobApplication(input: JobApplicationInput) {
+  await ensureTables()
+  await sql`
+    INSERT INTO job_applications (name, email, linkedin, portfolio, role, intro)
+    VALUES (${input.name}, ${input.email}, ${input.linkedin}, ${input.portfolio}, ${input.role}, ${input.intro})
   `
 }
