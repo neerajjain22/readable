@@ -36,11 +36,114 @@ const recentSessions = [
   { source: "Gemini", landingPage: "/solutions", pagesViewed: "5", outcome: "Demo Click" },
 ]
 
+const channelComparison = [
+  { channel: "AI Agents", width: "62%", value: "2,418" },
+  { channel: "Organic Search", width: "84%", value: "3,284" },
+  { channel: "Paid Search", width: "58%", value: "2,261" },
+  { channel: "Direct", width: "41%", value: "1,612" },
+]
+
+const conversionFunnel = [
+  { label: "AI Visit", value: "2,418", width: "100%" },
+  { label: "Product Page Viewed", value: "1,284", width: "88%" },
+  { label: "Pricing Viewed", value: "642", width: "76%" },
+  { label: "Demo Booked", value: "97", width: "62%" },
+]
+
+const weeklySummary = [
+  { label: "AI Demo Conversions", value: "+22% week over week" },
+  { label: "Top Performing AI Source", value: "ChatGPT" },
+  { label: "Highest Converting Page", value: "/pricing" },
+]
+
 type AgentAnalyticsPreviewProps = {
-  variant?: "compact" | "hero"
+  variant?: "compact" | "hero" | "performance"
 }
 
 export default function AgentAnalyticsPreview({ variant = "compact" }: AgentAnalyticsPreviewProps) {
+  if (variant === "performance") {
+    return (
+      <div className={`ui-visual-shell ${styles.shell}`}>
+        <article className={`ui-placeholder-panel ${styles.panel}`}>
+          <div className={styles.previewHeader}>
+            <p className={styles.label}>AGENT PERFORMANCE OVERVIEW</p>
+            <p className={styles.previewDomain}>YourBrand.com</p>
+          </div>
+
+          <div className={styles.platformChipRow}>
+            {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((platform) => (
+              <span key={platform} className={styles.platformChip}>
+                {platform}
+              </span>
+            ))}
+          </div>
+
+          <section className={styles.previewSection}>
+            <div className={styles.sectionLabelRow}>
+              <span className={styles.metricIcon} aria-hidden="true">
+                ◎
+              </span>
+              <p className={styles.subLabel}>CHANNEL COMPARISON</p>
+            </div>
+            <p className={styles.sectionCaption}>FUNNEL ATTRIBUTION</p>
+            <div className={styles.sourceStack}>
+              {channelComparison.map((item) => (
+                <div key={item.channel} className={styles.sourceRow}>
+                  <span className={styles.metricText}>{item.channel}</span>
+                  <div className={styles.barTrack}>
+                    <div className={styles.barFill} style={{ width: item.width }} />
+                  </div>
+                  <span className={styles.metricValue}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.previewSection}>
+            <div className={styles.sectionLabelRow}>
+              <span className={styles.metricIcon} aria-hidden="true">
+                ◆
+              </span>
+              <p className={styles.subLabel}>AI CONVERSION FUNNEL</p>
+            </div>
+            <div className={styles.funnelStack}>
+              {conversionFunnel.map((item, index) => (
+                <div key={item.label} className={styles.funnelStepWrap}>
+                  <article className={styles.funnelCard} style={{ width: item.width }}>
+                    <p className={styles.funnelValue}>{item.value}</p>
+                    <p className={styles.funnelLabel}>{item.label}</p>
+                  </article>
+                  {index < conversionFunnel.length - 1 ? (
+                    <span className={styles.funnelArrow} aria-hidden="true">
+                      v
+                    </span>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.previewSection}>
+            <div className={styles.sectionLabelRow}>
+              <span className={styles.metricIcon} aria-hidden="true">
+                ◉
+              </span>
+              <p className={styles.subLabel}>WEEKLY SUMMARY</p>
+            </div>
+            <div className={styles.summaryStack}>
+              {weeklySummary.map((item) => (
+                <div key={item.label} className={styles.summaryRow}>
+                  <span className={styles.metricMuted}>{item.label}</span>
+                  <span className={styles.summaryValue}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </article>
+      </div>
+    )
+  }
+
   if (variant === "hero") {
     return (
       <div className={`ui-visual-shell ${styles.shell}`}>

@@ -353,3 +353,87 @@
   color: #4b5563;
   line-height: 1.3;
 }
+
+.sectionLabelRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sectionCaption {
+  margin: 6px 0 0;
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+.funnelStack {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.funnelStepWrap {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.funnelCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 8px 10px;
+  min-width: 0;
+}
+
+.funnelValue {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.1;
+  color: #0f172a;
+  font-weight: 700;
+  text-align: center;
+}
+
+.funnelLabel {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #6b7280;
+  text-align: center;
+}
+
+.funnelArrow {
+  font-size: 10px;
+  line-height: 1;
+  color: #94a3b8;
+}
+
+.summaryStack {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.summaryRow {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summaryValue {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #0f172a;
+  font-weight: 700;
+  text-align: right;
+}

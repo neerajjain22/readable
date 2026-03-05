@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import Layout from "../../components/Layout"
 import Seo from "../../components/Seo"
@@ -148,13 +147,8 @@ export default function AgentAnalyticsPage() {
                   <li>Weekly exportable summaries</li>
                 </ul>
               </div>
-              <div className={`ui-visual-shell ${styles.visualCard}`}>
-                <Image
-                  src="/images/hero-dashboard.svg"
-                  alt="Agent traffic dashboard mockup"
-                  width={720}
-                  height={440}
-                />
+              <div className={styles.visualCard}>
+                <AgentAnalyticsPreview variant="performance" />
               </div>
             </div>
           </div>
