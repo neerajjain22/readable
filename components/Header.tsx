@@ -1,6 +1,8 @@
+"use client"
+
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { usePathname } from "next/navigation"
 import styles from "../styles/components/Header.module.css"
 
 type NavLink = {
@@ -44,11 +46,11 @@ const navLinks: NavLink[] = [
 ]
 
 export default function Header() {
-  const router = useRouter()
+  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
-  const isActive = (href: string) => router.pathname === href || router.pathname.startsWith(`${href}/`)
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
   const hasDropdown = (link: NavLink) => !!link.items && link.items.length > 0
 
   return (

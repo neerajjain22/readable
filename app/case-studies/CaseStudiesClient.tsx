@@ -358,7 +358,6 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
 
   return (
     <>
-      <AppRouterHeader />
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className={styles.container}>
@@ -411,8 +410,6 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
           </div>
         </section>
       </main>
-      <AppRouterFooter />
-
       {isModalOpen && selectedStudy ? (
         <div className={styles.modalBackdrop} role="presentation" onClick={closeModal}>
           <div
