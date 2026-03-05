@@ -1,20 +1,25 @@
+import { GetStaticProps } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
 import Seo from "../../components/Seo"
 import Breadcrumbs from "../../components/Breadcrumbs"
 import BlogCard from "../../components/BlogCard"
-import { blogPosts } from "../../data/blogPosts"
+import { PostMeta, getAllPosts } from "../../lib/posts"
 import styles from "../../styles/Page.module.css"
 
 const PAGE_SIZE = 3
 
-export default function BlogIndexPage() {
+type BlogIndexPageProps = {
+  posts: PostMeta[]
+}
+
+export default function BlogIndexPage({ posts }: BlogIndexPageProps) {
   const router = useRouter()
   const page = Math.max(1, Number(router.query.page || 1))
-  const totalPages = Math.ceil(blogPosts.length / PAGE_SIZE)
+  const totalPages = Math.ceil(posts.length / PAGE_SIZE)
 
-  const paginated = blogPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const paginated = posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <Layout>
@@ -62,4 +67,12 @@ export default function BlogIndexPage() {
       </main>
     </Layout>
   )
+}
+
+export const getStaticProps: GetStaticProps<BlogIndexPageProps> = async () => {
+  return {
+    props: {
+      posts: getAllPosts(),
+    },
+  }
 }

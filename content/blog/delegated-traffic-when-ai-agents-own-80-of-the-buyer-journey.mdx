@@ -1,0 +1,275 @@
+---
+title: "Delegated Traffic: When AI agents own 80% of the buyer journey"
+description: "More and more buyers are delegating the hard work of research and comparison to AI agents."
+date: "2025-11-30"
+author: "Neeraj Jain"
+slug: "delegated-traffic-when-ai-agents-own-80-of-the-buyer-journey"
+image: "/blog/images/delegated-traffic-when-ai-agents-own-80-of-the-buyer-journey-0.png"
+---
+## Delegated Traffic: When AI Agents Own 80% of the Buyer Journey
+
+### TLDR of This Article
+
+The message is simple:
+
+* More and more buyers are **delegating** the hard work of research and comparison to AI agents.
+* Those agents now own most of the journey, even though your analytics only see the last click.
+* If you don’t build an AI-native layer and instrument delegated traffic, you’re playing the wrong game.
+
+The choice is pretty stark:
+
+* Either you **optimise to be in the AI shortlist**,
+* or you keep polishing a website that only the people who already found you will ever see.
+
+### The Old Funnel Is Dead (It Just Hasn’t Told You Yet)
+
+The classic story we all still tell ourselves:
+
+> Customer has a problem → searches → opens a few tabs → reads pages → compares → chooses.
+
+That’s already wrong for a big chunk of users.
+
+The new reality:
+
+> Customer has a problem → asks ChatGPT / Perplexity / Claude →  
+> the **agent** opens dozens of sites, reads them, shortlists options →  
+> customer gets 3–5 recommendations with links → clicks 1–2.
+
+The **research, comparison, and shortlisting** are now happening *off your website*.
+
+By the time a human shows up in your analytics, **80% of their journey is already done** somewhere else, by an AI agent acting on their behalf.
+
+That’s **delegated traffic**.
+
+### What Is “Delegated Traffic”?
+
+Delegated traffic = **buyers outsourcing the research part of the journey to an AI agent**, then only showing up on your site at the very end.
+
+Concretely:
+
+1. Human asks the agent:
+
+   > “Best vitamin C serums for sensitive skin on a budget?”  
+   > or  
+   > “Top payroll SaaS for 20–200 person startups.”
+2. The agent:
+
+   * crawls 20–50 websites
+   * scrapes product, pricing, reviews, and policies
+   * decides which brands are “safe and relevant”
+   * builds a **shortlist**
+3. The agent answers with:
+
+   * 3–7 brand recommendations
+   * citations and links
+4. The human clicks **one or two** links to “confirm” and buy.
+
+That human session you see in GA?
+
+* It’s not “top of funnel”.
+* It’s **confirmation at the bottom** of a delegated journey you don’t see.
+
+### Why Delegated Traffic Is Not Just “Another Referral Channel”
+
+You might be tempted to treat AI assistants like “just another referrer” (like Google or Instagram).
+
+That’s the wrong mental model.
+
+**Search** shows 10 blue links and says:
+
+> “Here are all the results, you decide.”
+
+**Agents** say:
+
+> “I checked the internet for you. Here are 3 brands I trust for your use case.”
+
+Key differences:
+
+* **Much more aggressive compression**
+
+  + From “hundreds of results” → “3–5 names”.
+  + If you’re not in those 3–5, you simply don’t exist.
+* **Higher trust in the shortlist**
+
+  + People assume the agent already filtered scams, bad fits, and junk.
+  + They use your site to confirm, not to discover.
+* **Opaque upstream competition**
+
+  + You don’t see *which* brands you beat or lost to.
+  + You just see a visit (or no visit).
+
+Delegated traffic is **binary**:
+
+* Either you make it into the agent’s shortlist,
+* or you never even get the chance to convince the buyer.
+
+### What the Delegated Journey Actually Looks Like
+
+Here’s the **real** journey you should be designing for:
+
+1. **Problem articulation (in the agent)**
+
+   * The buyer types or speaks their situation into ChatGPT/Perplexity.
+   * This is where categories and “jobs to be done” get defined.
+2. **Agent research (off your radar)**
+
+   * The agent hits websites, docs, review sites, blogs, pricing pages.
+   * This is where it tries to read:
+
+     + what you sell
+     + who it’s for
+     + how it’s priced
+     + whether people trust you
+3. **Agent shortlisting (your win or loss moment)**
+
+   * The model decides: “These 3–5 brands are safe and relevant to show.”
+   * Everyone else is silently dropped.
+4. **Answer + links (what the human sees)**
+
+   * The user gets a neat summary and a few links.
+   * The model explains why it picked those brands.
+5. **Human confirmation visit (what your analytics see)**
+
+   * The human clicks 1–2 of the links.
+   * They skim your page to check:
+
+     + “Does this feel legit?”
+     + “Is the price fine?”
+     + “Does this match what the agent said?”
+   * Then they buy or bounce.
+
+Your current website and analytics stack are optimised almost entirely for **step 5**.  
+Delegated traffic means the battle was mostly won or lost at **steps 2–3**.
+
+### Why This Changes How You Build and Measure
+
+If agents own most of the journey, a few big implications:
+
+#### 1. Being “pretty” is not enough
+
+Humans love the black backdrop, big imagery, glowing CTAs.  
+Agents don’t care.
+
+They need:
+
+* clear product/category definitions
+* explicit pricing and plan details
+* review counts and proof
+* strong, unambiguous “best for X” signals
+
+If that’s not encoded in a way they can **read from your HTML / structured content**, you lose the shortlist, no matter how nice the site looks.
+
+#### 2. Late-funnel optimisation has diminishing returns
+
+You can keep A/B testing:
+
+* button colour
+* hero headline
+* form length
+
+…but if the agent never picks you in the first place, those improvements are just rearranging furniture in an empty store.
+
+Delegated traffic forces you to move effort **upstream**:
+
+* optimise what agents see and understand about you
+* measure if they keep you in more answers
+* treat “AI citations” as seriously as “SEO rankings”
+
+#### 3. Attribution needs a new layer
+
+Right now you see:
+
+* “Direct from chat.openai.com”
+* “Referral from perplexity.ai”
+* maybe nothing (if referrers are stripped)
+
+But you don’t see:
+
+* which other brands were in the answer
+* what the model said about you
+* how many times you weren’t mentioned at all
+
+To handle delegated journeys, you need:
+
+* **agent traffic analytics** (who crawled what, when)
+* **answer-level visibility** (where you’re cited, how you’re framed)
+* **click + conversion tracking tied to those answers**
+
+Otherwise you attribute a sale to “Direct” and miss that the real work was done by an assistant that already pre-sold the user.
+
+### What You Can Do About It (Without Rebuilding Everything)
+
+You don’t need a new website. You need a **new layer and a new lens**.
+
+#### 1. Add an AI-native layer on top of your existing site
+
+For human browsers:
+
+* keep your current UX, brand, layout.
+
+For AI agents:
+
+* serve a clean, structured view that explicitly encodes:
+
+  + products and categories
+  + pricing and packaging
+  + who you’re best for
+  + reviews, ratings, proof
+  + policies (returns, shipping, guarantees)
+
+This is exactly what you’re doing with SonicLinker’s AI-native pages:  
+same URLs, same visuals for humans, but a **machine-readable layer** for agents.
+
+#### 2. Instrument delegated traffic as its own thing
+
+Put an agent-aware layer at your CDN/edge that:
+
+* identifies AI crawlers
+* logs which pages they hit
+* tracks when those agent visits are followed by human clicks
+* gives you dashboards for “agent sessions” and “AI → human funnels”
+
+This is your **delegated traffic analytics** stack.
+
+#### 3. Treat agents as a new persona
+
+Start writing and structuring content with an explicit persona:
+
+> “What does an AI agent need to see to confidently recommend us?”
+
+They care about:
+
+* clarity
+* completeness
+* consistency
+* conflict-free facts
+
+Build an internal checklist for “agent readiness” of any key page:
+
+* Can an agent summarise what we do in one sentence?
+* Can it answer “who is this best for?” from the page alone?
+* Can it see pricing bands and key trade-offs?
+* Can it see enough proof to call us trustworthy?
+
+If the answer is no, that page is weak in a delegated journey, even if humans like it.
+
+### How Delegated Traffic Will Look in 12–24 Months
+
+Fast-forward a bit and this is normal:
+
+* Teams have **“Agent Visibility”** in their weekly metrics.
+* CMOs ask:
+
+  + “How often are we recommended in ‘best X for Y’ prompts?”
+  + “Which AI platforms send us the most revenue?”
+  + “Which content changes improved our presence in assistant answers?”
+* Websites have a human and Ai native version with pages like:
+
+  + “AI-native plans” (pricing tuned for how agents compare options)
+  + “Agent explainer sections” (short, structured blocks *for* models)
+  + internal playbooks on “How we improve our brand’s representation in AI answers”.
+
+At that point:
+
+* Not tracking delegated traffic will sound as outdated as not tracking mobile traffic in 2012.
+* SEO alone will not be enough; **AEO (Agentic Experience Optimisation)** will sit beside it.
