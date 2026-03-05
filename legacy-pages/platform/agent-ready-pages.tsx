@@ -81,15 +81,15 @@ export default function AgentReadyPagesPage() {
                   summarize, and recommend your brand.
                 </p>
                 <div className={styles.actions}>
-                  <Link href="/book-demo" className={styles.primaryButton}>
+                  <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                     Book a Demo
                   </Link>
-                  <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
+                  <Link href="/platform/agent-analytics" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                     Explore Agent Analytics
                   </Link>
                 </div>
               </div>
-              <div className={styles.visualCard}>
+              <div className={`ui-visual-shell ${styles.visualCard}`}>
                 <Image
                   src="/images/module-pages.svg"
                   alt="Agent-Ready Pages template preview"
@@ -111,7 +111,7 @@ export default function AgentReadyPagesPage() {
             </p>
             <div className={styles.grid2}>
               {structureBlocks.map((block) => (
-                <article key={block.title} className={styles.card}>
+                <article key={block.title} className={`ui-card ${styles.card}`}>
                   <h3 className={styles.cardTitle}>{block.title}</h3>
                   <p className={styles.cardBody}>{block.body}</p>
                 </article>
@@ -128,7 +128,7 @@ export default function AgentReadyPagesPage() {
             </p>
             <div className={styles.grid5}>
               {buildBlocks.map((item) => (
-                <article key={item} className={styles.card}>
+                <article key={item} className={`ui-card ${styles.card}`}>
                   <h3 className={styles.cardTitle}>{item}</h3>
                 </article>
               ))}
@@ -141,7 +141,7 @@ export default function AgentReadyPagesPage() {
             <h2 className={styles.sectionTitle}>How Agent-Ready Pages Work</h2>
             <div className={styles.grid3}>
               {steps.map((step) => (
-                <article key={step.title} className={styles.card}>
+                <article key={step.title} className={`ui-card ${styles.card}`}>
                   <p className={styles.stepNumber}>{step.number}</p>
                   <h3 className={styles.cardTitle}>{step.title}</h3>
                   <p className={styles.cardBody}>{step.body}</p>
@@ -166,7 +166,7 @@ export default function AgentReadyPagesPage() {
                   <li>Ongoing content audits</li>
                 </ul>
               </div>
-              <div className={styles.visualCard}>
+              <div className={`ui-visual-shell ${styles.visualCard}`}>
                 <Image
                   src="/images/hero-dashboard.svg"
                   alt="Agent-Ready page template dashboard"
@@ -187,10 +187,10 @@ export default function AgentReadyPagesPage() {
                 (Agent Analytics).
               </p>
               <div className={styles.crossActions}>
-                <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
+                <Link href="/platform/ai-visibility" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                   Explore AI Influence
                 </Link>
-                <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
+                <Link href="/platform/agent-analytics" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                   Explore Agent Analytics
                 </Link>
               </div>
@@ -207,10 +207,10 @@ export default function AgentReadyPagesPage() {
                 recommend with clarity.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/book-demo" className={styles.primaryButton}>
+                <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                   Book a Demo
                 </Link>
-                <Link href="/pricing" className={styles.secondaryButton}>
+                <Link href="/pricing" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                   View Pricing
                 </Link>
               </div>

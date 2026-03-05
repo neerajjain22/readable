@@ -88,15 +88,15 @@ export default function AgentAnalyticsPage() {
                   to real outcomes.
                 </p>
                 <div className={styles.actions}>
-                  <Link href="/book-demo" className={styles.primaryButton}>
+                  <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                     Book a Demo
                   </Link>
-                  <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
+                  <Link href="/platform/ai-visibility" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                     Explore AI Influence
                   </Link>
                 </div>
               </div>
-              <div className={styles.visualCard}>
+              <div className={`ui-visual-shell ${styles.visualCard}`}>
                 <Image
                   src="/images/module-analytics.svg"
                   alt="Agent Analytics dashboard preview"
@@ -114,7 +114,7 @@ export default function AgentAnalyticsPage() {
             <h2 className={styles.sectionTitle}>See What AI Agents Are Doing on Your Site</h2>
             <div className={styles.grid2}>
               {trackingBlocks.map((block) => (
-                <article key={block.title} className={styles.card}>
+                <article key={block.title} className={`ui-card ${styles.card}`}>
                   <h3 className={styles.cardTitle}>{block.title}</h3>
                   <p className={styles.cardBody}>{block.body}</p>
                 </article>
@@ -128,7 +128,7 @@ export default function AgentAnalyticsPage() {
             <h2 className={styles.sectionTitle}>How Agent Analytics Works</h2>
             <div className={styles.grid3}>
               {steps.map((step) => (
-                <article key={step.title} className={styles.card}>
+                <article key={step.title} className={`ui-card ${styles.card}`}>
                   <p className={styles.stepNumber}>{step.number}</p>
                   <h3 className={styles.cardTitle}>{step.title}</h3>
                   <p className={styles.cardBody}>{step.body}</p>
@@ -153,7 +153,7 @@ export default function AgentAnalyticsPage() {
                   <li>Weekly exportable summaries</li>
                 </ul>
               </div>
-              <div className={styles.visualCard}>
+              <div className={`ui-visual-shell ${styles.visualCard}`}>
                 <Image
                   src="/images/hero-dashboard.svg"
                   alt="Agent traffic dashboard mockup"
@@ -170,7 +170,7 @@ export default function AgentAnalyticsPage() {
             <h2 className={styles.sectionTitle}>Operational Use Cases</h2>
             <div className={styles.grid2}>
               {useCases.map((useCase) => (
-                <article key={useCase} className={styles.card}>
+                <article key={useCase} className={`ui-card ${styles.card}`}>
                   <h3 className={styles.cardTitle}>{useCase}</h3>
                 </article>
               ))}
@@ -187,7 +187,7 @@ export default function AgentAnalyticsPage() {
                 how agent traffic behaves.
               </p>
               <div className={styles.crossAction}>
-                <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
+                <Link href="/platform/ai-visibility" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                   Explore AI Influence
                 </Link>
               </div>
@@ -204,10 +204,10 @@ export default function AgentAnalyticsPage() {
                 with confidence.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/book-demo" className={styles.primaryButton}>
+                <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                   Book a Demo
                 </Link>
-                <Link href="/pricing" className={styles.secondaryButton}>
+                <Link href="/pricing" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                   View Pricing
                 </Link>
               </div>

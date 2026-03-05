@@ -93,7 +93,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
 
   return (
     <>
-      <button type="button" className={styles.applyButton} onClick={openModal}>
+      <button type="button" className={`ui-btn ui-btn-primary ${styles.applyButton}`} onClick={openModal}>
         Apply
       </button>
 
@@ -115,7 +115,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
                 <span className={styles.label}>Full Name</span>
                 <input
                   type="text"
-                  className={styles.input}
+                  className={`ui-input ${styles.input}`}
                   value={formData.name}
                   onChange={(event) => onFieldChange("name", event.target.value)}
                   required
@@ -126,7 +126,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
                 <span className={styles.label}>Email Address</span>
                 <input
                   type="email"
-                  className={styles.input}
+                  className={`ui-input ${styles.input}`}
                   value={formData.email}
                   onChange={(event) => onFieldChange("email", event.target.value)}
                   required
@@ -137,7 +137,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
                 <span className={styles.label}>LinkedIn Profile</span>
                 <input
                   type="url"
-                  className={styles.input}
+                  className={`ui-input ${styles.input}`}
                   value={formData.linkedin}
                   onChange={(event) => onFieldChange("linkedin", event.target.value)}
                   required
@@ -148,7 +148,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
                 <span className={styles.label}>Portfolio or GitHub (optional)</span>
                 <input
                   type="url"
-                  className={styles.input}
+                  className={`ui-input ${styles.input}`}
                   value={formData.portfolio}
                   onChange={(event) => onFieldChange("portfolio", event.target.value)}
                 />
@@ -158,7 +158,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
                 <span className={styles.label}>Role applying for</span>
                 <input
                   type="text"
-                  className={styles.input}
+                  className={`ui-input ${styles.input}`}
                   value={formData.role}
                   onChange={(event) => onFieldChange("role", event.target.value)}
                   required
@@ -168,7 +168,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
               <label className={styles.field}>
                 <span className={styles.label}>Short introduction</span>
                 <textarea
-                  className={styles.textarea}
+                  className={`ui-textarea ${styles.textarea}`}
                   value={formData.intro}
                   onChange={(event) => onFieldChange("intro", event.target.value)}
                   required
@@ -179,10 +179,15 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
               {success ? <p className={styles.success}>{success}</p> : null}
 
               <div className={styles.modalActions}>
-                <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+                <button type="submit" className={`ui-btn ui-btn-primary ${styles.submitButton}`} disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Apply Now"}
                 </button>
-                <button type="button" className={styles.ghostButton} onClick={closeModal} disabled={isSubmitting}>
+                <button
+                  type="button"
+                  className={`ui-btn ui-btn-secondary ${styles.ghostButton}`}
+                  onClick={closeModal}
+                  disabled={isSubmitting}
+                >
                   Close
                 </button>
               </div>

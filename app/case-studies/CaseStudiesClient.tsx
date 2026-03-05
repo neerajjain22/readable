@@ -201,7 +201,7 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
               <input
                 id="case-study-email"
                 type="email"
-                className={styles.input}
+                className={`ui-input ${styles.input}`}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@company.com"
@@ -212,10 +212,10 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
               {error ? <p className={styles.error}>{error}</p> : null}
 
               <div className={styles.actions}>
-                <button type="submit" className={styles.primaryButton} disabled={isLoading}>
+                <button type="submit" className={`ui-btn ui-btn-primary ${styles.primaryButton}`} disabled={isLoading}>
                   {isLoading ? "Downloading..." : "Download Case Study"}
                 </button>
-                <button type="button" className={styles.ghostButton} onClick={closeModal} disabled={isLoading}>
+                <button type="button" className={`ui-btn ui-btn-secondary ${styles.ghostButton}`} onClick={closeModal} disabled={isLoading}>
                   Cancel
                 </button>
               </div>

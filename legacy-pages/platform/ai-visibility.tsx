@@ -79,15 +79,15 @@ export default function AIVisibilityPage() {
                   positioning across AI systems.
                 </p>
                 <div className={styles.actions}>
-                  <Link href="/book-demo" className={styles.primaryButton}>
+                  <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                     Book a Demo
                   </Link>
-                  <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
+                  <Link href="/platform/agent-analytics" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                     See Agent Analytics
                   </Link>
                 </div>
               </div>
-              <div className={styles.visualCard}>
+              <div className={`ui-visual-shell ${styles.visualCard}`}>
                 <div className={styles.dashboardShell}>
                   <p className={styles.dashboardTitle}>AI Influence Snapshot</p>
                   <p className={styles.dashboardSubheader}>Brand: YourBrand.com</p>
@@ -159,7 +159,7 @@ export default function AIVisibilityPage() {
             <h2 className={styles.sectionTitle}>Track Your AI Positioning with Precision</h2>
             <div className={styles.grid2}>
               {monitoringBlocks.map((block) => (
-                <article key={block.title} className={styles.card}>
+                <article key={block.title} className={`ui-card ${styles.card}`}>
                   <h3 className={styles.cardTitle}>{block.title}</h3>
                   <p className={styles.cardBody}>{block.body}</p>
                 </article>
@@ -173,7 +173,7 @@ export default function AIVisibilityPage() {
             <h2 className={styles.sectionTitle}>How AI Influence Works</h2>
             <div className={styles.grid3}>
               {steps.map((step) => (
-                <article key={step.title} className={styles.card}>
+                <article key={step.title} className={`ui-card ${styles.card}`}>
                   <p className={styles.stepNumber}>{step.number}</p>
                   <h3 className={styles.cardTitle}>{step.title}</h3>
                   <p className={styles.cardBody}>{step.body}</p>
@@ -188,7 +188,7 @@ export default function AIVisibilityPage() {
             <h2 className={styles.sectionTitle}>Built for Growth and Strategy Teams</h2>
             <div className={styles.grid4}>
               {useCases.map((useCase) => (
-                <article key={useCase} className={styles.card}>
+                <article key={useCase} className={`ui-card ${styles.card}`}>
                   <h3 className={styles.cardTitle}>{useCase}</h3>
                 </article>
               ))}
@@ -214,7 +214,7 @@ export default function AIVisibilityPage() {
                   </Link>
                 </div>
               </div>
-              <div className={styles.visualCard}>
+              <div className={`ui-visual-shell ${styles.visualCard}`}>
                 <div className={styles.dashboardShell}>
                   <p className={styles.dashboardTitle}>AI Influence Dashboard</p>
 
@@ -277,10 +277,10 @@ export default function AIVisibilityPage() {
                 movement.
               </p>
               <div className={styles.ctaActions}>
-                <Link href="/book-demo" className={styles.primaryButton}>
+                <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                   Book a Demo
                 </Link>
-                <Link href="/platform/agent-analytics" className={styles.secondaryButton}>
+                <Link href="/platform/agent-analytics" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                   Explore Agent Analytics
                 </Link>
               </div>

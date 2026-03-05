@@ -75,7 +75,7 @@ export default function ApiAccessRequestForm() {
         <label className={styles.field}>
           <span className={styles.label}>Full Name</span>
           <input
-            className={styles.input}
+            className={`ui-input ${styles.input}`}
             type="text"
             value={formData.name}
             onChange={(event) => onChange("name", event.target.value)}
@@ -86,7 +86,7 @@ export default function ApiAccessRequestForm() {
         <label className={styles.field}>
           <span className={styles.label}>Business Email</span>
           <input
-            className={styles.input}
+            className={`ui-input ${styles.input}`}
             type="email"
             value={formData.email}
             onChange={(event) => onChange("email", event.target.value)}
@@ -97,7 +97,7 @@ export default function ApiAccessRequestForm() {
         <label className={styles.field}>
           <span className={styles.label}>Company</span>
           <input
-            className={styles.input}
+            className={`ui-input ${styles.input}`}
             type="text"
             value={formData.company}
             onChange={(event) => onChange("company", event.target.value)}
@@ -108,7 +108,7 @@ export default function ApiAccessRequestForm() {
         <label className={styles.field}>
           <span className={styles.label}>Company Website</span>
           <input
-            className={styles.input}
+            className={`ui-input ${styles.input}`}
             type="url"
             value={formData.website}
             onChange={(event) => onChange("website", event.target.value)}
@@ -120,7 +120,7 @@ export default function ApiAccessRequestForm() {
         <label className={styles.field}>
           <span className={styles.label}>Use Case</span>
           <select
-            className={styles.select}
+            className={`ui-select ${styles.select}`}
             value={formData.use_case}
             onChange={(event) => onChange("use_case", event.target.value)}
             required
@@ -140,7 +140,7 @@ export default function ApiAccessRequestForm() {
       <label className={styles.field}>
         <span className={styles.label}>Integration Details</span>
         <textarea
-          className={styles.textarea}
+          className={`ui-textarea ${styles.textarea}`}
           value={formData.details}
           onChange={(event) => onChange("details", event.target.value)}
           placeholder="Describe what you want to build using the Readable API."
@@ -151,7 +151,7 @@ export default function ApiAccessRequestForm() {
       {error ? <p className={styles.error}>{error}</p> : null}
       {success ? <p className={styles.success}>{success}</p> : null}
 
-      <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+      <button type="submit" className={`ui-btn ui-btn-primary ${styles.submitButton}`} disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Request API Access"}
       </button>
     </form>

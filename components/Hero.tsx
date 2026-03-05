@@ -17,15 +17,15 @@ export default function Hero() {
               agent-ready pages that convert.
             </p>
             <div className={styles.actions}>
-              <Link href="/book-demo" className={styles.primaryButton}>
+              <Link href="/book-demo" className={`ui-btn ui-btn-primary ${styles.primaryButton}`}>
                 Book a Demo
               </Link>
-              <Link href="/platform" className={styles.secondaryButton}>
+              <Link href="/platform" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
                 Explore Platform
               </Link>
             </div>
           </div>
-          <div className={styles.visual}>
+          <div className={`ui-visual-shell ${styles.visual}`}>
             <Image
               src="/images/hero-dashboard.svg"
               alt="Readable dashboard preview"
