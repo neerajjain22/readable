@@ -58,6 +58,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: message }, { status: 429 })
     }
 
-    return NextResponse.json({ error: message }, { status: 500 })
+    if (message.includes("Missing environment variable: RESEND_API_KEY")) {
+      return NextResponse.json(
+        { error: "Email service is temporarily unavailable. Please try again shortly." },
+        { status: 503 },
+      )
+    }
+
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 })
   }
 }

@@ -10,6 +10,15 @@ type OtpPayload = {
   createdAt: number
 }
 
+type InMemoryCounter = {
+  count: number
+  expiresAt: number
+}
+
+type InMemoryOtp = OtpPayload & {
+  expiresAt: number
+}
+
 const OTP_EXPIRY_SECONDS = 600
 const OTP_RATE_LIMIT_WINDOW_SECONDS = 600
 const OTP_RATE_LIMIT_MAX = 5
@@ -32,12 +41,29 @@ const FREE_EMAIL_DOMAINS = new Set([
   "protonmail.com",
 ])
 
-function requireEnv(name: string): string {
+const inMemoryOtpStore = new Map<string, InMemoryOtp>()
+const inMemoryVerifiedStore = new Set<string>()
+const inMemoryCounterStore = new Map<string, InMemoryCounter>()
+
+function getNow(): number {
+  return Date.now()
+}
+
+function getOptionalEnv(name: string): string | null {
   const value = process.env[name]
+  return value && value.trim() ? value : null
+}
+
+function requireEnv(name: string): string {
+  const value = getOptionalEnv(name)
   if (!value) {
     throw new Error(`Missing environment variable: ${name}`)
   }
   return value
+}
+
+function hasRedisConfig(): boolean {
+  return Boolean(getOptionalEnv("UPSTASH_REDIS_REST_URL") && getOptionalEnv("UPSTASH_REDIS_REST_TOKEN"))
 }
 
 function getRedisConfig() {
@@ -89,11 +115,26 @@ function verifyRateLimitKey(ip: string): string {
 }
 
 async function increaseCounter(key: string, ttlSeconds: number): Promise<number> {
-  const count = await redisCommand<number>(["INCR", key])
-  if (count === 1) {
-    await redisCommand<number>(["EXPIRE", key, String(ttlSeconds)])
+  if (hasRedisConfig()) {
+    const count = await redisCommand<number>(["INCR", key])
+    if (count === 1) {
+      await redisCommand<number>(["EXPIRE", key, String(ttlSeconds)])
+    }
+    return count
   }
-  return count
+
+  const now = getNow()
+  const current = inMemoryCounterStore.get(key)
+
+  if (!current || now > current.expiresAt) {
+    const next = { count: 1, expiresAt: now + ttlSeconds * 1000 }
+    inMemoryCounterStore.set(key, next)
+    return next.count
+  }
+
+  current.count += 1
+  inMemoryCounterStore.set(key, current)
+  return current.count
 }
 
 export async function assertOtpRateLimit(ip: string): Promise<void> {
@@ -152,41 +193,81 @@ export function generateOtp(): string {
 export async function storeOtp(email: string, otp: string): Promise<void> {
   const payload: OtpPayload = {
     otp,
-    createdAt: Date.now(),
+    createdAt: getNow(),
   }
 
-  await redisCommand<string>(["SETEX", otpKey(email), String(OTP_EXPIRY_SECONDS), JSON.stringify(payload)])
+  if (hasRedisConfig()) {
+    await redisCommand<string>(["SETEX", otpKey(email), String(OTP_EXPIRY_SECONDS), JSON.stringify(payload)])
+    return
+  }
+
+  inMemoryOtpStore.set(email, {
+    ...payload,
+    expiresAt: getNow() + OTP_EXPIRY_SECONDS * 1000,
+  })
 }
 
 export async function readOtp(email: string): Promise<OtpPayload | null> {
-  const result = await redisCommand<string | null>(["GET", otpKey(email)])
+  if (hasRedisConfig()) {
+    const result = await redisCommand<string | null>(["GET", otpKey(email)])
 
-  if (!result) {
+    if (!result) {
+      return null
+    }
+
+    try {
+      const parsed = JSON.parse(result) as OtpPayload
+      if (typeof parsed.otp === "string" && typeof parsed.createdAt === "number") {
+        return parsed
+      }
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  const record = inMemoryOtpStore.get(email)
+
+  if (!record) {
     return null
   }
 
-  try {
-    const parsed = JSON.parse(result) as OtpPayload
-    if (typeof parsed.otp === "string" && typeof parsed.createdAt === "number") {
-      return parsed
-    }
+  if (getNow() > record.expiresAt) {
+    inMemoryOtpStore.delete(email)
     return null
-  } catch {
-    return null
+  }
+
+  return {
+    otp: record.otp,
+    createdAt: record.createdAt,
   }
 }
 
 export async function clearOtp(email: string): Promise<void> {
-  await redisCommand<number>(["DEL", otpKey(email)])
+  if (hasRedisConfig()) {
+    await redisCommand<number>(["DEL", otpKey(email)])
+    return
+  }
+
+  inMemoryOtpStore.delete(email)
 }
 
 export async function isVerifiedEmail(email: string): Promise<boolean> {
-  const result = await redisCommand<number>(["EXISTS", verifiedKey(email)])
-  return result === 1
+  if (hasRedisConfig()) {
+    const result = await redisCommand<number>(["EXISTS", verifiedKey(email)])
+    return result === 1
+  }
+
+  return inMemoryVerifiedStore.has(email)
 }
 
 export async function markVerifiedEmail(email: string): Promise<void> {
-  await redisCommand<string>(["SET", verifiedKey(email), "1"])
+  if (hasRedisConfig()) {
+    await redisCommand<string>(["SET", verifiedKey(email), "1"])
+    return
+  }
+
+  inMemoryVerifiedStore.add(email)
 }
 
 async function sendResendEmail(payload: {
