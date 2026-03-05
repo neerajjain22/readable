@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import Layout from "../../components/Layout"
 import Seo from "../../components/Seo"
@@ -89,13 +88,67 @@ export default function AIVisibilityPage() {
                 </div>
               </div>
               <div className={styles.visualCard}>
-                <Image
-                  src="/images/module-visibility.svg"
-                  alt="AI Influence dashboard preview"
-                  width={720}
-                  height={440}
-                  priority
-                />
+                <div className={styles.dashboardShell}>
+                  <p className={styles.dashboardTitle}>AI Influence Snapshot</p>
+                  <p className={styles.dashboardSubheader}>Brand: YourBrand.com</p>
+                  <p className={styles.dashboardSubheader}>Category: Online Travel Booking</p>
+
+                  <div className={styles.dashboardSection}>
+                    <p className={styles.dashboardLabel}>AI RECOMMENDATION SHARE</p>
+                    <ul className={styles.shareList}>
+                      <li className={styles.shareRow}>
+                        <span className={styles.shareName}>Booking.com</span>
+                        <span className={styles.shareBar} aria-hidden="true">
+                          ██████████
+                        </span>
+                        <span className={styles.shareValue}>34%</span>
+                      </li>
+                      <li className={styles.shareRow}>
+                        <span className={styles.shareName}>Expedia</span>
+                        <span className={styles.shareBar} aria-hidden="true">
+                          ████████
+                        </span>
+                        <span className={styles.shareValue}>26%</span>
+                      </li>
+                      <li className={styles.shareRow}>
+                        <span className={styles.shareName}>Airbnb</span>
+                        <span className={styles.shareBar} aria-hidden="true">
+                          ██████
+                        </span>
+                        <span className={styles.shareValue}>18%</span>
+                      </li>
+                      <li className={styles.shareRow}>
+                        <span className={styles.shareName}>YourBrand.com</span>
+                        <span className={styles.shareBar} aria-hidden="true">
+                          █████
+                        </span>
+                        <span className={styles.shareValue}>14%</span>
+                      </li>
+                      <li className={styles.shareRow}>
+                        <span className={styles.shareName}>TripAdvisor</span>
+                        <span className={styles.shareBar} aria-hidden="true">
+                          ████
+                        </span>
+                        <span className={styles.shareValue}>8%</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className={styles.dashboardSection}>
+                    <p className={styles.dashboardLabel}>TOP ASSOCIATED ATTRIBUTES</p>
+                    <ul className={styles.attributeList}>
+                      <li>affordable hotel deals</li>
+                      <li>flexible travel bookings</li>
+                      <li>last-minute travel offers</li>
+                      <li>family-friendly stays</li>
+                    </ul>
+                  </div>
+
+                  <p className={styles.dashboardInsight}>
+                    YourBrand.com appears in 14% of AI recommendations for &quot;best travel booking sites&quot;.
+                  </p>
+                  <p className={styles.dashboardFootnote}>Example AI Influence analysis</p>
+                </div>
               </div>
             </div>
           </div>
@@ -162,12 +215,54 @@ export default function AIVisibilityPage() {
                 </div>
               </div>
               <div className={styles.visualCard}>
-                <Image
-                  src="/images/hero-dashboard.svg"
-                  alt="Readable product dashboard mockup"
-                  width={720}
-                  height={440}
-                />
+                <div className={styles.dashboardShell}>
+                  <p className={styles.dashboardTitle}>AI Influence Dashboard</p>
+
+                  <div className={styles.dashboardSection}>
+                    <p className={styles.dashboardLabel}>PROMPT CLUSTERS MONITORED</p>
+                    <ul className={styles.attributeList}>
+                      <li>best travel booking sites</li>
+                      <li>cheap hotel booking platforms</li>
+                      <li>last-minute travel deals</li>
+                      <li>family vacation booking sites</li>
+                      <li>flexible cancellation hotel platforms</li>
+                    </ul>
+                  </div>
+
+                  <div className={styles.dashboardSection}>
+                    <p className={styles.dashboardLabel}>WEEKLY AI RECOMMENDATION MOVEMENT</p>
+                    <div className={styles.metricCard}>
+                      <p className={styles.metricTitle}>YourBrand.com</p>
+                      <p className={styles.metricValuePositive}>↑ +6 recommendation appearances</p>
+                    </div>
+                    <div className={styles.metricCard}>
+                      <p className={styles.metricTitle}>Booking.com</p>
+                      <p className={styles.metricValueNegative}>↓ -3 appearances</p>
+                    </div>
+                    <div className={styles.metricCard}>
+                      <p className={styles.metricTitle}>Expedia</p>
+                      <p className={styles.metricValuePositive}>↑ +2 appearances</p>
+                    </div>
+                  </div>
+
+                  <div className={styles.dashboardSection}>
+                    <p className={styles.dashboardLabel}>NARRATIVE SHIFT DETECTED</p>
+                    <p className={styles.narrativeText}>
+                      AI assistants increasingly describe YourBrand.com as:
+                      <br />
+                      <span className={styles.narrativeQuote}>&quot;best last-minute hotel booking platform&quot;</span>
+                      <br />
+                      instead of
+                      <br />
+                      <span className={styles.narrativeQuote}>&quot;discount travel aggregator&quot;</span>
+                    </p>
+                  </div>
+
+                  <p className={styles.dashboardInsight}>
+                    YourBrand.com influence increased across 3 high-intent travel prompt clusters this week.
+                  </p>
+                  <p className={styles.dashboardFootnote}>Example weekly AI Influence dashboard</p>
+                </div>
               </div>
             </div>
           </div>
