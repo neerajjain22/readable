@@ -5,24 +5,24 @@ import Breadcrumbs from "../components/Breadcrumbs"
 import styles from "../styles/agency-partners.module.css"
 
 const aiShiftPoints = [
-  "Clients are asking about AI visibility",
-  "AI tools influence competitive positioning",
-  "Traditional SEO reporting doesn't cover AI systems",
-  "Agencies need new reporting capabilities",
+  "Clients are asking how AI systems describe their brand",
+  "AI assistants influence product discovery and comparison",
+  "Traditional SEO reporting does not cover AI systems",
+  "Agencies need new analytics and reporting capabilities",
 ]
 
 const serviceCards = [
   {
     title: "AI Positioning Reports",
-    body: "Show clients how AI tools describe and recommend their brand.",
+    body: "Show clients how AI systems describe their brand across prompts, categories, and competitors.",
   },
   {
     title: "Agent Traffic Insights",
-    body: "Track AI-driven visits and conversion influence.",
+    body: "Track AI-driven visits, referrals, and how AI assistants influence website traffic and conversions.",
   },
   {
-    title: "Structured Page Guidance",
-    body: "Help clients improve the pages AI systems reference most.",
+    title: "Agent-Optimized Page Guidance",
+    body: "Help clients improve the pages AI systems reference when recommending products and services.",
   },
 ]
 
@@ -35,7 +35,7 @@ const whiteLabelFeatures = [
 ]
 
 const revenuePoints = [
-  "Monthly recurring model",
+  "Monthly reporting and insights",
   "Multi-client management",
   "Expandable per client",
   "Scales with your agency",
@@ -43,16 +43,16 @@ const revenuePoints = [
 
 const partnershipSteps = [
   {
-    label: "1. Apply",
-    body: "Share details about your agency and client base.",
+    label: "Apply",
+    body: "Share details about your agency, services, and client base.",
   },
   {
-    label: "2. Onboard",
-    body: "We set up your white-labeled environment and dashboard.",
+    label: "Onboard",
+    body: "We set up your white-labeled dashboard and reporting environment.",
   },
   {
-    label: "3. Launch",
-    body: "Start offering AI visibility reporting to your clients.",
+    label: "Launch",
+    body: "Start offering AI influence reporting and insights to your clients.",
   },
 ]
 
@@ -69,14 +69,14 @@ export default function AgencyPartnersPage() {
         <section className={styles.heroSection}>
           <div className={styles.container}>
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Agency Partners" }]} />
-            <h1 className={styles.heading}>White-Labeled AI Influence for Agencies</h1>
+            <h1 className={styles.heading}>Add AI Influence Services to Your Agency</h1>
             <p className={styles.subheading}>
-              Offer AI positioning and agent analytics under your brand — and create a new recurring
-              revenue stream.
+              Help clients understand how AI systems describe their brand, track AI-driven traffic, and
+              improve how they appear in AI responses — all under your agency’s brand.
             </p>
             <p className={styles.description}>
-              Readable provides agencies with a fully white-labeled platform to monitor how AI tools
-              represent their clients, track AI-driven traffic, and deliver structured reporting at scale.
+              Readable provides the infrastructure behind the scenes so agencies can deliver AI influence
+              analytics, structured reporting, and optimization guidance as a client service.
             </p>
             <div className={styles.actions}>
               <Link href="/contact" className={styles.primaryButton}>
@@ -93,8 +93,8 @@ export default function AgencyPartnersPage() {
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>AI Is Changing How Brands Are Discovered</h2>
             <p className={styles.intro}>
-              AI tools now influence brand discovery, comparison, and recommendation. Agencies need visibility
-              into how clients are represented — and a structured way to improve it.
+              AI assistants increasingly influence how buyers discover, compare, and choose brands. Agencies
+              need new ways to measure and improve how their clients appear in AI responses.
             </p>
             <div className={styles.card}>
               <ul className={styles.bulletList}>
@@ -108,7 +108,7 @@ export default function AgencyPartnersPage() {
 
         <section className={styles.section}>
           <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>Deliver AI Influence as a Service</h2>
+            <h2 className={styles.sectionTitle}>Offer AI Influence Services to Your Clients</h2>
             <div className={styles.grid3}>
               {serviceCards.map((card) => (
                 <article key={card.title} className={styles.card}>
@@ -123,6 +123,9 @@ export default function AgencyPartnersPage() {
         <section className={styles.sectionAlt}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>Fully White-Labeled Platform</h2>
+            <p className={styles.intro}>
+              Readable operates behind the scenes so your agency owns the client relationship.
+            </p>
             <div className={styles.card}>
               <ul className={styles.bulletList}>
                 {whiteLabelFeatures.map((feature) => (
@@ -130,7 +133,7 @@ export default function AgencyPartnersPage() {
                 ))}
               </ul>
               <p className={styles.cardBody}>
-                Readable operates behind the scenes — your agency owns the client relationship.
+                Your clients see your agency as the provider of AI influence insights and reporting.
               </p>
             </div>
           </div>
@@ -140,8 +143,7 @@ export default function AgencyPartnersPage() {
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>Built for Recurring Revenue</h2>
             <p className={styles.intro}>
-              Offer AI visibility and agent analytics as an ongoing service, integrated into your existing
-              retainer structure.
+              Offer AI influence analytics as an ongoing service integrated into your agency retainers.
             </p>
             <div className={styles.card}>
               <ul className={styles.bulletList}>
@@ -170,7 +172,11 @@ export default function AgencyPartnersPage() {
         <section className={styles.finalSection}>
           <div className={styles.container}>
             <div className={styles.centerShell}>
-              <h2 className={styles.sectionTitle}>Add AI Influence to Your Agency Offering.</h2>
+              <h2 className={styles.sectionTitle}>Add AI Influence to Your Agency Offering</h2>
+              <p className={styles.intro}>
+                Join agencies helping clients understand and improve how AI systems influence discovery and
+                decision-making.
+              </p>
               <div className={styles.centerActions}>
                 <Link href="/contact" className={styles.primaryButton}>
                   Apply to Become a Partner
