@@ -3,6 +3,7 @@ import Link from "next/link"
 import Layout from "../../components/Layout"
 import Seo from "../../components/Seo"
 import Breadcrumbs from "../../components/Breadcrumbs"
+import AgentAnalyticsPreview from "../../components/product-placeholders/AgentAnalyticsPreview"
 import styles from "../../styles/agent-analytics.module.css"
 
 const trackingBlocks = [
@@ -96,14 +97,8 @@ export default function AgentAnalyticsPage() {
                   </Link>
                 </div>
               </div>
-              <div className={`ui-visual-shell ${styles.visualCard}`}>
-                <Image
-                  src="/images/module-analytics.svg"
-                  alt="Agent Analytics dashboard preview"
-                  width={720}
-                  height={440}
-                  priority
-                />
+              <div className={styles.visualCard}>
+                <AgentAnalyticsPreview variant="hero" />
               </div>
             </div>
           </div>
