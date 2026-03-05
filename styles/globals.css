@@ -59,6 +59,13 @@ select {
 
     --container-max: 1200px;
     --container-padding: 32px;
+
+    --layout-hero-padding-top: 128px;
+    --layout-hero-padding-bottom: 112px;
+    --layout-section-padding: var(--spacing-xl);
+    --layout-section-padding-mobile: 64px;
+    --layout-hero-padding-top-mobile: 96px;
+    --layout-hero-padding-bottom-mobile: 80px;
 }
 
 body {
@@ -77,8 +84,27 @@ body {
 
 .ui-visual-shell {
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-bg-light);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 70% 20%, rgba(99, 102, 241, 0.18), transparent 60%),
+        radial-gradient(circle at 30% 80%, rgba(99, 102, 241, 0.1), transparent 60%),
+        var(--color-bg-light);
+    padding: 16px;
+}
+
+.ui-placeholder-panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    padding: 12px;
+}
+
+.ui-placeholder-subpanel {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 12px;
 }
 
 .ui-btn {

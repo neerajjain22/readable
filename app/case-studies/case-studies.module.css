@@ -5,7 +5,7 @@
 .hero,
 .gridSection,
 .ctaSection {
-  padding: 96px 0;
+  padding: var(--layout-section-padding) 0;
 }
 
 .hero {
@@ -250,7 +250,7 @@
   .hero,
   .gridSection,
   .ctaSection {
-    padding: 64px 0;
+    padding: var(--layout-section-padding-mobile) 0;
   }
 
   .container {

@@ -2,9 +2,9 @@ import styles from "./ProductPreviews.module.css"
 
 export default function AgentOptimizedPagesPreview() {
   return (
-    <div className={styles.shell}>
+    <div className={`ui-visual-shell ${styles.shell}`}>
       <div className={styles.stack}>
-        <article className={`${styles.panel} ${styles.panelTop}`}>
+        <article className={`ui-placeholder-panel ${styles.panel} ${styles.panelTop}`}>
           <p className={styles.label}>Page Request</p>
           <p className={styles.body}>example.com/running-shoes</p>
           <div style={{ marginTop: "10px", display: "grid", gap: "6px" }}>
@@ -20,7 +20,7 @@ export default function AgentOptimizedPagesPreview() {
           </div>
         </article>
 
-        <article className={`${styles.panel} ${styles.panelBottom}`}>
+        <article className={`ui-placeholder-panel ${styles.panel} ${styles.panelBottom}`}>
           <p className={styles.label}>Dual Content Delivery</p>
           <div className={styles.dualGrid}>
             <div className={styles.experienceCard}>

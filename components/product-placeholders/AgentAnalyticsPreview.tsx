@@ -16,9 +16,9 @@ const funnel = [
 
 export default function AgentAnalyticsPreview() {
   return (
-    <div className={styles.shell}>
+    <div className={`ui-visual-shell ${styles.shell}`}>
       <div className={`${styles.stack} ${styles.stackCompact}`}>
-        <article className={`${styles.panel} ${styles.panelTop}`}>
+        <article className={`ui-placeholder-panel ${styles.panel} ${styles.panelTop}`}>
           <p className={styles.label}>AI Agent Sources</p>
           <div className={styles.grid}>
             {sources.map((item) => (
@@ -33,7 +33,7 @@ export default function AgentAnalyticsPreview() {
           </div>
         </article>
 
-        <article className={`${styles.panel} ${styles.panelBottom}`}>
+        <article className={`ui-placeholder-panel ${styles.panel} ${styles.panelBottom}`}>
           <p className={styles.label}>AI-Influenced Funnel</p>
           <div className={styles.grid}>
             {funnel.map((item) => (

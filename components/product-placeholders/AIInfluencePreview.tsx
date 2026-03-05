@@ -10,9 +10,9 @@ const attributes = [
 
 export default function AIInfluencePreview() {
   return (
-    <div className={styles.shell}>
+    <div className={`ui-visual-shell ${styles.shell}`}>
       <div className={`${styles.stack} ${styles.stackCompact}`}>
-        <article className={`${styles.panel} ${styles.panelTop}`}>
+        <article className={`ui-placeholder-panel ${styles.panel} ${styles.panelTop}`}>
           <p className={styles.label}>Brand Influence by Attribute</p>
           <div className={styles.grid} style={{ marginTop: "8px" }}>
             {attributes.map((item) => (
@@ -29,7 +29,7 @@ export default function AIInfluencePreview() {
           <p className={styles.helper}>Brand strength shown as association intensity across AI responses.</p>
         </article>
 
-        <article className={`${styles.panel} ${styles.panelBottom}`}>
+        <article className={`ui-placeholder-panel ${styles.panel} ${styles.panelBottom}`}>
           <p className={styles.label}>Opportunity</p>
           <p className={styles.body} style={{ fontSize: "11px", lineHeight: 1.5 }}>
             BrandX underrepresented in performance-related recommendations.

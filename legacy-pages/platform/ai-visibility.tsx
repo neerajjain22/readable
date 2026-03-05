@@ -88,12 +88,12 @@ export default function AIVisibilityPage() {
                 </div>
               </div>
               <div className={`ui-visual-shell ${styles.visualCard}`}>
-                <div className={styles.dashboardShell}>
+                <div className={`ui-placeholder-panel ${styles.dashboardShell}`}>
                   <p className={styles.dashboardTitle}>AI Influence Snapshot</p>
                   <p className={styles.dashboardSubheader}>Brand: YourBrand.com</p>
                   <p className={styles.dashboardSubheader}>Category: Online Travel Booking</p>
 
-                  <div className={styles.dashboardSection}>
+                  <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
                     <p className={styles.dashboardLabel}>AI RECOMMENDATION SHARE</p>
                     <ul className={styles.shareList}>
                       <li className={styles.shareRow}>
@@ -134,7 +134,7 @@ export default function AIVisibilityPage() {
                     </ul>
                   </div>
 
-                  <div className={styles.dashboardSection}>
+                  <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
                     <p className={styles.dashboardLabel}>TOP ASSOCIATED ATTRIBUTES</p>
                     <ul className={styles.attributeList}>
                       <li>affordable hotel deals</li>
@@ -214,11 +214,11 @@ export default function AIVisibilityPage() {
                   </Link>
                 </div>
               </div>
-              <div className={`ui-visual-shell ${styles.visualCard}`}>
-                <div className={styles.dashboardShell}>
+                <div className={`ui-visual-shell ${styles.visualCard}`}>
+                <div className={`ui-placeholder-panel ${styles.dashboardShell}`}>
                   <p className={styles.dashboardTitle}>AI Influence Dashboard</p>
 
-                  <div className={styles.dashboardSection}>
+                  <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
                     <p className={styles.dashboardLabel}>PROMPT CLUSTERS MONITORED</p>
                     <ul className={styles.attributeList}>
                       <li>best travel booking sites</li>
@@ -229,23 +229,23 @@ export default function AIVisibilityPage() {
                     </ul>
                   </div>
 
-                  <div className={styles.dashboardSection}>
+                  <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
                     <p className={styles.dashboardLabel}>WEEKLY AI RECOMMENDATION MOVEMENT</p>
-                    <div className={styles.metricCard}>
+                    <div className={`ui-placeholder-subpanel ${styles.metricCard}`}>
                       <p className={styles.metricTitle}>YourBrand.com</p>
                       <p className={styles.metricValuePositive}>↑ +6 recommendation appearances</p>
                     </div>
-                    <div className={styles.metricCard}>
+                    <div className={`ui-placeholder-subpanel ${styles.metricCard}`}>
                       <p className={styles.metricTitle}>Booking.com</p>
                       <p className={styles.metricValueNegative}>↓ -3 appearances</p>
                     </div>
-                    <div className={styles.metricCard}>
+                    <div className={`ui-placeholder-subpanel ${styles.metricCard}`}>
                       <p className={styles.metricTitle}>Expedia</p>
                       <p className={styles.metricValuePositive}>↑ +2 appearances</p>
                     </div>
                   </div>
 
-                  <div className={styles.dashboardSection}>
+                  <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
                     <p className={styles.dashboardLabel}>NARRATIVE SHIFT DETECTED</p>
                     <p className={styles.narrativeText}>
                       AI assistants increasingly describe YourBrand.com as:
