@@ -25,8 +25,8 @@ export default function ContactPage() {
     const body = encodeURIComponent(
       `Name: ${name.trim()}\nWork Email: ${email.trim()}\nCompany: ${company.trim() || "Not provided"}\n\nMessage:\n${message.trim()}`,
     )
-    window.location.href = `mailto:hello@soniclinker.com?subject=${subject}&body=${body}`
-    setStatus("Your email app should open now. If it doesn’t, email hello@soniclinker.com.")
+    window.location.href = `mailto:hello@tryreadable.ai?subject=${subject}&body=${body}`
+    setStatus("Your email app should open now. If it doesn’t, email hello@tryreadable.ai.")
     event.currentTarget.reset()
   }
 
@@ -101,6 +101,7 @@ export default function ContactPage() {
                   </span>
                   <div>
                     <p className={styles.officeTitle}>India</p>
+                    <p className={styles.text}>1781, HSR Layout</p>
                     <p className={styles.text}>Bengaluru</p>
                     <p className={styles.text}>Karnataka</p>
                   </div>
