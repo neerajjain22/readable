@@ -39,7 +39,7 @@ const navLinks: NavLink[] = [
     label: "Resources",
     items: [
       { href: "/blog", label: "Blog" },
-      { href: "/docs", label: "Documentation" },
+      { href: "/docs", label: "API Docs" },
       { href: "/whitepapers", label: "Whitepapers" },
     ],
   },
