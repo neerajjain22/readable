@@ -137,6 +137,45 @@ body {
     color: var(--color-primary);
 }
 
+/* Global button color authority (legacy + modular class-name conventions) */
+:where(
+    .ui-btn-primary,
+    [class*="primaryButton"],
+    [class*="submitButton"],
+    [class*="downloadButton"],
+    [class*="ctaButton"],
+    [class*="searchButton"],
+    [class*="buttonPrimary"]
+) {
+    color: var(--color-white) !important;
+    background: var(--color-accent) !important;
+    border-color: var(--color-accent) !important;
+}
+
+:where(
+    .ui-btn-secondary,
+    [class*="secondaryButton"],
+    [class*="ghostButton"],
+    [class*="buttonSecondary"]
+) {
+    color: var(--color-primary) !important;
+    background: var(--color-bg-default) !important;
+    border-color: var(--color-border) !important;
+}
+
+:where(
+    .ui-btn-primary,
+    [class*="primaryButton"],
+    [class*="submitButton"],
+    [class*="downloadButton"],
+    [class*="ctaButton"],
+    [class*="searchButton"],
+    [class*="buttonPrimary"]
+):hover {
+    background: var(--color-accent-hover) !important;
+    border-color: var(--color-accent-hover) !important;
+}
+
 .ui-input,
 .ui-select,
 .ui-textarea {
