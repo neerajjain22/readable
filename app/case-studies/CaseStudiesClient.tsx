@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import Header from "../../components/Header"
-import Footer from "../../components/footer"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import styles from "./case-studies.module.css"
+import headerStyles from "../../styles/components/Header.module.css"
+import footerStyles from "../../styles/components/Footer.module.css"
 
 type CaseStudy = {
   slug: string
@@ -17,6 +19,172 @@ type CaseStudy = {
 type ModalStep = "email" | "otp" | "success"
 
 const VERIFIED_EMAIL_STORAGE_KEY = "readable_verified_case_study_email"
+const navLinks = [
+  { href: "/platform", label: "Platform" },
+  { href: "/solutions", label: "Solutions" },
+  { href: "/case-studies", label: "Case Studies" },
+  { href: "/agency-partners", label: "Agency Partners" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/resources", label: "Resources" },
+]
+
+const footerColumns = [
+  {
+    title: "Platform",
+    links: [
+      { href: "/platform", label: "AI Influence" },
+      { href: "/platform/agent-analytics", label: "Agent Analytics" },
+      { href: "/platform/agent-ready-pages", label: "Agent-Ready Pages" },
+    ],
+  },
+  {
+    title: "Solutions",
+    links: [
+      { href: "/solutions/growth-teams", label: "Growth Teams" },
+      { href: "/solutions/brand-teams", label: "Brand Teams" },
+      { href: "/solutions/product-teams", label: "Product Teams" },
+      { href: "/solutions/analytics-teams", label: "Analytics Teams" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { href: "/blog", label: "Blog" },
+      { href: "/case-studies", label: "Case Studies" },
+      { href: "/docs", label: "Docs" },
+      { href: "/resources", label: "Whitepapers" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/partners", label: "Agency Partners" },
+      { href: "/contact", label: "Contact" },
+      { href: "/pricing", label: "Pricing" },
+    ],
+  },
+]
+
+function AppRouterHeader() {
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+
+  return (
+    <header className={headerStyles.header}>
+      <div className={headerStyles.container}>
+        <div className={headerStyles.row}>
+          <Link href="/" className={headerStyles.logo} aria-label="Readable home">
+            Readable
+          </Link>
+
+          <nav className={headerStyles.desktopNav} aria-label="Primary">
+            <ul className={headerStyles.navList}>
+              {navLinks.map((link) => (
+                <li key={link.href} className={headerStyles.navItem}>
+                  <Link
+                    href={link.href}
+                    className={`${headerStyles.navLink} ${isActive(link.href) ? headerStyles.navLinkActive : ""}`}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className={headerStyles.actions}>
+            <Link href="/contact" className={headerStyles.ghostButton}>
+              Contact
+            </Link>
+            <Link href="/book-demo" className={headerStyles.ctaButton}>
+              Book a Demo
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            className={headerStyles.mobileToggle}
+            aria-expanded={mobileOpen}
+            aria-controls="case-studies-mobile-menu"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMobileOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="case-studies-mobile-menu"
+        className={`${headerStyles.mobilePanel} ${mobileOpen ? headerStyles.mobilePanelOpen : ""}`}
+      >
+        <nav className={headerStyles.mobileNav} aria-label="Mobile">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`${headerStyles.mobileLink} ${isActive(link.href) ? headerStyles.navLinkActive : ""}`}
+              onClick={() => setMobileOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link href="/book-demo" className={headerStyles.ctaButton} onClick={() => setMobileOpen(false)}>
+            Book a Demo
+          </Link>
+        </nav>
+      </div>
+    </header>
+  )
+}
+
+function AppRouterFooter() {
+  return (
+    <footer className={footerStyles.footer} aria-label="Site footer">
+      <div className={footerStyles.container}>
+        <div className={footerStyles.grid}>
+          {footerColumns.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <h3 className={footerStyles.title}>{col.title}</h3>
+              <ul className={footerStyles.list}>
+                {col.links.map((link) => (
+                  <li key={link.href + link.label}>
+                    <Link href={link.href} className={footerStyles.link}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+
+        <div className={footerStyles.bottom}>
+          <div>
+            <p className={footerStyles.brand}>Readable</p>
+            <p className={footerStyles.text}>The AI Influence & Agent Analytics Platform</p>
+          </div>
+          <div className={footerStyles.bottomLinks}>
+            <Link href="/privacy" className={footerStyles.link}>
+              Privacy
+            </Link>
+            <Link href="/terms" className={footerStyles.link}>
+              Terms
+            </Link>
+            <Link href="/faq" className={footerStyles.link}>
+              FAQ
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
 
 export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -190,7 +358,7 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
 
   return (
     <>
-      <Header />
+      <AppRouterHeader />
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className={styles.container}>
@@ -243,7 +411,7 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
           </div>
         </section>
       </main>
-      <Footer />
+      <AppRouterFooter />
 
       {isModalOpen && selectedStudy ? (
         <div className={styles.modalBackdrop} role="presentation" onClick={closeModal}>
