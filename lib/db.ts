@@ -7,11 +7,9 @@ async function ensureTables() {
     return
   }
 
-  await sql`CREATE EXTENSION IF NOT EXISTS pgcrypto;`
-
   await sql`
     CREATE TABLE IF NOT EXISTS leads (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id BIGSERIAL PRIMARY KEY,
       email TEXT NOT NULL,
       source TEXT,
       created_at TIMESTAMP DEFAULT NOW()
@@ -20,7 +18,7 @@ async function ensureTables() {
 
   await sql`
     CREATE TABLE IF NOT EXISTS case_study_downloads (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id BIGSERIAL PRIMARY KEY,
       email TEXT NOT NULL,
       case_study_slug TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
