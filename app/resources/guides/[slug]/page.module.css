@@ -4,6 +4,15 @@
   gap: 40px;
 }
 
+.content {
+  scroll-behavior: smooth;
+}
+
+.content h2,
+.content h3 {
+  scroll-margin-top: 120px;
+}
+
 .content hr {
   margin-top: 48px;
   margin-bottom: 24px;
@@ -25,6 +34,8 @@
   align-self: start;
   border-left: 1px solid var(--color-border);
   padding-left: 16px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 .tocTitle {
@@ -40,6 +51,7 @@
 .tocNav {
   display: grid;
   gap: 8px;
+  padding-bottom: 8px;
 }
 
 .tocLink {
@@ -47,10 +59,16 @@
   color: var(--color-text-body);
   font-size: 14px;
   line-height: 1.4;
+  transition: color 120ms ease;
 }
 
 .tocLink:hover {
   color: var(--color-accent);
+}
+
+.tocLinkActive {
+  color: var(--color-accent);
+  font-weight: 600;
 }
 
 @media (max-width: 1024px) {

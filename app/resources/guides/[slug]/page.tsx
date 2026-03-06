@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { MDXRemote } from "next-mdx-remote/rsc"
+import type { ReactNode } from "react"
+import { isValidElement } from "react"
 import remarkGfm from "remark-gfm"
 import Breadcrumbs from "../../../../components/Breadcrumbs"
 import { getGuideBySlug, getGuideSlugs } from "../../../../lib/guides"
 import styles from "../../../../styles/Page.module.css"
+import GuideToc from "./GuideToc"
 import pageStyles from "./page.module.css"
 
 type GuidePageProps = {
@@ -44,6 +47,22 @@ function getMarkdownToc(content: string): TocItem[] {
     const title = match[1].trim()
     return { id: slugify(title), title }
   })
+}
+
+function getTextFromNode(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node)
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child) => getTextFromNode(child)).join("")
+  }
+
+  if (isValidElement(node)) {
+    return getTextFromNode(node.props.children)
+  }
+
+  return ""
 }
 
 export async function generateStaticParams() {
@@ -109,35 +128,22 @@ export default function GuidePage({ params }: GuidePageProps) {
                   source={guide.content}
                   options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
                   components={{
-                    img: (props) => (
-                      <img
-                        {...props}
-                        style={{
-                          width: "100%",
-                          maxWidth: "100%",
-                          height: "auto",
-                          display: "block",
-                          margin: "24px auto",
-                        }}
-                      />
-                    ),
+                    h2: ({ children, ...props }) => {
+                      const headingText = getTextFromNode(children)
+                      const id = slugify(headingText)
+
+                      return (
+                        <h2 id={id} {...props}>
+                          {children}
+                        </h2>
+                      )
+                    },
                   }}
                 />
               )}
             </div>
 
-            {tocItems.length > 0 ? (
-              <aside className={pageStyles.tocWrap} aria-label="Table of contents">
-                <p className={pageStyles.tocTitle}>On this page</p>
-                <nav className={pageStyles.tocNav}>
-                  {tocItems.map((item) => (
-                    <a key={item.id} href={`#${item.id}`} className={pageStyles.tocLink}>
-                      {item.title}
-                    </a>
-                  ))}
-                </nav>
-              </aside>
-            ) : null}
+            {tocItems.length > 0 ? <GuideToc items={tocItems} /> : null}
           </div>
         </article>
       </section>
