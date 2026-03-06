@@ -133,7 +133,7 @@ export default function PricingPage() {
                   <div className={styles.planActions}>
                     <Link
                       href={plan.ctaHref}
-                      className={plan.featured ? styles.primaryButton : styles.secondaryButton}
+                      className={plan.featured ? `btn btn-primary ${styles.primaryButton}` : `btn btn-secondary ${styles.secondaryButton}`}
                     >
                       {plan.ctaLabel}
                     </Link>
@@ -192,10 +192,10 @@ export default function PricingPage() {
             <div className={styles.ctaShell}>
               <h2 className={styles.sectionTitle}>Ready to Understand Your AI Presence?</h2>
               <div className={styles.ctaActions}>
-                <Link href="/platform/ai-visibility" className={styles.secondaryButton}>
+                <Link href="/platform/ai-visibility" className={`btn btn-secondary ${styles.secondaryButton}`}>
                   Start Free
                 </Link>
-                <Link href="/book-demo" className={styles.primaryButton}>
+                <Link href="/book-demo" className={`btn btn-primary ${styles.primaryButton}`}>
                   Book a Demo
                 </Link>
               </div>

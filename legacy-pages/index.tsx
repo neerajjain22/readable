@@ -202,7 +202,7 @@ export default function HomePage() {
                     />
                     <button
                       type="button"
-                      className={pageStyles.searchButton}
+                      className="btn btn-primary"
                       style={{
                         borderTopLeftRadius: "0",
                         borderBottomLeftRadius: "0",
@@ -606,10 +606,10 @@ export default function HomePage() {
                 opportunities to improve.
               </p>
               <div style={{ marginTop: "24px", display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
-                <Link href="/platform/ai-visibility" className={pageStyles.searchButton}>
+                <Link href="/platform/ai-visibility" className="btn btn-primary">
                   Analyze My Brand
                 </Link>
-                <Link href="/book-demo" className={pageStyles.pageLink}>
+                <Link href="/book-demo" className="btn btn-secondary">
                   Book a Demo
                 </Link>
               </div>
