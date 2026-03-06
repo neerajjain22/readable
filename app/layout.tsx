@@ -2,8 +2,10 @@ import "../styles/globals.css"
 import Header from "../components/Header"
 import Footer from "../components/footer"
 
+const BASE_URL = "https://www.tryreadable.ai"
+
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://readable-r1c19idvd-readable2.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? BASE_URL),
   title: {
     default: "Readable",
     template: "%s | Readable",
