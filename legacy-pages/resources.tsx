@@ -21,7 +21,7 @@ export default function ResourcesPage() {
         path="/resources"
       />
       <main className={styles.page}>
-        <section className={styles.section}>
+        <section className={styles.section} style={{ paddingTop: "var(--section-spacing-large)", paddingBottom: "var(--section-spacing-large)" }}>
           <div className={styles.container}>
             <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Resources" }]} />
             <h1 className={styles.heroTitle}>Resource Center</h1>
@@ -31,7 +31,7 @@ export default function ResourcesPage() {
           </div>
         </section>
 
-        <section className={styles.sectionAlt}>
+        <section className={styles.sectionAlt} style={{ paddingTop: "var(--section-spacing-large)", paddingBottom: "var(--section-spacing-large)" }}>
           <div className={styles.container}>
             <div className={styles.grid2}>
               {resources.map((resource) => (

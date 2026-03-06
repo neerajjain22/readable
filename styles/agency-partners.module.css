@@ -3,23 +3,23 @@
 }
 
 .heroSection {
-  padding: var(--layout-section-padding) 0;
+  padding: var(--section-spacing-large) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
 .section {
-  padding: var(--layout-section-padding) 0;
+  padding: var(--section-spacing-large) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
 .sectionAlt {
-  padding: var(--layout-section-padding) 0;
+  padding: var(--section-spacing-large) 0;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-light);
 }
 
 .finalSection {
-  padding: var(--layout-section-padding) 0;
+  padding: var(--section-spacing-large) 0;
 }
 
 .container {
@@ -157,7 +157,7 @@
   .section,
   .sectionAlt,
   .finalSection {
-    padding: var(--layout-section-padding-mobile) 0;
+    padding: var(--section-spacing-medium) 0;
   }
 
   .container {

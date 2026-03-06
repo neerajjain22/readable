@@ -66,6 +66,9 @@ select {
     --layout-section-padding-mobile: 64px;
     --layout-hero-padding-top-mobile: 96px;
     --layout-hero-padding-bottom-mobile: 80px;
+    --section-spacing-large: 96px;
+    --section-spacing-medium: 72px;
+    --section-spacing-small: 48px;
 }
 
 body {
@@ -73,6 +76,21 @@ body {
     color: var(--color-primary);
     background: var(--color-bg-default);
     line-height: 1.5;
+}
+
+.section {
+    padding-top: var(--section-spacing-large);
+    padding-bottom: var(--section-spacing-large);
+}
+
+.section-medium {
+    padding-top: var(--section-spacing-medium);
+    padding-bottom: var(--section-spacing-medium);
+}
+
+.section-small {
+    padding-top: var(--section-spacing-small);
+    padding-bottom: var(--section-spacing-small);
 }
 
 /* Shared UI primitives */
