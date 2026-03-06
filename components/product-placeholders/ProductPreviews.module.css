@@ -437,3 +437,147 @@
   font-weight: 700;
   text-align: right;
 }
+
+.docCardStack {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.docCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 8px 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.docCardHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.docIcon {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.docCardBody {
+  margin: 0;
+  font-size: 11px;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.docCardList {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 4px;
+}
+
+.docCardList li {
+  font-size: 11px;
+  color: #4b5563;
+  line-height: 1.35;
+}
+
+.signalStack {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.signalRow {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.signalValue {
+  font-size: 11px;
+  color: #0f172a;
+  font-weight: 600;
+  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-align: right;
+}
+
+.signalGood {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.signalNeutral {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.scoreCard {
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.scoreValue {
+  margin: 5px 0 0;
+  font-size: 22px;
+  color: #0f172a;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.scoreTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #dbeafe;
+  overflow: hidden;
+}
+
+.scoreFill {
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.quoteCard {
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.quoteLabel {
+  margin: 0;
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+.quoteText {
+  margin: 0;
+  font-size: 11px;
+  color: #4b5563;
+  line-height: 1.5;
+}

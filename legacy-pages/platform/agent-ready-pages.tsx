@@ -1,8 +1,8 @@
-import Image from "next/image"
 import Link from "next/link"
 import Layout from "../../components/Layout"
 import Seo from "../../components/Seo"
 import Breadcrumbs from "../../components/Breadcrumbs"
+import AgentOptimizedPagesPreview from "../../components/product-placeholders/AgentOptimizedPagesPreview"
 import styles from "../../styles/agent-ready-pages.module.css"
 
 const structureBlocks = [
@@ -89,14 +89,8 @@ export default function AgentReadyPagesPage() {
                   </Link>
                 </div>
               </div>
-              <div className={`ui-visual-shell ${styles.visualCard}`}>
-                <Image
-                  src="/images/module-pages.svg"
-                  alt="Agent-Ready Pages template preview"
-                  width={720}
-                  height={440}
-                  priority
-                />
+              <div className={styles.visualCard}>
+                <AgentOptimizedPagesPreview variant="hero" />
               </div>
             </div>
           </div>
@@ -166,13 +160,8 @@ export default function AgentReadyPagesPage() {
                   <li>Ongoing content audits</li>
                 </ul>
               </div>
-              <div className={`ui-visual-shell ${styles.visualCard}`}>
-                <Image
-                  src="/images/hero-dashboard.svg"
-                  alt="Agent-Ready page template dashboard"
-                  width={720}
-                  height={440}
-                />
+              <div className={styles.visualCard}>
+                <AgentOptimizedPagesPreview variant="marketing" />
               </div>
             </div>
           </div>
