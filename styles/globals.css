@@ -127,12 +127,12 @@ body {
     align-items: center;
     justify-content: center;
     padding: 12px 22px;
-    border-radius: 8px;
-    border: 1px solid #111;
+    border-radius: 10px;
+    border: none;
     font-weight: 600;
     font-size: 15px;
     text-decoration: none;
-    background: #111;
+    background: #2563eb;
     color: #ffffff;
     overflow: hidden;
     cursor: pointer;
@@ -154,12 +154,12 @@ body {
 .btn-primary:hover,
 .ui-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
 }
 
 .btn-primary:hover::after,
 .ui-btn-primary:hover::after {
-    animation: scanAnimation 1.4s ease;
+    animation: scanButton 1.2s ease;
 }
 
 .btn-secondary,
@@ -168,10 +168,10 @@ body {
     align-items: center;
     justify-content: center;
     padding: 12px 22px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.15);
-    background: transparent;
-    color: #111;
+    background: #ffffff;
+    color: #1f2937;
     font-weight: 500;
     font-size: 15px;
     text-decoration: none;
@@ -181,11 +181,11 @@ body {
 
 .btn-secondary:hover,
 .ui-btn-secondary:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.03);
     border-color: rgba(0, 0, 0, 0.25);
 }
 
-@keyframes scanAnimation {
+@keyframes scanButton {
     0% {
         left: -120%;
     }
@@ -193,59 +193,6 @@ body {
     100% {
         left: 120%;
     }
-}
-
-/* Global button color authority (legacy + modular class-name conventions) */
-:where(
-    .btn-primary,
-    .ui-btn-primary,
-    [class*="primaryButton"],
-    [class*="submitButton"],
-    [class*="downloadButton"],
-    [class*="ctaButton"],
-    [class*="searchButton"],
-    [class*="buttonPrimary"]
-) {
-    color: #ffffff !important;
-    background: #111 !important;
-    border-color: #111 !important;
-}
-
-:where(
-    .btn-secondary,
-    .ui-btn-secondary,
-    [class*="secondaryButton"],
-    [class*="ghostButton"],
-    [class*="buttonSecondary"]
-) {
-    color: #111 !important;
-    background: transparent !important;
-    border-color: rgba(0, 0, 0, 0.15) !important;
-}
-
-:where(
-    .btn-primary,
-    .ui-btn-primary,
-    [class*="primaryButton"],
-    [class*="submitButton"],
-    [class*="downloadButton"],
-    [class*="ctaButton"],
-    [class*="searchButton"],
-    [class*="buttonPrimary"]
-):hover {
-    background: #111 !important;
-    border-color: #111 !important;
-}
-
-:where(
-    .btn-secondary,
-    .ui-btn-secondary,
-    [class*="secondaryButton"],
-    [class*="ghostButton"],
-    [class*="buttonSecondary"]
-):hover {
-    background: rgba(0, 0, 0, 0.04) !important;
-    border-color: rgba(0, 0, 0, 0.25) !important;
 }
 
 .ui-input,

@@ -17,7 +17,7 @@ export default function Hero() {
               agent-ready pages that convert.
             </p>
             <div className={styles.actions}>
-              <Link href="/book-demo" className={`btn-secondary ${styles.secondaryButton}`}>
+              <Link href="/book-demo" className={`btn-primary ${styles.primaryButton}`}>
                 Book a Demo
               </Link>
               <Link href="/platform" className={`btn-secondary ${styles.secondaryButton}`}>
