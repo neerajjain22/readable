@@ -114,10 +114,10 @@ export default function Header() {
           </nav>
 
           <div className={styles.actions}>
-            <Link href="/contact" className={styles.ghostButton}>
+            <Link href="/contact" className="btn-secondary">
               Contact
             </Link>
-            <Link href="/book-demo" className={styles.ctaButton}>
+            <Link href="/book-demo" className="btn-secondary">
               Book a Demo
             </Link>
           </div>
@@ -149,7 +149,7 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Link href="/book-demo" className={styles.ctaButton} onClick={() => setMobileOpen(false)}>
+          <Link href="/book-demo" className="btn-secondary" onClick={() => setMobileOpen(false)}>
             Book a Demo
           </Link>
         </nav>

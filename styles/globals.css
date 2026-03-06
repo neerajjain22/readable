@@ -120,25 +120,84 @@ body {
     cursor: pointer;
 }
 
+.btn-primary,
 .ui-btn-primary {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: var(--color-white);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: 1px solid #111;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    background: #111;
+    color: #ffffff;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 
+.btn-primary::after,
+.ui-btn-primary::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transition: none;
+}
+
+.btn-primary:hover,
 .ui-btn-primary:hover {
-    background: var(--color-accent-hover);
-    border-color: var(--color-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
+.btn-primary:hover::after,
+.ui-btn-primary:hover::after {
+    animation: scanAnimation 1.4s ease;
+}
+
+.btn-secondary,
 .ui-btn-secondary {
-    background: var(--color-bg-default);
-    border-color: var(--color-border);
-    color: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    color: #111;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, border 0.15s ease;
+}
+
+.btn-secondary:hover,
+.ui-btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+@keyframes scanAnimation {
+    0% {
+        left: -120%;
+    }
+
+    100% {
+        left: 120%;
+    }
 }
 
 /* Global button color authority (legacy + modular class-name conventions) */
 :where(
+    .btn-primary,
     .ui-btn-primary,
     [class*="primaryButton"],
     [class*="submitButton"],
@@ -147,23 +206,25 @@ body {
     [class*="searchButton"],
     [class*="buttonPrimary"]
 ) {
-    color: var(--color-white) !important;
-    background: var(--color-accent) !important;
-    border-color: var(--color-accent) !important;
+    color: #ffffff !important;
+    background: #111 !important;
+    border-color: #111 !important;
 }
 
 :where(
+    .btn-secondary,
     .ui-btn-secondary,
     [class*="secondaryButton"],
     [class*="ghostButton"],
     [class*="buttonSecondary"]
 ) {
-    color: var(--color-primary) !important;
-    background: var(--color-bg-default) !important;
-    border-color: var(--color-border) !important;
+    color: #111 !important;
+    background: transparent !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 :where(
+    .btn-primary,
     .ui-btn-primary,
     [class*="primaryButton"],
     [class*="submitButton"],
@@ -172,8 +233,19 @@ body {
     [class*="searchButton"],
     [class*="buttonPrimary"]
 ):hover {
-    background: var(--color-accent-hover) !important;
-    border-color: var(--color-accent-hover) !important;
+    background: #111 !important;
+    border-color: #111 !important;
+}
+
+:where(
+    .btn-secondary,
+    .ui-btn-secondary,
+    [class*="secondaryButton"],
+    [class*="ghostButton"],
+    [class*="buttonSecondary"]
+):hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.25) !important;
 }
 
 .ui-input,

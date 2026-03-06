@@ -172,7 +172,7 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
                 See how Readable helps your team track AI influence, monitor agent traffic, and improve structured
                 content performance.
               </p>
-              <a href="https://cal.com/neeraj-jain-eveucp/30min" target="_blank" rel="noreferrer" className={styles.ctaButton}>
+              <a href="https://cal.com/neeraj-jain-eveucp/30min" target="_blank" rel="noreferrer" className="btn-secondary">
                 Book a Demo
               </a>
             </div>
