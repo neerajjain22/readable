@@ -1,5 +1,8 @@
+ "use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 import Layout from "../components/Layout"
 import Seo from "../components/Seo"
 import RotatingText from "../components/RotatingText"
@@ -139,6 +142,18 @@ const caseStudyHighlights = [
 ]
 
 export default function HomePage() {
+  const [domain, setDomain] = useState("")
+
+  const handleAnalyze = () => {
+    const cleanDomain = domain.trim().replace(/^https?:\/\//i, "").replace(/\/$/, "")
+
+    if (!cleanDomain) {
+      return
+    }
+
+    window.location.href = `https://agents.soniclinker.com/view-report/?domain=${encodeURIComponent(cleanDomain)}`
+  }
+
   return (
     <Layout>
       <Seo
@@ -193,6 +208,14 @@ export default function HomePage() {
                       placeholder="Enter your website URL"
                       aria-label="Website URL"
                       className={pageStyles.searchInput}
+                      value={domain}
+                      onChange={(event) => setDomain(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault()
+                          handleAnalyze()
+                        }
+                      }}
                       style={{
                         borderTopRightRadius: "0",
                         borderBottomRightRadius: "0",
@@ -203,6 +226,7 @@ export default function HomePage() {
                     <button
                       type="button"
                       className="btn btn-primary"
+                      onClick={handleAnalyze}
                       style={{
                         borderTopLeftRadius: "0",
                         borderBottomLeftRadius: "0",
