@@ -3,34 +3,22 @@ import styles from "./ProductPreviews.module.css"
 const structureCards = [
   {
     title: "Page Title",
-    body: "AI Influence Analytics Platform",
+    body: "Best Cities to Visit in Europe",
   },
   {
-    title: "Summary Block",
-    body: "Readable helps teams monitor AI visibility and agent traffic with actionable performance insights.",
+    title: "Short Summary",
+    body: "Discover the top destinations across Europe for culture, food, and history.",
   },
   {
-    title: "Key Capabilities",
-    items: ["AI Influence tracking", "Agent traffic analytics", "AI-optimized landing pages"],
+    title: "FAQ",
+    items: ["Best time to visit Europe?", "Which cities are best for first-time travelers?"],
   },
-  {
-    title: "FAQ Block",
-    items: ["What is AI Influence?", "How do AI agents discover websites?"],
-  },
-]
-
-const structureSignals = [
-  { label: "Schema markup detected", value: "Product schema" },
-  { label: "Entity references", value: "AI analytics platform" },
-  { label: "Structured headings", value: "H1 / H2 hierarchy" },
-  { label: "Internal linking", value: "Contextual links detected" },
 ]
 
 const contentSignals = [
   { label: "Clear page summary", value: "detected", positive: true },
-  { label: "FAQ extraction blocks", value: "detected", positive: true },
-  { label: "Schema markup", value: "detected", positive: true },
-  { label: "Entity alignment", value: "moderate", positive: false },
+  { label: "Entity references", value: "running shoes, cushioning, stability", positive: true },
+  { label: "Structured headings", value: "strong hierarchy", positive: true },
 ]
 
 type AgentOptimizedPagesPreviewProps = {
@@ -43,12 +31,12 @@ export default function AgentOptimizedPagesPreview({ variant = "compact" }: Agen
       <div className={`ui-visual-shell ${styles.shell}`}>
         <article className={`ui-placeholder-panel ${styles.panel}`}>
           <div className={styles.previewHeader}>
-            <p className={styles.label}>AGENT-READY PAGE PREVIEW</p>
-            <p className={styles.previewDomain}>YourBrand.com</p>
+            <p className={styles.label}>AI-READY PAGE STRUCTURE</p>
+            <p className={styles.previewDomain}>Travel Booking Guide</p>
           </div>
 
           <div className={styles.platformChipRow}>
-            {["Schema", "Entity", "FAQ", "Internal Links"].map((chip) => (
+            {["FAQ", "Schema", "Entities"].map((chip) => (
               <span key={chip} className={styles.platformChip}>
                 {chip}
               </span>
@@ -56,7 +44,7 @@ export default function AgentOptimizedPagesPreview({ variant = "compact" }: Agen
           </div>
 
           <section className={styles.previewSection}>
-            <p className={styles.subLabel}>PAGE STRUCTURE VISUALIZATION</p>
+            <p className={styles.subLabel}>PAGE STRUCTURE PREVIEW</p>
             <div className={styles.docCardStack}>
               {structureCards.map((card) => (
                 <article key={card.title} className={styles.docCard}>
@@ -78,23 +66,6 @@ export default function AgentOptimizedPagesPreview({ variant = "compact" }: Agen
               ))}
             </div>
           </section>
-
-          <section className={styles.previewSection}>
-            <p className={styles.subLabel}>AI STRUCTURE SIGNALS</p>
-            <div className={styles.signalStack}>
-              {structureSignals.map((signal) => (
-                <div key={signal.label} className={styles.signalRow}>
-                  <span className={styles.metricMuted}>{signal.label}</span>
-                  <span className={styles.signalValue}>
-                    <span className={styles.signalGood} aria-hidden="true">
-                      ✓
-                    </span>
-                    {signal.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
         </article>
       </div>
     )
@@ -106,11 +77,11 @@ export default function AgentOptimizedPagesPreview({ variant = "compact" }: Agen
         <article className={`ui-placeholder-panel ${styles.panel}`}>
           <div className={styles.previewHeader}>
             <p className={styles.label}>CONTENT STRUCTURE ANALYSIS</p>
-            <p className={styles.previewDomain}>YourBrand.com</p>
+            <p className={styles.previewDomain}>Running Shoes Buying Guide</p>
           </div>
 
           <div className={styles.platformChipRow}>
-            {["Schema", "Entity", "FAQ", "Internal Links"].map((chip) => (
+            {["FAQ", "Schema", "Entities"].map((chip) => (
               <span key={chip} className={styles.platformChip}>
                 {chip}
               </span>
@@ -121,17 +92,17 @@ export default function AgentOptimizedPagesPreview({ variant = "compact" }: Agen
             <p className={styles.subLabel}>CONTENT CLARITY SCORE</p>
             <div className={styles.scoreCard}>
               <div>
-                <p className={styles.metricMuted}>AI Readability Score</p>
-                <p className={styles.scoreValue}>82 / 100</p>
+                <p className={styles.metricMuted}>AI Clarity Score</p>
+                <p className={styles.scoreValue}>84 / 100</p>
               </div>
               <div className={styles.scoreTrack}>
-                <div className={styles.scoreFill} style={{ width: "82%" }} />
+                <div className={styles.scoreFill} style={{ width: "84%" }} />
               </div>
             </div>
           </section>
 
           <section className={styles.previewSection}>
-            <p className={styles.subLabel}>AI CONTENT SIGNALS</p>
+            <p className={styles.subLabel}>CONTENT SIGNALS</p>
             <div className={styles.signalStack}>
               {contentSignals.map((signal) => (
                 <div key={signal.label} className={styles.signalRow}>
@@ -148,12 +119,12 @@ export default function AgentOptimizedPagesPreview({ variant = "compact" }: Agen
           </section>
 
           <section className={styles.previewSection}>
-            <p className={styles.subLabel}>AI RETRIEVAL PREVIEW</p>
+            <p className={styles.subLabel}>AI ANSWER PREVIEW</p>
             <article className={styles.quoteCard}>
-              <p className={styles.quoteLabel}>HOW AI SYSTEMS MAY CITE THIS PAGE</p>
+              <p className={styles.quoteLabel}>HOW AI MAY SUMMARIZE THIS PAGE</p>
               <p className={styles.quoteText}>
-                "YourBrand provides an AI analytics platform that helps companies track how AI assistants
-                influence brand discovery and website traffic."
+                "Running shoes should be selected based on cushioning, stability, and running style. Neutral
+                shoes work well for most runners, while stability shoes support over-pronation."
               </p>
             </article>
           </section>
