@@ -167,23 +167,6 @@ export default function AgentAnalyticsPage() {
           </div>
         </section>
 
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <div className={styles.crossShell}>
-              <h2 className={styles.sectionTitle}>Looking for AI Positioning Insights?</h2>
-              <p className={styles.crossText}>
-                Combine Agent Analytics with AI Influence to understand both how AI positions your brand and
-                how agent traffic behaves.
-              </p>
-              <div className={styles.crossAction}>
-                <Link href="/platform/ai-visibility" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
-                  Explore AI Influence
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className={styles.finalSection}>
           <div className={styles.container}>
             <div className={styles.ctaShell}>

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Insights on AI influence, agent analytics, and conversion strategy from the Readable team.",
 }
 
-const PAGE_SIZE = 3
+const PAGE_SIZE = 15
 
 type BlogPageProps = {
   searchParams?: {

@@ -167,26 +167,6 @@ export default function AgentReadyPagesPage() {
           </div>
         </section>
 
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <div className={styles.crossShell}>
-              <h2 className={styles.sectionTitle}>Pair with AI Influence and Agent Analytics</h2>
-              <p className={styles.crossText}>
-                Understand how your pages are positioned (AI Influence) and how agent traffic behaves
-                (Agent Analytics).
-              </p>
-              <div className={styles.crossActions}>
-                <Link href="/platform/ai-visibility" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
-                  Explore AI Influence
-                </Link>
-                <Link href="/platform/agent-analytics" className={`ui-btn ui-btn-secondary ${styles.secondaryButton}`}>
-                  Explore Agent Analytics
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className={styles.finalSection}>
           <div className={styles.container}>
             <div className={styles.ctaShell}>

@@ -111,13 +111,6 @@ export default function AIVisibilityPage() {
                         <span className={styles.shareValue}>26%</span>
                       </li>
                       <li className={styles.shareRow}>
-                        <span className={styles.shareName}>Airbnb</span>
-                        <span className={styles.shareBar} aria-hidden="true">
-                          ██████
-                        </span>
-                        <span className={styles.shareValue}>18%</span>
-                      </li>
-                      <li className={styles.shareRow}>
                         <span className={styles.shareName}>YourBrand.com</span>
                         <span className={styles.shareBar} aria-hidden="true">
                           █████
@@ -140,7 +133,6 @@ export default function AIVisibilityPage() {
                       <li>affordable hotel deals</li>
                       <li>flexible travel bookings</li>
                       <li>last-minute travel offers</li>
-                      <li>family-friendly stays</li>
                     </ul>
                   </div>
 
@@ -224,25 +216,7 @@ export default function AIVisibilityPage() {
                       <li>best travel booking sites</li>
                       <li>cheap hotel booking platforms</li>
                       <li>last-minute travel deals</li>
-                      <li>family vacation booking sites</li>
-                      <li>flexible cancellation hotel platforms</li>
                     </ul>
-                  </div>
-
-                  <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
-                    <p className={styles.dashboardLabel}>WEEKLY AI RECOMMENDATION MOVEMENT</p>
-                    <div className={`ui-placeholder-subpanel ${styles.metricCard}`}>
-                      <p className={styles.metricTitle}>YourBrand.com</p>
-                      <p className={styles.metricValuePositive}>↑ +6 recommendation appearances</p>
-                    </div>
-                    <div className={`ui-placeholder-subpanel ${styles.metricCard}`}>
-                      <p className={styles.metricTitle}>Booking.com</p>
-                      <p className={styles.metricValueNegative}>↓ -3 appearances</p>
-                    </div>
-                    <div className={`ui-placeholder-subpanel ${styles.metricCard}`}>
-                      <p className={styles.metricTitle}>Expedia</p>
-                      <p className={styles.metricValuePositive}>↑ +2 appearances</p>
-                    </div>
                   </div>
 
                   <div className={`ui-placeholder-subpanel ${styles.dashboardSection}`}>
