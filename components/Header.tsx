@@ -114,10 +114,10 @@ export default function Header() {
           </nav>
 
           <div className={styles.actions}>
-            <Link href="/contact" className="btn-secondary">
+            <Link href="/contact" className="btn btn-secondary">
               Contact
             </Link>
-            <Link href="/book-demo" className="btn-secondary">
+            <Link href="/book-demo" className="btn btn-primary">
               Book a Demo
             </Link>
           </div>
@@ -149,7 +149,7 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Link href="/book-demo" className="btn-secondary" onClick={() => setMobileOpen(false)}>
+          <Link href="/book-demo" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
             Book a Demo
           </Link>
         </nav>

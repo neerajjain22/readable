@@ -29,7 +29,7 @@ export default function PricingTable({ tiers }: PricingTableProps) {
               <li key={feature}>{feature}</li>
             ))}
           </ul>
-          <Link href={tier.ctaHref} className={styles.button}>
+          <Link href={tier.ctaHref} className={`btn btn-primary ${styles.button}`}>
             {tier.ctaLabel}
           </Link>
         </article>

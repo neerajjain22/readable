@@ -28,7 +28,7 @@ export default function NewsletterForm() {
           placeholder="you@company.com"
           required
         />
-        <button type="submit" className={styles.button}>
+        <button type="submit" className={`btn btn-primary ${styles.button}`}>
           Subscribe
         </button>
       </div>

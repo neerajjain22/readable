@@ -151,7 +151,7 @@ export default function ApiAccessRequestForm() {
       {error ? <p className={styles.error}>{error}</p> : null}
       {success ? <p className={styles.success}>{success}</p> : null}
 
-      <button type="submit" className={`ui-btn ui-btn-primary ${styles.submitButton}`} disabled={isSubmitting}>
+      <button type="submit" className={`btn btn-primary ${styles.submitButton}`} disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Request API Access"}
       </button>
     </form>

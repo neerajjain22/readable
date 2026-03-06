@@ -190,7 +190,7 @@ export default function CareersPage() {
             <p className={styles.sectionText}>
               Readable is defining how brands understand and influence AI-driven discovery.
             </p>
-            <a href="#open-roles" className={styles.ctaButton}>
+            <a href="#open-roles" className={`btn btn-primary ${styles.ctaButton}`}>
               View Open Roles
             </a>
           </div>

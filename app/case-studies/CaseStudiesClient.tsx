@@ -153,7 +153,7 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
                   <button
                     type="button"
                     onClick={() => onDownloadClick(study)}
-                    className={styles.downloadButton}
+                    className={`btn btn-primary ${styles.downloadButton}`}
                     disabled={isLoading}
                   >
                     Download Case Study
@@ -172,7 +172,7 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
                 See how Readable helps your team track AI influence, monitor agent traffic, and improve structured
                 content performance.
               </p>
-              <a href="https://cal.com/neeraj-jain-eveucp/30min" target="_blank" rel="noreferrer" className="btn-secondary">
+              <a href="https://cal.com/neeraj-jain-eveucp/30min" target="_blank" rel="noreferrer" className="btn btn-primary">
                 Book a Demo
               </a>
             </div>
@@ -212,10 +212,10 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
               {error ? <p className={styles.error}>{error}</p> : null}
 
               <div className={styles.actions}>
-                <button type="submit" className={`ui-btn ui-btn-primary ${styles.primaryButton}`} disabled={isLoading}>
+                <button type="submit" className={`btn btn-primary ${styles.primaryButton}`} disabled={isLoading}>
                   {isLoading ? "Downloading..." : "Download Case Study"}
                 </button>
-                <button type="button" className={`ui-btn ui-btn-secondary ${styles.ghostButton}`} onClick={closeModal} disabled={isLoading}>
+                <button type="button" className={`btn btn-secondary ${styles.ghostButton}`} onClick={closeModal} disabled={isLoading}>
                   Cancel
                 </button>
               </div>

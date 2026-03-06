@@ -30,12 +30,6 @@
 .ctaButton {
   display: inline-flex;
   margin-top: var(--spacing-lg);
-  border-radius: var(--radius-md);
-  background: var(--color-accent);
-  color: var(--color-white);
-  padding: 12px 18px;
-  text-decoration: none;
-  font-weight: 700;
 }
 
 .section {
@@ -153,13 +147,6 @@
 
 .submitButton {
   width: fit-content;
-  border: 1px solid var(--color-accent);
-  background: var(--color-accent);
-  color: var(--color-white);
-  border-radius: var(--radius-md);
-  padding: 11px 18px;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 .submitButton:disabled {

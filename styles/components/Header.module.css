@@ -136,35 +136,6 @@
   gap: var(--spacing-sm);
 }
 
-.ghostButton,
-.ctaButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.ghostButton {
-  color: var(--color-primary);
-  border: 1px solid var(--color-border);
-}
-
-.ctaButton {
-  color: var(--color-white);
-  background: var(--color-accent);
-  border: 1px solid var(--color-accent);
-}
-
-.ctaButton:hover,
-.ctaButton:focus-visible {
-  background: var(--color-accent-hover);
-  border-color: var(--color-accent-hover);
-}
-
 .mobileToggle {
   display: none;
   width: 40px;

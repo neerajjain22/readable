@@ -24,11 +24,11 @@ export default function CTASection({
         <h2 className={styles.title}>{title}</h2>
         <p className={styles.description}>{description}</p>
         <div className={styles.actions}>
-          <Link href={primaryHref} className={styles.primaryButton}>
+          <Link href={primaryHref} className="btn btn-primary">
             {primaryLabel}
           </Link>
           {secondaryLabel && secondaryHref ? (
-            <Link href={secondaryHref} className={styles.secondaryButton}>
+            <Link href={secondaryHref} className="btn btn-secondary">
               {secondaryLabel}
             </Link>
           ) : null}

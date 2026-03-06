@@ -93,7 +93,7 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
 
   return (
     <>
-      <button type="button" className={`ui-btn ui-btn-primary ${styles.applyButton}`} onClick={openModal}>
+      <button type="button" className={`btn btn-primary ${styles.applyButton}`} onClick={openModal}>
         Apply
       </button>
 
@@ -179,12 +179,12 @@ export default function CareersApplicationModal({ roleTitle }: Props) {
               {success ? <p className={styles.success}>{success}</p> : null}
 
               <div className={styles.modalActions}>
-                <button type="submit" className={`ui-btn ui-btn-primary ${styles.submitButton}`} disabled={isSubmitting}>
+                <button type="submit" className={`btn btn-primary ${styles.submitButton}`} disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Apply Now"}
                 </button>
                 <button
                   type="button"
-                  className={`ui-btn ui-btn-secondary ${styles.ghostButton}`}
+                  className={`btn btn-secondary ${styles.ghostButton}`}
                   onClick={closeModal}
                   disabled={isSubmitting}
                 >

@@ -57,7 +57,7 @@ export default function DocsPage() {
             API documentation is available on request for teams building integrations, analytics pipelines, and
             AI-driven products.
           </p>
-          <a href="#request-api-docs" className={styles.ctaButton}>
+          <a href="#request-api-docs" className={`btn btn-primary ${styles.ctaButton}`}>
             Request API Access
           </a>
         </div>

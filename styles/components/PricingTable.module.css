@@ -6,5 +6,5 @@
 .price { margin: var(--spacing-sm) 0 0; font-size: 26px; font-weight: 700; }
 .description { margin: var(--spacing-sm) 0 0; color: var(--color-text-body); }
 .features { margin: var(--spacing-md) 0 0; padding-left: 18px; display:grid; gap: 6px; }
-.button { margin-top: var(--spacing-md); display:inline-flex; text-decoration:none; padding: 10px 14px; border-radius: var(--radius-md); background: var(--color-accent); color: var(--color-white); font-weight: 600; }
+.button { margin-top: var(--spacing-md); }
 @media (max-width: 1024px){ .grid{ grid-template-columns:1fr; } }
