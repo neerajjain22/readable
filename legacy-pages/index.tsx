@@ -125,16 +125,16 @@ const solutionsByTeam = [
 
 const caseStudyHighlights = [
   {
-    company: "Northline Cloud",
-    summary: "Improved clarity on AI positioning trends and turned insights into faster pipeline actions.",
+    company: "EdTech Platform",
+    summary: "2.6x higher engagement from AI-optimized pages — Agentic pages significantly outperformed traditional pages, driving stronger engagement and more AI-driven clicks.",
   },
   {
-    company: "VitalBand",
-    summary: "Separated AI-referred traffic from other channels and improved conversion reporting quality.",
+    company: "Financial Data Platform",
+    summary: "3,900+ AI agent visits discovered across 300+ pages — AI assistants were discovering hundreds of pages but few users clicked through.",
   },
   {
-    company: "SouqSphere Group",
-    summary: "Aligned multiple brand teams on one view of AI influence and category narrative movement.",
+    company: "Global Software Platform",
+    summary: "+55% increase in AI-driven click-through rate — Agent-optimized pages improved how AI assistants interpreted content, increasing click-through performance and engagement.",
   },
 ]
 
