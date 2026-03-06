@@ -69,7 +69,24 @@ export default function GuidePage({ params }: GuidePageProps) {
             {isRawHtmlGuide ? (
               <div dangerouslySetInnerHTML={{ __html: guide.content }} />
             ) : (
-              <MDXRemote source={guide.content} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
+              <MDXRemote
+                source={guide.content}
+                options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+                components={{
+                  img: (props) => (
+                    <img
+                      {...props}
+                      style={{
+                        width: "100%",
+                        maxWidth: "100%",
+                        height: "auto",
+                        display: "block",
+                        margin: "24px auto",
+                      }}
+                    />
+                  ),
+                }}
+              />
             )}
           </div>
         </article>
