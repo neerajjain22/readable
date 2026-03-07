@@ -16,6 +16,22 @@ type GuideCollectionPageProps = {
   guides: CollectionGuide[]
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function getReadableGuideTitle(title: string, slug: string, entityName: string) {
+  const normalizedEntitySlug = entityName.trim().toLowerCase().replace(/\s+/g, "-")
+  const slugTail = slug.split("-").slice(-normalizedEntitySlug.split("-").length).join("-")
+
+  if (slugTail !== normalizedEntitySlug) {
+    return title
+  }
+
+  const pattern = new RegExp(`\\b${escapeRegExp(slugTail)}\\b`, "gi")
+  return title.replace(pattern, entityName)
+}
+
 export default function GuideCollectionPage({ title, intro, guides }: GuideCollectionPageProps) {
   return (
     <main className={styles.page}>
@@ -27,7 +43,7 @@ export default function GuideCollectionPage({ title, intro, guides }: GuideColle
           <article key={guide.id} className={styles.card}>
             <h2 className={styles.cardTitle}>
               <Link className={styles.link} href={`/guides/${guide.slug}`}>
-                {guide.title}
+                {getReadableGuideTitle(guide.title, guide.slug, guide.entity.name)}
               </Link>
             </h2>
             <p className={styles.meta}>{guide.entity.name}</p>

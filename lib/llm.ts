@@ -37,7 +37,8 @@ Requirements:
 • Mention ChatGPT and AI agents
 • Avoid marketing language
 • Avoid repetition
-• Write in clear paragraphs`
+• Write in clear paragraphs
+• Do not output raw HTML tags (for example: <main>, <nav>, <article>, <section>, <div>)`
 }
 
 async function callOpenAI(prompt: string) {

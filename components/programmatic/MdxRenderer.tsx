@@ -1,14 +1,17 @@
 import { renderMdx } from "../../lib/mdx/renderMdx"
 import { headingToAnchor } from "../../lib/internalLinks"
+import { sanitizeProgrammaticMdx } from "../../lib/mdx/sanitizeProgrammaticMdx"
 
 type MdxRendererProps = {
   source: string
 }
 
 export default function MdxRenderer({ source }: MdxRendererProps) {
+  const safeSource = sanitizeProgrammaticMdx(source)
+
   return (
     <>
-      {renderMdx(source, {
+      {renderMdx(safeSource, {
         h2: ({ children }) => {
           const rawText =
             typeof children === "string"

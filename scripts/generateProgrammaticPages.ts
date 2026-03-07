@@ -16,12 +16,14 @@ type TemplateWithSections = {
   sections: unknown
 }
 
+type EntityType = "cms" | "business_category"
+
 function replaceTokens(input: string, entity: { name: string; slug: string }) {
   return input
     .replaceAll("{CMS}", entity.name)
-    .replaceAll("{entity}", entity.slug)
+    .replaceAll("{entity}", entity.name)
     .replaceAll("{ENTITY}", entity.name)
-    .replaceAll("{cms}", entity.slug)
+    .replaceAll("{cms}", entity.name)
 }
 
 function normalizeTemplateSections(template: TemplateWithSections): string[] {
@@ -79,6 +81,43 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
   return blocks.join("\n\n")
 }
 
+function inferEntityTypeFromTemplate(template: TemplateWithSections): EntityType {
+  const aggregate = `${template.slugPattern} ${template.name} ${template.contentTemplate}`.toLowerCase()
+
+  if (
+    aggregate.includes("{cms}") ||
+    aggregate.includes(" cms ") ||
+    aggregate.startsWith("cms ") ||
+    aggregate.endsWith(" cms")
+  ) {
+    return "cms"
+  }
+
+  return "business_category"
+}
+
+async function resolveEntityTypeForTemplate(template: TemplateWithSections): Promise<EntityType> {
+  const existingPage = await prisma.generatedPage.findFirst({
+    where: {
+      templateId: template.id,
+    },
+    include: {
+      entity: {
+        select: {
+          type: true,
+        },
+      },
+    },
+  })
+
+  const existingType = existingPage?.entity?.type
+  if (existingType === "cms" || existingType === "business_category") {
+    return existingType
+  }
+
+  return inferEntityTypeFromTemplate(template)
+}
+
 async function main() {
   const templates = (await prisma.template.findMany({
     orderBy: [{ createdAt: "desc" }, { version: "desc" }],
@@ -88,21 +127,23 @@ async function main() {
     throw new Error("No template found. Seed template data first.")
   }
 
-  const entities = await prisma.entity.findMany({
-    where: { type: "cms" },
-    orderBy: { name: "asc" },
-    take: MAX_PAGES_PER_RUN,
-  })
-
-  if (entities.length === 0) {
-    throw new Error("No entities found. Seed entity data first.")
-  }
-
   let generatedCount = 0
   let skippedCount = 0
 
   for (const template of templates) {
-    console.log(`Processing template: ${template.name} (${template.slugPattern})`)
+    const entityType = await resolveEntityTypeForTemplate(template)
+    const entities = await prisma.entity.findMany({
+      where: { type: entityType },
+      orderBy: { name: "asc" },
+      take: MAX_PAGES_PER_RUN,
+    })
+
+    if (entities.length === 0) {
+      console.log(`Skipping template ${template.slugPattern}: no ${entityType} entities found`)
+      continue
+    }
+
+    console.log(`Processing template: ${template.name} (${template.slugPattern}) with ${entityType} entities`)
 
     for (const entity of entities) {
       const slug = generateSlug(template.slugPattern, entity.name, entity.slug)
@@ -140,7 +181,7 @@ async function main() {
   }
 
   console.log(
-    `Processed ${templates.length} templates and ${entities.length} entities. Generated ${generatedCount} draft pages and skipped ${skippedCount} existing pages.`,
+    `Processed ${templates.length} templates. Generated ${generatedCount} draft pages and skipped ${skippedCount} existing pages.`,
   )
 }
 

@@ -18,7 +18,7 @@ import {
   parseFaqItems,
   splitGuideSections,
 } from "../../../lib/internalLinks"
-import { getCollectionIntro, getCollectionSlugFromPattern, getCollectionTitle } from "../../../lib/programmatic/collections"
+import { getCollectionIntro, getCollectionSlug, getCollectionSlugFromPattern, getCollectionTitle } from "../../../lib/programmatic/collections"
 import { PAGE_STATUS } from "../../../lib/programmatic/constants"
 import { prisma } from "../../../lib/prisma"
 import pageStyles from "../../../components/programmatic/programmatic.module.css"
@@ -89,19 +89,29 @@ export async function generateMetadata({ params }: RouteParams): Promise<Metadat
   })
 
   const template = templates.find(
-    (item) =>
-      item.generatedPages.length > 0 && getCollectionSlugFromPattern(item.slugPattern) === params.slug,
+    (item) => {
+      if (item.generatedPages.length === 0) {
+        return false
+      }
+
+      const platformToken = item.generatedPages[0]?.entity.type || "platform"
+      return (
+        getCollectionSlug(item, { platformToken }) === params.slug ||
+        getCollectionSlugFromPattern(item.slugPattern) === params.slug
+      )
+    },
   )
 
   if (template) {
     const platformToken = template.generatedPages[0]?.entity.type || "platform"
     const collectionTitle = getCollectionTitle(template, { platformToken })
+    const canonicalSlug = getCollectionSlug(template, { platformToken })
 
     return {
       title: collectionTitle,
       description: getCollectionIntro(template, template.generatedPages.length, { platformToken }).slice(0, 160),
       alternates: {
-        canonical: `${BASE_URL}/guides/${params.slug}`,
+        canonical: `${BASE_URL}/guides/${canonicalSlug}`,
       },
     }
   }
@@ -195,9 +205,17 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
   })
 
   const matchedTemplate = templates.find(
-    (template) =>
-      template.generatedPages.length > 0 &&
-      getCollectionSlugFromPattern(template.slugPattern) === params.slug,
+    (template) => {
+      if (template.generatedPages.length === 0) {
+        return false
+      }
+
+      const platformToken = template.generatedPages[0]?.entity.type || "platform"
+      return (
+        getCollectionSlug(template, { platformToken }) === params.slug ||
+        getCollectionSlugFromPattern(template.slugPattern) === params.slug
+      )
+    },
   )
 
   if (!matchedTemplate) {

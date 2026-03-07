@@ -5,8 +5,8 @@ import {
   getPublishedPagesWithTemplateAndEntity,
 } from "../../lib/programmatic/repository"
 import {
-  getCollectionDescription,
-  getCollectionSlugFromPattern,
+  getCollectionCardSummary,
+  getCollectionSlug,
   getCollectionTitle,
 } from "../../lib/programmatic/collections"
 import styles from "./page.module.css"
@@ -52,8 +52,8 @@ export default async function GuidesIndexPage() {
       continue
     }
 
-    const collectionSlug = getCollectionSlugFromPattern(page.template.slugPattern)
     const platformToken = page.entity.type || "platform"
+    const collectionSlug = getCollectionSlug(page.template, { platformToken })
     collectionsByTemplate.set(page.templateId, {
       template: {
         slugPattern: page.template.slugPattern,
@@ -71,7 +71,7 @@ export default async function GuidesIndexPage() {
     return {
       ...collection,
       title: getCollectionTitle(collection.template, options),
-      description: getCollectionDescription(collection.template, collection.count, options),
+      description: getCollectionCardSummary(collection.template, collection.count, options),
     }
   })
 
