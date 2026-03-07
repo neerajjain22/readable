@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client"
 import { generateSectionContent } from "../lib/llm.ts"
 import { generateSlug } from "../lib/programmatic/generateSlug.ts"
 import { generateTitle } from "../lib/programmatic/generateContent.ts"
-import { getFirstParagraph, splitGuideSections } from "../lib/internalLinks.ts"
+import { splitGuideSections } from "../lib/internalLinks.ts"
 
 const prisma = new PrismaClient()
 
@@ -56,6 +56,46 @@ function shouldInsertCalloutForHeading(heading: string) {
   return normalized !== "introduction" && normalized !== "faq" && normalized !== "summary"
 }
 
+function normalizeForComparison(input: string) {
+  return input
+    .toLowerCase()
+    .replace(/[`*_#[\]()>-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function splitParagraphs(content: string) {
+  return content
+    .split(/\n\s*\n/g)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+}
+
+function getSubstantiveParagraph(content: string, heading: string) {
+  const paragraphs = splitParagraphs(content)
+  const normalizedHeading = normalizeForComparison(heading)
+
+  for (const paragraph of paragraphs) {
+    const normalizedParagraph = normalizeForComparison(paragraph)
+    if (!normalizedParagraph) {
+      continue
+    }
+
+    if (normalizedParagraph === normalizedHeading) {
+      continue
+    }
+
+    const wordCount = normalizedParagraph.split(" ").filter(Boolean).length
+    if (wordCount < 8) {
+      continue
+    }
+
+    return paragraph
+  }
+
+  return ""
+}
+
 function stripExistingCallouts(content: string) {
   return content.replace(/<CalloutBox[\s\S]*?\/>\s*/g, "").trim()
 }
@@ -68,20 +108,34 @@ function escapeMdxAttributeValue(input: string) {
     .replaceAll(">", "&gt;")
 }
 
-function insertCallout(sectionContent: string, summary: string, cta: CalloutCta) {
-  const firstParagraph = getFirstParagraph(sectionContent)
-  if (!firstParagraph) {
+function insertCallout(sectionContent: string, paragraphToAnchor: string, summary: string, cta: CalloutCta) {
+  if (!paragraphToAnchor) {
     return sectionContent.trim()
   }
 
-  const remaining = sectionContent.trim().slice(firstParagraph.length).trim()
-  const calloutBlock = `<CalloutBox summary="${escapeMdxAttributeValue(summary)}" cta="${cta}" />`
-
-  if (!remaining) {
-    return `${firstParagraph}\n\n${calloutBlock}`
+  const paragraphs = splitParagraphs(sectionContent)
+  if (paragraphs.length === 0) {
+    return sectionContent.trim()
   }
 
-  return `${firstParagraph}\n\n${calloutBlock}\n\n${remaining}`
+  const anchorIndex = paragraphs.findIndex(
+    (paragraph) => normalizeForComparison(paragraph) === normalizeForComparison(paragraphToAnchor),
+  )
+  if (anchorIndex < 0) {
+    return sectionContent.trim()
+  }
+
+  const calloutBlock = `<CalloutBox summary="${escapeMdxAttributeValue(summary)}" cta="${cta}" />`
+  const rebuilt: string[] = []
+
+  for (let index = 0; index < paragraphs.length; index += 1) {
+    rebuilt.push(paragraphs[index])
+    if (index === anchorIndex) {
+      rebuilt.push(calloutBlock)
+    }
+  }
+
+  return rebuilt.join("\n\n").trim()
 }
 
 async function summarizeParagraph(paragraph: string) {
@@ -217,15 +271,15 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
       continue
     }
 
-    const firstParagraph = getFirstParagraph(trimmedBody)
-    if (!firstParagraph) {
+    const summarySourceParagraph = getSubstantiveParagraph(trimmedBody, resolvedSectionTitle)
+    if (!summarySourceParagraph) {
       blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
       continue
     }
 
-    const summary = await summarizeWithRetry(firstParagraph)
+    const summary = await summarizeWithRetry(summarySourceParagraph)
     const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
-    const bodyWithCallout = insertCallout(trimmedBody, summary, cta)
+    const bodyWithCallout = insertCallout(trimmedBody, summarySourceParagraph, summary, cta)
     blocks.push(`## ${resolvedSectionTitle}\n\n${bodyWithCallout}`)
   }
 
@@ -261,15 +315,15 @@ async function refreshExistingCallouts() {
         continue
       }
 
-      const firstParagraph = getFirstParagraph(sectionBody)
-      if (!firstParagraph) {
+      const summarySourceParagraph = getSubstantiveParagraph(sectionBody, section.heading)
+      if (!summarySourceParagraph) {
         rebuiltSections.push(`## ${section.heading}\n\n${sectionBody}`)
         continue
       }
 
-      const summary = await summarizeWithRetry(firstParagraph)
+      const summary = await summarizeWithRetry(summarySourceParagraph)
       const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
-      const bodyWithCallout = insertCallout(sectionBody, summary, cta)
+      const bodyWithCallout = insertCallout(sectionBody, summarySourceParagraph, summary, cta)
       rebuiltSections.push(`## ${section.heading}\n\n${bodyWithCallout}`)
     }
 
