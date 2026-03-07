@@ -7,6 +7,7 @@ import styles from "../styles/Page.module.css"
 
 const resources = [
   { href: "/blog", title: "Blog", summary: "Insights on AI visibility, agent analytics, and GTM execution." },
+  { href: "/guides", title: "Guides", summary: "Field guides and programmatic collections for AI visibility." },
   { href: "/case-studies", title: "Case Studies", summary: "Real outcomes from B2B teams using Readable." },
   { href: "/docs", title: "Docs", summary: "Guides, references, and implementation resources." },
   { href: "/careers", title: "Careers", summary: "Join Readable to help build the future of AI influence." },

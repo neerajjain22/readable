@@ -173,10 +173,30 @@
   gap: var(--spacing-sm);
 }
 
+.mobileGroup {
+  display: grid;
+  gap: 2px;
+}
+
 .mobileLink {
   text-decoration: none;
   color: var(--color-primary);
   padding: var(--spacing-sm) 0;
+  font-weight: 500;
+}
+
+.mobileSubNav {
+  display: grid;
+  gap: 2px;
+  padding-left: 12px;
+  border-left: 1px solid var(--color-border);
+}
+
+.mobileSubLink {
+  text-decoration: none;
+  color: var(--color-text-body);
+  padding: 6px 0;
+  font-size: 14px;
   font-weight: 500;
 }
 

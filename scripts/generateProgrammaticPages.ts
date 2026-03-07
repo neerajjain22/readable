@@ -80,11 +80,11 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
 }
 
 async function main() {
-  const template = (await prisma.template.findFirst({
+  const templates = (await prisma.template.findMany({
     orderBy: [{ createdAt: "desc" }, { version: "desc" }],
-  })) as TemplateWithSections | null
+  })) as TemplateWithSections[]
 
-  if (!template) {
+  if (templates.length === 0) {
     throw new Error("No template found. Seed template data first.")
   }
 
@@ -98,46 +98,50 @@ async function main() {
     throw new Error("No entities found. Seed entity data first.")
   }
 
-  for (const entity of entities) {
-    const slug = generateSlug(template.slugPattern, entity.name, entity.slug)
-    const title = generateTitle(template.name, { name: entity.name, slug: entity.slug })
-    const content = await buildMdxForEntity(template, { name: entity.name, slug: entity.slug })
+  let generatedCount = 0
+  let skippedCount = 0
 
-    const existing = await prisma.generatedPage.findUnique({ where: { slug } })
+  for (const template of templates) {
+    console.log(`Processing template: ${template.name} (${template.slugPattern})`)
 
-    const page = existing
-      ? await prisma.generatedPage.update({
-          where: { id: existing.id },
-          data: {
-            title,
-            content,
-            status: "draft",
-            templateId: template.id,
-            entityId: entity.id,
-          },
-        })
-      : await prisma.generatedPage.create({
-          data: {
-            slug,
-            title,
-            content,
-            status: "draft",
-            templateId: template.id,
-            entityId: entity.id,
-          },
-        })
+    for (const entity of entities) {
+      const slug = generateSlug(template.slugPattern, entity.name, entity.slug)
+      const existing = await prisma.generatedPage.findUnique({ where: { slug } })
+      if (existing) {
+        skippedCount += 1
+        console.log(`Skipping existing page: ${slug}`)
+        continue
+      }
 
-    await prisma.pageVersion.create({
-      data: {
-        pageId: page.id,
-        content: page.content,
-      },
-    })
+      const title = generateTitle(template.name, { name: entity.name, slug: entity.slug })
+      const content = await buildMdxForEntity(template, { name: entity.name, slug: entity.slug })
 
-    console.log(`Generated draft page: ${slug}`)
+      const page = await prisma.generatedPage.create({
+        data: {
+          slug,
+          title,
+          content,
+          status: "draft",
+          templateId: template.id,
+          entityId: entity.id,
+        },
+      })
+
+      await prisma.pageVersion.create({
+        data: {
+          pageId: page.id,
+          content: page.content,
+        },
+      })
+
+      generatedCount += 1
+      console.log(`Generated draft page: ${slug}`)
+    }
   }
 
-  console.log(`Generated ${entities.length} draft programmatic pages with section-level LLM content.`)
+  console.log(
+    `Processed ${templates.length} templates and ${entities.length} entities. Generated ${generatedCount} draft pages and skipped ${skippedCount} existing pages.`,
+  )
 }
 
 main()
