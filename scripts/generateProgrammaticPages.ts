@@ -1,12 +1,14 @@
 import { PrismaClient } from "@prisma/client"
-import { generateSectionContent } from "../lib/llm"
-import { generateSlug } from "../lib/programmatic/generateSlug"
-import { generateTitle } from "../lib/programmatic/generateContent"
+import { generateSectionContent } from "../lib/llm.ts"
+import { generateSlug } from "../lib/programmatic/generateSlug.ts"
+import { generateTitle } from "../lib/programmatic/generateContent.ts"
+import { getFirstParagraph, splitGuideSections } from "../lib/internalLinks.ts"
 
 const prisma = new PrismaClient()
 
 const MAX_PAGES_PER_RUN = 20
 const MAX_RETRIES_PER_SECTION = 3
+const MAX_RETRIES_PER_SUMMARY = 3
 
 type TemplateWithSections = {
   id: string
@@ -17,6 +19,7 @@ type TemplateWithSections = {
 }
 
 type EntityType = "cms" | "business_category"
+type CalloutCta = "analyze" | "demo"
 
 function replaceTokens(input: string, entity: { name: string; slug: string }) {
   return input
@@ -48,6 +51,137 @@ function normalizeTemplateSections(template: TemplateWithSections): string[] {
   throw new Error("Template has no sections to generate")
 }
 
+function shouldInsertCalloutForHeading(heading: string) {
+  const normalized = heading.trim().toLowerCase()
+  return normalized !== "introduction" && normalized !== "faq" && normalized !== "summary"
+}
+
+function stripExistingCallouts(content: string) {
+  return content.replace(/<CalloutBox[\s\S]*?\/>\s*/g, "").trim()
+}
+
+function escapeMdxAttributeValue(input: string) {
+  return input
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+}
+
+function insertCallout(sectionContent: string, summary: string, cta: CalloutCta) {
+  const firstParagraph = getFirstParagraph(sectionContent)
+  if (!firstParagraph) {
+    return sectionContent.trim()
+  }
+
+  const remaining = sectionContent.trim().slice(firstParagraph.length).trim()
+  const calloutBlock = `<CalloutBox summary="${escapeMdxAttributeValue(summary)}" cta="${cta}" />`
+
+  if (!remaining) {
+    return `${firstParagraph}\n\n${calloutBlock}`
+  }
+
+  return `${firstParagraph}\n\n${calloutBlock}\n\n${remaining}`
+}
+
+async function summarizeParagraph(paragraph: string) {
+  const provider = (process.env.LLM_PROVIDER || "openai").toLowerCase()
+  if (provider !== "openai" && provider !== "openrouter") {
+    throw new Error("Unsupported LLM_PROVIDER. Use 'openai' or 'openrouter'.")
+  }
+
+  const prompt = `Summarize the following paragraph into a single key insight (25–35 words).
+Focus on the most important takeaway.
+Do not repeat the heading.
+
+Paragraph:
+${paragraph}`
+
+  if (provider === "openrouter") {
+    const apiKey = process.env.OPENROUTER_API_KEY
+    if (!apiKey) {
+      throw new Error("OPENROUTER_API_KEY is missing")
+    }
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+      }),
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`OpenRouter summary request failed: ${response.status} ${text}`)
+    }
+
+    const payload = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>
+    }
+    const content = payload.choices?.[0]?.message?.content?.trim()
+    if (!content) {
+      throw new Error("OpenRouter returned empty summary content")
+    }
+    return content
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is missing")
+  }
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(`OpenAI summary request failed: ${response.status} ${text}`)
+  }
+
+  const payload = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>
+  }
+  const content = payload.choices?.[0]?.message?.content?.trim()
+  if (!content) {
+    throw new Error("OpenAI returned empty summary content")
+  }
+
+  return content
+}
+
+async function summarizeWithRetry(paragraph: string) {
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= MAX_RETRIES_PER_SUMMARY; attempt += 1) {
+    try {
+      return await summarizeParagraph(paragraph)
+    } catch (error) {
+      lastError = error as Error
+      if (attempt < MAX_RETRIES_PER_SUMMARY) {
+        await new Promise((resolve) => setTimeout(resolve, 350 * attempt))
+      }
+    }
+  }
+
+  throw new Error(`Failed summarizing callout insight: ${lastError?.message || "unknown error"}`)
+}
+
 async function generateWithRetry(topic: string, sectionTitle: string, entity: { name: string; slug: string }) {
   let lastError: Error | null = null
 
@@ -71,14 +205,100 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
   const sections = normalizeTemplateSections(template)
   const blocks: string[] = []
 
-  for (const section of sections) {
+  for (let index = 0; index < sections.length; index += 1) {
+    const section = sections[index]
     const resolvedSectionTitle = replaceTokens(section, entity)
     console.log(`Generating section: ${entity.slug} -> ${resolvedSectionTitle}`)
     const sectionBody = await generateWithRetry(template.name, resolvedSectionTitle, entity)
-    blocks.push(`## ${resolvedSectionTitle}\n\n${sectionBody.trim()}`)
+    const trimmedBody = sectionBody.trim()
+
+    if (!shouldInsertCalloutForHeading(resolvedSectionTitle)) {
+      blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
+      continue
+    }
+
+    const firstParagraph = getFirstParagraph(trimmedBody)
+    if (!firstParagraph) {
+      blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
+      continue
+    }
+
+    const summary = await summarizeWithRetry(firstParagraph)
+    const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
+    const bodyWithCallout = insertCallout(trimmedBody, summary, cta)
+    blocks.push(`## ${resolvedSectionTitle}\n\n${bodyWithCallout}`)
   }
 
   return blocks.join("\n\n")
+}
+
+async function refreshExistingCallouts() {
+  const pages = await prisma.generatedPage.findMany({
+    orderBy: {
+      updatedAt: "desc",
+    },
+  })
+
+  let updatedCount = 0
+  let skippedCount = 0
+
+  for (const page of pages) {
+    const withoutCallouts = stripExistingCallouts(page.content)
+    const sections = splitGuideSections(withoutCallouts)
+
+    if (sections.length === 0) {
+      skippedCount += 1
+      continue
+    }
+
+    const rebuiltSections: string[] = []
+
+    for (let index = 0; index < sections.length; index += 1) {
+      const section = sections[index]
+      const sectionBody = section.body.trim()
+      if (!shouldInsertCalloutForHeading(section.heading) || !sectionBody) {
+        rebuiltSections.push(`## ${section.heading}\n\n${sectionBody}`)
+        continue
+      }
+
+      const firstParagraph = getFirstParagraph(sectionBody)
+      if (!firstParagraph) {
+        rebuiltSections.push(`## ${section.heading}\n\n${sectionBody}`)
+        continue
+      }
+
+      const summary = await summarizeWithRetry(firstParagraph)
+      const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
+      const bodyWithCallout = insertCallout(sectionBody, summary, cta)
+      rebuiltSections.push(`## ${section.heading}\n\n${bodyWithCallout}`)
+    }
+
+    const updatedContent = rebuiltSections.join("\n\n").trim()
+
+    if (!updatedContent || updatedContent === page.content.trim()) {
+      skippedCount += 1
+      continue
+    }
+
+    await prisma.pageVersion.create({
+      data: {
+        pageId: page.id,
+        content: page.content,
+      },
+    })
+
+    await prisma.generatedPage.update({
+      where: { id: page.id },
+      data: {
+        content: updatedContent,
+      },
+    })
+
+    updatedCount += 1
+    console.log(`Refreshed callouts for page: ${page.slug}`)
+  }
+
+  console.log(`Callout refresh completed. Updated ${updatedCount} pages, skipped ${skippedCount} pages.`)
 }
 
 function inferEntityTypeFromTemplate(template: TemplateWithSections): EntityType {
@@ -119,6 +339,12 @@ async function resolveEntityTypeForTemplate(template: TemplateWithSections): Pro
 }
 
 async function main() {
+  const refreshCalloutsOnly = process.argv.includes("--refresh-callouts")
+  if (refreshCalloutsOnly) {
+    await refreshExistingCallouts()
+    return
+  }
+
   const templates = (await prisma.template.findMany({
     orderBy: [{ createdAt: "desc" }, { version: "desc" }],
   })) as TemplateWithSections[]
