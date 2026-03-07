@@ -1,0 +1,159 @@
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.kicker {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin: 0 0 10px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.2;
+}
+
+.description {
+  margin: 14px 0 0;
+  color: var(--color-text-body);
+}
+
+.article {
+  margin-top: 40px;
+  color: var(--color-primary);
+  line-height: 1.7;
+}
+
+.contentGrid {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  align-items: start;
+}
+
+.mainContent {
+  min-width: 0;
+}
+
+.article :global(h2) {
+  margin-top: 36px;
+  margin-bottom: 12px;
+}
+
+.article :global(h3) {
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.article :global(p) {
+  margin: 0 0 14px;
+  color: var(--color-text-body);
+}
+
+.article :global(ul),
+.article :global(ol) {
+  margin: 0 0 16px 24px;
+  color: var(--color-text-body);
+}
+
+.ctaBlock {
+  margin-top: 28px;
+}
+
+.related {
+  margin-top: 36px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 24px;
+}
+
+.relatedTitle {
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+}
+
+.relatedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.relatedLink {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.adminPage {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inlineForm {
+  display: inline;
+}
+
+.tag {
+  display: inline-block;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.previewArea {
+  width: 100%;
+  min-height: 280px;
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.metaItem {
+  font-size: 0.9rem;
+  color: var(--color-text-body);
+}
+
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}

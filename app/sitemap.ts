@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next"
 import { getAllPosts } from "../lib/posts"
-import { getAllGuides } from "../lib/guides"
+import { getPublishedProgrammaticPages } from "../lib/programmatic/repository"
 
 const BASE_URL = "https://www.tryreadable.ai"
+export const dynamic = "force-dynamic"
 
 const staticRoutes = [
   "",
@@ -21,7 +22,7 @@ const staticRoutes = [
   "/partners",
   "/agency-partners",
   "/resources",
-  "/resources/guides",
+  "/guides",
   "/blog",
   "/docs",
   "/case-studies",
@@ -33,7 +34,7 @@ const staticRoutes = [
   "/terms",
 ]
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: `${BASE_URL}${route}`,
     changeFrequency: "weekly",
@@ -46,10 +47,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  const guideEntries: MetadataRoute.Sitemap = getAllGuides().map((guide) => ({
-    url: `${BASE_URL}/resources/guides/${guide.slug}`,
-    changeFrequency: "monthly",
+  const publishedGuides = await getPublishedProgrammaticPages()
+  const guideEntries: MetadataRoute.Sitemap = publishedGuides.map((guide) => ({
+    url: `${BASE_URL}/guides/${guide.slug}`,
+    changeFrequency: "weekly",
     priority: 0.6,
+    lastModified: guide.updatedAt,
   }))
 
   return [...staticEntries, ...blogEntries, ...guideEntries]

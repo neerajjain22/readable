@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Template {
+  id              String          @id @default(uuid())
+  name            String
+  slugPattern     String
+  contentTemplate String
+  sections        Json?
+  contentType     String
+  version         Int
+  createdAt       DateTime        @default(now())
+  generatedPages  GeneratedPage[]
+
+  @@unique([name, version])
+}
+
+model Entity {
+  id             String          @id @default(uuid())
+  name           String
+  slug           String          @unique
+  type           String
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+  generatedPages GeneratedPage[]
+}
+
+model GeneratedPage {
+  id         String        @id @default(uuid())
+  slug       String        @unique
+  title      String
+  content    String
+  status     String
+  templateId String
+  entityId   String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  template   Template      @relation(fields: [templateId], references: [id])
+  entity     Entity        @relation(fields: [entityId], references: [id])
+  versions   PageVersion[]
+
+  @@index([status])
+  @@index([templateId])
+  @@index([entityId])
+}
+
+model PageVersion {
+  id        String        @id @default(uuid())
+  pageId    String
+  content   String
+  createdAt DateTime      @default(now())
+  page      GeneratedPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+}

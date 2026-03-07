@@ -3,6 +3,8 @@ node_modules
 out
 .DS_Store
 .vercel
+.env
+.env.local
 *.log
 passwordfile
 passwordfile.pub

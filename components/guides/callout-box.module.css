@@ -1,0 +1,30 @@
+.box {
+  margin: 24px 0;
+  border-radius: 10px;
+  padding: 20px;
+  border-left: 4px solid #2563eb;
+  background: #eff6ff;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.content {
+  margin: 10px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.65;
+}
+
+.tip {
+  border-left-color: #0ea5e9;
+  background: #f0f9ff;
+}
+
+.important {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+}

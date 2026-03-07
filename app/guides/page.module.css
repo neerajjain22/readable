@@ -1,0 +1,66 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+.subheading {
+  color: var(--color-text-body);
+  margin-top: 12px;
+}
+
+.section {
+  margin-top: 32px;
+}
+
+.sectionTitle {
+  margin: 0 0 14px;
+  font-size: 1.4rem;
+}
+
+.empty {
+  margin-top: 18px;
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  background: var(--color-bg-default);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.4;
+}
+
+.excerpt {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+  line-height: 1.6;
+}
+
+.list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
