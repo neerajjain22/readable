@@ -131,7 +131,7 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
   if (page) {
     const publishedPagesForLinks = await getPublishedPagesForInternalLinks()
     const linkedContent = addInternalLinks(page.content, publishedPagesForLinks, 3)
-    const headings = extractLevelTwoHeadings(linkedContent)
+    const headings = extractLevelTwoHeadings(page.content)
     const summaryHeadings = getSummaryPoints(headings, 4)
     const sections = splitGuideSections(linkedContent)
     const formattedDate = new Date(page.updatedAt).toLocaleDateString("en-US", {
