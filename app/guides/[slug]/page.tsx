@@ -34,6 +34,12 @@ type RouteParams = {
   params: { slug: string }
 }
 
+function getDisplayGuideTitle(title: string, entityName: string) {
+  const normalizedEntitySlug = entityName.trim().toLowerCase().replace(/\s+/g, "-")
+  const pattern = new RegExp(`\\b${normalizedEntitySlug}\\b`, "gi")
+  return title.replace(pattern, entityName)
+}
+
 function excerpt(input: string): string {
   return input.replace(/[#*_`>\-]/g, "").replace(/\s+/g, " ").trim().slice(0, 160)
 }
@@ -142,7 +148,7 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
 
     return (
       <ProgrammaticLayout
-        title={page.title}
+        title={getDisplayGuideTitle(page.title, page.entity.name)}
         author="Readable Team"
         lastUpdated={formattedDate}
       >

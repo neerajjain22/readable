@@ -6,6 +6,8 @@
   background: var(--color-bg-light);
   position: sticky;
   top: 120px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
 
 .title {

@@ -9,6 +9,10 @@ function escapeRegExp(input: string) {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
+export function stripMarkdownLinks(input: string) {
+  return input.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+}
+
 export function addInternalLinks(
   content: string,
   pages: PublishedPageEntityLink[],
@@ -51,6 +55,7 @@ export function extractLevelTwoHeadings(content: string) {
     .map((line) => line.trim())
     .filter((line) => line.startsWith("## "))
     .map((line) => line.replace(/^##\s+/, "").trim())
+    .map(stripMarkdownLinks)
     .filter(Boolean)
 }
 
