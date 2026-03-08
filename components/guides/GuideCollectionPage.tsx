@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Breadcrumbs from "../Breadcrumbs"
 import styles from "./guide-collection-page.module.css"
 
 type CollectionGuide = {
@@ -35,6 +36,13 @@ function getReadableGuideTitle(title: string, slug: string, entityName: string) 
 export default function GuideCollectionPage({ title, intro, guides }: GuideCollectionPageProps) {
   return (
     <main className={styles.page}>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Guides", href: "/guides" },
+          { label: title },
+        ]}
+      />
       <h1 className={styles.title}>{title}</h1>
       <p className={styles.intro}>{intro}</p>
 

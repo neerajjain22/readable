@@ -8,9 +8,9 @@ function replaceTokens(input: string, entity: ProgrammaticEntity): string {
   const metadata = entity.metadata ?? {}
 
   return input
-    .replaceAll("{entity}", entity.slug)
+    .replaceAll("{entity}", entity.name)
     .replaceAll("{ENTITY}", entity.name)
-    .replaceAll("{cms}", entity.slug)
+    .replaceAll("{cms}", entity.name)
     .replaceAll("{CMS}", entity.name)
     .replaceAll("{name}", entity.name)
     .replaceAll("{slug}", entity.slug)

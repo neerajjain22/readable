@@ -14,7 +14,8 @@ export function addInternalLinks(
   pages: PublishedPageEntityLink[],
   maxLinksPerEntity = 3,
 ) {
-  let updated = content
+  const lines = content.split("\n")
+  let updatedLines = [...lines]
 
   for (const page of pages) {
     const name = page.entity?.name?.trim()
@@ -25,17 +26,23 @@ export function addInternalLinks(
     const regex = new RegExp(`\\b${escapeRegExp(name)}\\b`, "g")
     let replacements = 0
 
-    updated = updated.replace(regex, (match) => {
-      if (replacements >= maxLinksPerEntity) {
-        return match
+    updatedLines = updatedLines.map((line) => {
+      if (line.trim().startsWith("## ")) {
+        return line
       }
 
-      replacements += 1
-      return `[${match}](/guides/${page.slug})`
+      return line.replace(regex, (match) => {
+        if (replacements >= maxLinksPerEntity) {
+          return match
+        }
+
+        replacements += 1
+        return `[${match}](/guides/${page.slug})`
+      })
     })
   }
 
-  return updated
+  return updatedLines.join("\n")
 }
 
 export function extractLevelTwoHeadings(content: string) {
