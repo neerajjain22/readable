@@ -2,7 +2,9 @@ import { PrismaClient } from "@prisma/client"
 import { generateSectionContent } from "../lib/llm.ts"
 import { generateSlug } from "../lib/programmatic/generateSlug.ts"
 import { generateTitle } from "../lib/programmatic/generateContent.ts"
-import { splitGuideSections } from "../lib/internalLinks.ts"
+import { splitGuideSections } from "../lib/internalLinks/index.ts"
+import { injectInternalLinks } from "../lib/internalLinks/injectInternalLinks.ts"
+import { registerInternalLinkTarget } from "./registerInternalLinkTarget.ts"
 
 const prisma = new PrismaClient()
 
@@ -20,6 +22,16 @@ type TemplateWithSections = {
 
 type EntityType = "cms" | "business_category"
 type CalloutCta = "analyze" | "demo"
+
+function getArticleSummary(content: string) {
+  return content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[#>*`[\]()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 220)
+}
 
 function replaceTokens(input: string, entity: { name: string; slug: string }) {
   return input
@@ -466,7 +478,9 @@ async function main() {
       }
 
       const title = generateTitle(template.name, { name: entity.name, slug: entity.slug })
-      const content = await buildMdxForEntity(template, { name: entity.name, slug: entity.slug })
+      const rawContent = await buildMdxForEntity(template, { name: entity.name, slug: entity.slug })
+      await registerInternalLinkTarget(slug, title, getArticleSummary(rawContent), prisma)
+      const content = await injectInternalLinks(rawContent, { excludeSlug: slug, maxLinks: 6 })
 
       const page = await prisma.generatedPage.create({
         data: {

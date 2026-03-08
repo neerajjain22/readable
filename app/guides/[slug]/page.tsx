@@ -6,14 +6,11 @@ import ProgrammaticLayout from "../../../components/programmatic/ProgrammaticLay
 import MdxRenderer from "../../../components/programmatic/MdxRenderer"
 import AnalyzeWebsiteCTA from "../../../components/programmatic/AnalyzeWebsiteCTA"
 import BookDemoCTA from "../../../components/programmatic/BookDemoCTA"
-import CalloutBox from "../../../components/guides/CalloutBox"
 import FAQAccordion from "../../../components/guides/FAQAccordion"
 import RelatedGuides from "../../../components/guides/RelatedGuides"
 import TableOfContents from "../../../components/guides/TableOfContents"
 import {
-  addInternalLinks,
   extractLevelTwoHeadings,
-  getFirstParagraph,
   getSummaryPoints,
   parseFaqItems,
   splitGuideSections,
@@ -24,7 +21,6 @@ import { prisma } from "../../../lib/prisma"
 import pageStyles from "../../../components/programmatic/programmatic.module.css"
 import {
   getGeneratedPageBySlug,
-  getPublishedPagesForInternalLinks,
 } from "../../../lib/programmatic/repository"
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.tryreadable.ai"
@@ -135,11 +131,9 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
   const page = await getGeneratedPageBySlug(params.slug)
 
   if (page) {
-    const publishedPagesForLinks = await getPublishedPagesForInternalLinks()
-    const linkedContent = addInternalLinks(page.content, publishedPagesForLinks, 3)
     const headings = extractLevelTwoHeadings(page.content)
     const summaryHeadings = getSummaryPoints(headings, 4)
-    const sections = splitGuideSections(linkedContent)
+    const sections = splitGuideSections(page.content)
     const formattedDate = new Date(page.updatedAt).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -155,12 +149,9 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
         <GuideSummary headings={summaryHeadings} />
         <div className={pageStyles.contentGrid}>
           <div className={pageStyles.mainContent}>
-            {sections.map((section, index) => {
+            {sections.map((section) => {
               const isFaqSection = section.heading.toLowerCase() === "faq"
               const faqItems = isFaqSection ? parseFaqItems(section.body) : []
-              const nextSection = sections[index + 1]
-              const calloutText =
-                (index + 1) % 2 === 0 && nextSection ? getFirstParagraph(nextSection.body) : ""
 
               return (
                 <div key={section.heading}>
@@ -172,7 +163,6 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
                   ) : (
                     <MdxRenderer source={`## ${section.heading}\n\n${section.body}`} />
                   )}
-                  {calloutText ? <CalloutBox type="insight" text={calloutText} /> : null}
                 </div>
               )
             })}

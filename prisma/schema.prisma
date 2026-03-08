@@ -59,3 +59,18 @@ model PageVersion {
 
   @@index([pageId])
 }
+
+model InternalLinkTarget {
+  id        String                @id @default(cuid())
+  slug      String                @unique
+  title     String
+  createdAt DateTime              @default(now())
+  keywords  InternalLinkKeyword[]
+}
+
+model InternalLinkKeyword {
+  id       String             @id @default(cuid())
+  keyword  String             @unique
+  targetId String
+  target   InternalLinkTarget @relation(fields: [targetId], references: [id])
+}

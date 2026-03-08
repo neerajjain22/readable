@@ -9,7 +9,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
-    "programmatic:generate": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generateProgrammaticPages.ts"
+    "programmatic:generate": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generateProgrammaticPages.ts",
+    "migrate:internal-links": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/migrateInternalLinks.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
