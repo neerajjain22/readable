@@ -20,24 +20,30 @@ The platform analyzes AI-generated responses about brands and turns that into vi
 - Agency partner page
 - Resources and documentation pages
 - Blog system with MDX posts
+- Editorial guides system with MDX content
 - Dynamic blog routes
 - Case studies listing page
 - Modal-based email capture for case study downloads
 - Header navigation with dropdowns
 - App Router migration completed
+- Programmatic SEO guide engine
+- Programmatic moderation workflow (draft/review/publish/reject)
+- Dynamic guide hubs/collections/articles under `/guides`
+- Programmatic sitemap safety (published only)
+- Programmatic callout/CTA generation in MDX
+- Internal linking engine with AI-generated anchor keywords
+- Admin route protection via HTTP Basic Auth
 
 ## Current Development Focus
-Case Study Download Flow Refactor.
-
-Previous OTP-based verification was removed.
-
-Current flow:
-1. User selects case study.
-2. Modal requests business email.
-3. Email is validated.
-4. Email is stored in Postgres.
-5. PDF download starts immediately.
+Programmatic SEO scale and quality:
+1. Add/maintain templates and entities
+2. Generate draft guides safely
+3. Human moderation before publishing
+4. Keep internal linking and callouts deterministic
+5. Protect admin workflows and noindex draft content
 
 Implementation references:
-- API: `app/api/case-study-download/route.ts`
-- DB helper: `lib/db.ts`
+- Programmatic generator: `scripts/generateProgrammaticPages.ts`
+- Internal link migration: `scripts/migrateInternalLinks.ts`
+- Moderation UI: `app/admin/programmatic/*`
+- Programmatic route: `app/guides/[slug]/page.tsx`

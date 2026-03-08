@@ -6,8 +6,8 @@
 - Language: TypeScript
 - Styling: CSS Modules + `styles/globals.css`
 - Deployment: Vercel
-- DB: Postgres (`@vercel/postgres`)
-- Content: MDX blog + JSON case studies
+- DB: PostgreSQL + Prisma
+- Content: MDX blog/editorial guides + DB-backed programmatic guides
 
 ## Start Here (Required)
 Before making code changes, read in this order:
@@ -23,11 +23,18 @@ Core directories:
 - `content/`
 - `public/`
 - `styles/`
+- `scripts/`
+- `prisma/`
 
 Important routes:
 - `app/page.tsx`
 - `app/blog/page.tsx`
 - `app/blog/[slug]/page.tsx`
+- `app/guides/page.tsx`
+- `app/guides/[slug]/page.tsx`
+- `app/guides/cms/page.tsx`
+- `app/admin/programmatic/page.tsx`
+- `app/admin/programmatic/[id]/page.tsx`
 - `app/case-studies/page.tsx`
 - `app/platform/*`
 - `app/solutions/*`
@@ -48,6 +55,8 @@ Case study download flow (current):
 
 DB helper:
 - `lib/db.ts`
+- Prisma singleton: `lib/prisma.ts`
+- Programmatic repository: `lib/programmatic/repository.ts`
 
 Legacy removed APIs:
 - `app/api/request-case-study/route.ts`
@@ -59,11 +68,40 @@ Blog:
 - Loader: `lib/posts.ts`
 - Route: `/blog/[slug]`
 
+Editorial guides:
+- Source: `content/guides` (MDX)
+- Loader: `lib/guides.ts`
+- Route: `/resources/guides/[slug]`
+
+Programmatic guides:
+- Source: PostgreSQL (`GeneratedPage`)
+- MDX renderer: `components/programmatic/MdxRenderer.tsx`
+- Route: `/guides/[slug]`
+- Generation: `scripts/generateProgrammaticPages.ts`
+- Moderation UI: `/admin/programmatic`
+
 Case studies:
 - Data: `content/case-studies` (JSON)
 - PDF assets: `public/case-studies`
 - Loader: `lib/case-study-data.ts`
 - UI: `app/case-studies/page.tsx`, `app/case-studies/CaseStudiesClient.tsx`
+
+## Programmatic + Internal Linking Workflows
+- Generator creates draft pages section-by-section with LLM.
+- Callout boxes are generated and stored in MDX during generation.
+- `--refresh-callouts` mode updates only callouts + versions.
+- Internal linking engine:
+  - registers destination pages in `InternalLinkTarget`
+  - generates keywords in `InternalLinkKeyword` using OpenRouter
+  - injects links into MDX at generation/migration time
+  - avoids headings/code blocks/existing links/URLs
+
+## Security Notes
+- Admin moderation routes are HTTP Basic Auth protected by `middleware.ts`.
+- Required env vars:
+  - `ADMIN_BASIC_AUTH_USER`
+  - `ADMIN_BASIC_AUTH_PASS`
+- Programmatic/admin pages should remain noindex unless published.
 
 ## Coding Rules For Future AI Sessions
 - Respect existing architecture and route map.
