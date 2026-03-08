@@ -71,6 +71,21 @@ function splitParagraphs(content: string) {
     .filter(Boolean)
 }
 
+function isInvalidInsightSummary(summary: string) {
+  const normalized = summary.toLowerCase().trim()
+  if (!normalized) {
+    return true
+  }
+
+  return (
+    normalized.includes("i don't see a paragraph") ||
+    normalized.includes("i do not see a paragraph") ||
+    normalized.includes("could you please share the paragraph") ||
+    normalized.includes("once you do, i'll help identify") ||
+    normalized.includes("once you do, i will help identify")
+  )
+}
+
 function getSubstantiveParagraph(content: string, heading: string) {
   const paragraphs = splitParagraphs(content)
   const normalizedHeading = normalizeForComparison(heading)
@@ -224,7 +239,12 @@ async function summarizeWithRetry(paragraph: string) {
 
   for (let attempt = 1; attempt <= MAX_RETRIES_PER_SUMMARY; attempt += 1) {
     try {
-      return await summarizeParagraph(paragraph)
+      const summary = await summarizeParagraph(paragraph)
+      if (isInvalidInsightSummary(summary)) {
+        return null
+      }
+
+      return summary
     } catch (error) {
       lastError = error as Error
       if (attempt < MAX_RETRIES_PER_SUMMARY) {
@@ -233,7 +253,8 @@ async function summarizeWithRetry(paragraph: string) {
     }
   }
 
-  throw new Error(`Failed summarizing callout insight: ${lastError?.message || "unknown error"}`)
+  console.warn(`Skipping callout summary due to repeated failures: ${lastError?.message || "unknown error"}`)
+  return null
 }
 
 async function generateWithRetry(topic: string, sectionTitle: string, entity: { name: string; slug: string }) {
@@ -278,6 +299,11 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
     }
 
     const summary = await summarizeWithRetry(summarySourceParagraph)
+    if (!summary) {
+      blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
+      continue
+    }
+
     const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
     const bodyWithCallout = insertCallout(trimmedBody, summarySourceParagraph, summary, cta)
     blocks.push(`## ${resolvedSectionTitle}\n\n${bodyWithCallout}`)
@@ -322,6 +348,11 @@ async function refreshExistingCallouts() {
       }
 
       const summary = await summarizeWithRetry(summarySourceParagraph)
+      if (!summary) {
+        rebuiltSections.push(`## ${section.heading}\n\n${sectionBody}`)
+        continue
+      }
+
       const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
       const bodyWithCallout = insertCallout(sectionBody, summarySourceParagraph, summary, cta)
       rebuiltSections.push(`## ${section.heading}\n\n${bodyWithCallout}`)
