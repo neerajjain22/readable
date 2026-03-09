@@ -14,6 +14,14 @@ export default function MdxRenderer({ source }: MdxRendererProps) {
     <>
       {renderMdx(safeSource, {
         CalloutBox,
+        a: ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+          const isExternal = href && (href.startsWith("http://") || href.startsWith("https://"))
+          return isExternal ? (
+            <a href={href} rel="nofollow noopener" target="_blank" {...props}>{children}</a>
+          ) : (
+            <a href={href} {...props}>{children}</a>
+          )
+        },
         h2: ({ children }) => {
           const rawText =
             typeof children === "string"

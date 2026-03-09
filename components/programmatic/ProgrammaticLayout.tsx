@@ -4,13 +4,14 @@ type ProgrammaticLayoutProps = {
   title: string
   author: string
   lastUpdated: string
+  kicker?: string
   children: React.ReactNode
 }
 
-export default function ProgrammaticLayout({ title, author, lastUpdated, children }: ProgrammaticLayoutProps) {
+export default function ProgrammaticLayout({ title, author, lastUpdated, kicker, children }: ProgrammaticLayoutProps) {
   return (
     <main className={styles.page}>
-      <p className={styles.kicker}>Programmatic Guide</p>
+      <p className={styles.kicker}>{kicker ?? "Programmatic Guide"}</p>
       <h1 className={styles.title}>{title}</h1>
       <div className={styles.metaRow}>
         <span className={styles.metaItem}>Last updated: {lastUpdated}</span>

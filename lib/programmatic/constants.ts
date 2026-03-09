@@ -7,6 +7,7 @@ export const PAGE_STATUS = {
 
 export const CONTENT_TYPE = {
   GUIDE: "guide",
+  PERCEPTION: "perception",
 } as const
 
 export type PageStatus = (typeof PAGE_STATUS)[keyof typeof PAGE_STATUS]

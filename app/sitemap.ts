@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next"
 import { getAllPosts } from "../lib/posts"
 import { getCompletedReportsWithQueryData, getRecentCompletedReports } from "../lib/ai-visibility/repository"
 import { getPublishedProgrammaticPages } from "../lib/programmatic/repository"
+import { prisma } from "../lib/prisma"
+import { PAGE_STATUS, CONTENT_TYPE } from "../lib/programmatic/constants"
 
 const BASE_URL = "https://www.tryreadable.ai"
 export const dynamic = "force-dynamic"
@@ -34,6 +36,7 @@ const staticRoutes = [
   "/book-demo",
   "/privacy",
   "/terms",
+  "/ai-perception",
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -85,5 +88,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }))
 
-  return [...staticEntries, ...blogEntries, ...guideEntries, ...aiReportEntries, ...aiSearchEntries]
+  const perceptionPages = await prisma.generatedPage.findMany({
+    where: {
+      status: PAGE_STATUS.PUBLISHED,
+      template: { contentType: CONTENT_TYPE.PERCEPTION },
+    },
+    select: { slug: true, updatedAt: true },
+  })
+
+  const perceptionEntries: MetadataRoute.Sitemap = perceptionPages.map((page) => ({
+    url: `${BASE_URL}/ai-perception/${page.slug}`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+    lastModified: page.updatedAt,
+  }))
+
+  return [...staticEntries, ...blogEntries, ...guideEntries, ...aiReportEntries, ...aiSearchEntries, ...perceptionEntries]
 }
