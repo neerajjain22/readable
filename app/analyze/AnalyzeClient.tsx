@@ -14,14 +14,6 @@ type GenerateResponse = {
   requestId?: string
 }
 
-type StatusResponse = {
-  success: boolean
-  status?: string
-  processingAgeSeconds?: number
-  generationActive?: boolean
-  error?: string
-}
-
 const PROGRESS_STEPS = [
   "Analyzing website",
   "Detecting competitors",
@@ -87,21 +79,6 @@ export default function AnalyzeClient({
 
   const finalStepMessage = `${FINAL_STEP_STATUSES[finalStatusIndex]}${".".repeat(ellipsisCount)}`
 
-  async function pollStatus(slug: string) {
-    const response = await fetch(`/api/ai-visibility/status?companySlug=${encodeURIComponent(slug)}`, {
-      method: "GET",
-      cache: "no-store",
-    })
-
-    const payload = (await response.json()) as StatusResponse
-
-    if (!response.ok || !payload.success) {
-      throw new Error(payload.error || "Failed to read report status")
-    }
-
-    return payload.status
-  }
-
   async function startAnalysis(requestedDomain: string, shouldForceRefresh: boolean) {
     const trimmed = requestedDomain.trim()
     if (!trimmed) {
@@ -134,47 +111,9 @@ export default function AnalyzeClient({
         throw new Error(payload.error || "Failed to start report generation")
       }
 
-      if (payload.redirectNow || payload.status === "completed") {
-        window.clearInterval(progressInterval)
-        router.push(`/ai-visibility/${payload.companySlug}`)
-        return
-      }
-
       setCompanySlug(payload.companySlug)
-
-      let statusPollCount = 0
-      const interval = window.setInterval(async () => {
-        statusPollCount += 1
-        try {
-          const status = await pollStatus(payload.companySlug as string)
-
-          if (status === "completed") {
-            window.clearInterval(progressInterval)
-            window.clearInterval(interval)
-            router.push(`/ai-visibility/${payload.companySlug}`)
-            return
-          }
-
-          if (status === "failed") {
-            window.clearInterval(progressInterval)
-            window.clearInterval(interval)
-            setRunning(false)
-            setError("Report generation failed. Please try again.")
-          }
-
-          if (statusPollCount > 240) {
-            window.clearInterval(progressInterval)
-            window.clearInterval(interval)
-            setRunning(false)
-            setError("Report generation is taking longer than expected. Please retry in a minute.")
-          }
-        } catch {
-          window.clearInterval(progressInterval)
-          window.clearInterval(interval)
-          setRunning(false)
-          setError("Unable to check report status. Please try again.")
-        }
-      }, 2500)
+      window.clearInterval(progressInterval)
+      router.push(`/ai-visibility/${payload.companySlug}`)
     } catch (error) {
       window.clearInterval(progressInterval)
       setRunning(false)
