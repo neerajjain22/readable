@@ -1,7 +1,7 @@
 const ENFORCED_PROVIDER = "openrouter"
 const ENFORCED_OPENROUTER_MODEL = "anthropic/claude-3.5-sonnet"
-const REQUEST_TIMEOUT_MS = Number(process.env.LLM_REQUEST_TIMEOUT_MS || 45000)
-const MAX_RETRIES = Number(process.env.LLM_MAX_RETRIES || 2)
+const REQUEST_TIMEOUT_MS = Number(process.env.LLM_REQUEST_TIMEOUT_MS || 15000)
+const MAX_RETRIES = Number(process.env.LLM_MAX_RETRIES || 1)
 
 type ChatMessage = {
   role: "system" | "user"

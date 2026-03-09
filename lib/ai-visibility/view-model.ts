@@ -36,8 +36,8 @@ export function toPercent(value: number) {
 }
 
 export function scoreLabel(percent: number): "Strong" | "Moderate" | "Limited" {
-  if (percent >= 75) return "Strong"
-  if (percent >= 50) return "Moderate"
+  if (percent >= 65) return "Strong"
+  if (percent >= 35) return "Moderate"
   return "Limited"
 }
 
