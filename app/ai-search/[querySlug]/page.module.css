@@ -113,6 +113,11 @@
   padding: 14px;
 }
 
+.brandSummary {
+  margin: 10px 0;
+  color: var(--color-text-body);
+}
+
 .inlineLink {
   color: var(--color-accent);
   text-decoration: none;
@@ -134,6 +139,28 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.faqList {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.faqItem {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  padding: 14px;
+}
+
+.faqItem h3 {
+  margin: 0;
+}
+
+.faqItem p {
+  margin: 10px 0 0;
+  color: var(--color-text-body);
 }
 
 @media (max-width: 900px) {
