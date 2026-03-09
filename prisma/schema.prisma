@@ -74,3 +74,23 @@ model InternalLinkKeyword {
   targetId String
   target   InternalLinkTarget @relation(fields: [targetId], references: [id])
 }
+
+model AiVisibilityReport {
+  id              String   @id @default(cuid())
+  domain          String   @unique
+  companySlug     String   @unique
+  companyName     String
+  category        String?
+  visibilityScore Int?
+  competitors     Json
+  attributes      Json
+  perceptionTable Json
+  buyerQueries    Json
+  insights        Json
+  status          String   @default("processing")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastAnalyzedAt  DateTime
+
+  @@index([companySlug])
+}

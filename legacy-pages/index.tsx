@@ -141,7 +141,15 @@ const caseStudyHighlights = [
   },
 ]
 
-export default function HomePage() {
+type RecentAiVisibilityReport = {
+  companySlug: string
+  companyName: string
+  visibilityScore: number | null
+  lastAnalyzedAt: string
+  category: string | null
+}
+
+export default function HomePage({ recentReports = [] }: { recentReports?: RecentAiVisibilityReport[] }) {
   const [domain, setDomain] = useState("")
 
   const handleAnalyze = () => {
@@ -151,7 +159,7 @@ export default function HomePage() {
       return
     }
 
-    window.location.href = `https://agents.soniclinker.com/view-report/?domain=${encodeURIComponent(cleanDomain)}`
+    window.location.href = `/analyze?domain=${encodeURIComponent(cleanDomain)}`
   }
 
   return (
@@ -459,6 +467,44 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className={pageStyles.section} style={{ paddingTop: "96px", paddingBottom: "96px" }}>
+          <div className={pageStyles.container}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "baseline" }}>
+              <h2 className={pageStyles.heroTitle}>Recently Generated Reports</h2>
+              <Link href="/recent-ai-visibility-reports" className={pageStyles.inlineLink}>
+                View all reports →
+              </Link>
+            </div>
+            {recentReports.length > 0 ? (
+              <div className={pageStyles.grid3} style={{ marginTop: "28px", gap: "20px" }}>
+                {recentReports.map((report) => (
+                  <article key={report.companySlug} className={pageStyles.card} style={{ padding: "22px" }}>
+                    <h3 style={{ marginTop: 0, marginBottom: "8px" }}>{report.companyName}</h3>
+                    <p className={pageStyles.text} style={{ margin: 0 }}>
+                      Visibility Score: <strong>{report.visibilityScore ?? 0}</strong>
+                    </p>
+                    <p className={pageStyles.text} style={{ marginTop: "8px", marginBottom: 0 }}>
+                      Last analyzed: {new Date(report.lastAnalyzedAt).toLocaleDateString()}
+                    </p>
+                    {report.category ? (
+                      <p className={pageStyles.text} style={{ marginTop: "8px", marginBottom: 0 }}>
+                        Category: {report.category}
+                      </p>
+                    ) : null}
+                    <div style={{ marginTop: "12px" }}>
+                      <Link href={`/ai-visibility/${report.companySlug}`} className={pageStyles.inlineLink}>
+                        Open report →
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className={pageStyles.heroDescription}>Reports will appear here as they are generated.</p>
+            )}
+          </div>
+        </section>
+
         <section className={pageStyles.section} style={{ paddingTop: "104px", paddingBottom: "104px" }}>
           <div className={pageStyles.container}>
             <h2 className={pageStyles.heroTitle}>The AI Channels Problem</h2>
@@ -630,7 +676,7 @@ export default function HomePage() {
                 opportunities to improve.
               </p>
               <div style={{ marginTop: "24px", display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
-                <Link href="/platform/ai-visibility" className="btn btn-primary">
+                <Link href="/analyze" className="btn btn-primary">
                   Analyze My Brand
                 </Link>
                 <Link href="/book-demo" className="btn btn-secondary">

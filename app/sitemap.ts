@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getAllPosts } from "../lib/posts"
+import { getRecentCompletedReports } from "../lib/ai-visibility/repository"
 import { getPublishedProgrammaticPages } from "../lib/programmatic/repository"
 
 const BASE_URL = "https://www.tryreadable.ai"
@@ -23,6 +24,7 @@ const staticRoutes = [
   "/agency-partners",
   "/resources",
   "/guides",
+  "/recent-ai-visibility-reports",
   "/blog",
   "/docs",
   "/case-studies",
@@ -55,5 +57,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: guide.updatedAt,
   }))
 
-  return [...staticEntries, ...blogEntries, ...guideEntries]
+  const completedAiReports = await getRecentCompletedReports(500)
+  const aiReportEntries: MetadataRoute.Sitemap = completedAiReports.map(
+    (report: (typeof completedAiReports)[number]) => ({
+    url: `${BASE_URL}/ai-visibility/${report.companySlug}`,
+    changeFrequency: "monthly",
+    priority: 0.6,
+    lastModified: report.lastAnalyzedAt,
+    }),
+  )
+
+  return [...staticEntries, ...blogEntries, ...guideEntries, ...aiReportEntries]
 }

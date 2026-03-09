@@ -1,0 +1,149 @@
+.page {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.hero {
+  padding: 120px 0 72px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 70%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.title {
+  margin: 12px 0 0;
+  font-size: clamp(2rem, 4.3vw, 3rem);
+  line-height: 1.12;
+  max-width: 24ch;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+}
+
+.heroCtas {
+  margin-top: 22px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sectionAlt {
+  padding: 64px 0;
+  background: var(--color-bg-light);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.scoreCard {
+  margin-top: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  display: inline-flex;
+  flex-direction: column;
+  padding: 16px 24px;
+}
+
+.score {
+  margin: 0;
+  font-size: 3rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.scoreMeta {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+}
+
+.tableWrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--color-border);
+  padding: 10px 12px;
+  text-align: left;
+  background: #ffffff;
+}
+
+.table th {
+  background: #eef5ff;
+}
+
+.nudgeRow {
+  margin-top: 16px;
+}
+
+.grid3 {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  padding: 14px;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.endCtaRow {
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .hero {
+    padding-top: 98px;
+  }
+}
