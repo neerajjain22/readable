@@ -9,6 +9,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
+    "ai-visibility:migrate-slugs": "node scripts/migrate-ai-visibility-slugs.js",
     "programmatic:generate": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generateProgrammaticPages.ts",
     "migrate:internal-links": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/migrateInternalLinks.ts",
     "ai-visibility:backfill": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/backfill-ai-visibility-query-data.ts",

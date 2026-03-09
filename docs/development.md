@@ -7,11 +7,9 @@
 Key env vars:
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_URL`
-- `LLM_PROVIDER`
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL`
+- `LLM_PROVIDER` (`openrouter` only for AI visibility)
 - `OPENROUTER_API_KEY`
-- `OPENROUTER_MODEL`
+- `OPENROUTER_MODEL` (ignored by AI visibility; model is enforced in code)
 - `OPENROUTER_KEYWORDS_MODEL`
 - `LLM_REQUEST_TIMEOUT_MS`
 - `LLM_MAX_RETRIES`
@@ -86,3 +84,4 @@ npm run ai-visibility:backfill
   - Generation is async and may continue after initial `/generate` response.
   - `/api/ai-visibility/process` is intended for background recovery/processing.
   - In production, Vercel cron should call `/api/ai-visibility/process?limit=1`.
+  - AI visibility LLM is restricted to OpenRouter + `anthropic/claude-3.5-sonnet`.

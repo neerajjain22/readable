@@ -1,5 +1,5 @@
-const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini"
-const DEFAULT_OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini"
+const ENFORCED_PROVIDER = "openrouter"
+const ENFORCED_OPENROUTER_MODEL = "anthropic/claude-3.5-sonnet"
 const REQUEST_TIMEOUT_MS = Number(process.env.LLM_REQUEST_TIMEOUT_MS || 45000)
 const MAX_RETRIES = Number(process.env.LLM_MAX_RETRIES || 2)
 
@@ -9,52 +9,13 @@ type ChatMessage = {
 }
 
 function resolveProvider() {
-  const provider = (process.env.LLM_PROVIDER || "openai").toLowerCase()
+  const provider = (process.env.LLM_PROVIDER || ENFORCED_PROVIDER).toLowerCase()
 
-  if (provider !== "openai" && provider !== "openrouter") {
-    throw new Error("Unsupported LLM_PROVIDER. Use 'openai' or 'openrouter'.")
+  if (provider !== ENFORCED_PROVIDER) {
+    throw new Error("Unsupported LLM_PROVIDER. AI visibility is restricted to OpenRouter only.")
   }
 
   return provider
-}
-
-async function callOpenAI(messages: ChatMessage[], temperature = 0.1) {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is missing")
-  }
-
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: DEFAULT_OPENAI_MODEL,
-        messages,
-        temperature,
-      }),
-      signal: controller.signal,
-    })
-
-    if (!response.ok) {
-      const text = await response.text()
-      throw new Error(`OpenAI request failed: ${response.status} ${text}`)
-    }
-
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>
-    }
-
-    return payload.choices?.[0]?.message?.content?.trim() || ""
-  } finally {
-    clearTimeout(timeoutId)
-  }
 }
 
 async function callOpenRouter(messages: ChatMessage[], temperature = 0.1) {
@@ -74,7 +35,7 @@ async function callOpenRouter(messages: ChatMessage[], temperature = 0.1) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: DEFAULT_OPENROUTER_MODEL,
+        model: ENFORCED_OPENROUTER_MODEL,
         messages,
         temperature,
       }),
@@ -102,10 +63,11 @@ export async function generateText(messages: ChatMessage[], temperature = 0.1): 
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
     try {
-      const result =
-        provider === "openrouter"
-          ? await callOpenRouter(messages, temperature)
-          : await callOpenAI(messages, temperature)
+      if (provider !== ENFORCED_PROVIDER) {
+        throw new Error("LLM provider mismatch. OpenRouter is required for AI visibility analysis.")
+      }
+
+      const result = await callOpenRouter(messages, temperature)
 
       if (!result) {
         throw new Error("LLM returned empty content")

@@ -36,12 +36,18 @@ export function extractRootDomain(hostname: string): string {
 }
 
 export function deriveCompanySlug(rootDomain: string): string {
-  const [label] = rootDomain.split(".")
-  if (!label) {
+  const normalized = rootDomain.trim().toLowerCase()
+  const parts = normalized.split(".").filter(Boolean)
+
+  if (parts.length < 2) {
     throw new Error("Unable to derive company slug")
   }
 
-  return label.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")
+  const [baseLabel, ...tldParts] = parts
+  const tldLabel = tldParts.join("-")
+  const slug = `${baseLabel}-${tldLabel}`
+
+  return slug.replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")
 }
 
 export function normalizeDomain(input: string): NormalizedDomainResult {

@@ -311,32 +311,53 @@ function detectAttributeMentions(response: string, attributes: string[]) {
 }
 
 async function fetchHomepageSignals(domain: string): Promise<HomepageSignals> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  const candidates = [`https://${domain}`, `https://www.${domain}`]
+  let lastError: unknown = null
 
-  try {
-    const response = await fetch(`https://${domain}`, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent": "ReadableAIVisibilityBot/2.0",
-      },
-      cache: "no-store",
-    })
+  for (const candidateUrl of candidates) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
 
-    if (!response.ok) {
-      throw new Error(`Homepage request failed with status ${response.status}`)
+    try {
+      const response = await fetch(candidateUrl, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "ReadableAIVisibilityBot/2.0",
+        },
+        cache: "no-store",
+      })
+
+      if (!response.ok) {
+        throw new Error(`Homepage request failed with status ${response.status}`)
+      }
+
+      const html = await response.text()
+      const cleanedText = stripTags(html).slice(0, 12000)
+
+      return {
+        metaTitle: extractTitle(html),
+        metaDescription: extractMetaContent(html, "description", "name"),
+        ogSiteName: extractMetaContent(html, "og:site_name", "property"),
+        headings: extractHeadings(html),
+        cleanedText,
+      }
+    } catch (error) {
+      lastError = error
+      logStep("fetchHomepageSignals", `candidate failed for ${candidateUrl}`, error)
+    } finally {
+      clearTimeout(timeoutId)
     }
+  }
 
-    const html = await response.text()
-    return {
-      metaTitle: extractTitle(html),
-      metaDescription: extractMetaContent(html, "description", "name"),
-      ogSiteName: extractMetaContent(html, "og:site_name", "property"),
-      headings: extractHeadings(html),
-      cleanedText: stripTags(html).slice(0, 12000),
-    }
-  } finally {
-    clearTimeout(timeoutId)
+  logStep("fetchHomepageSignals", `all candidates failed for ${domain}; using fallback signals`, lastError)
+  const fallbackSlug = domain.split(".")[0] || "company"
+  const fallbackName = toDisplayCompanyName(fallbackSlug)
+  return {
+    metaTitle: fallbackName,
+    metaDescription: "",
+    ogSiteName: "",
+    headings: [],
+    cleanedText: `${fallbackName} official website`,
   }
 }
 

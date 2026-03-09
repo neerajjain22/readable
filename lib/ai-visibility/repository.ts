@@ -17,9 +17,33 @@ export async function findReportByDomainOrSlug(domain: string, companySlug: stri
 }
 
 export async function findReportBySlug(companySlug: string) {
-  return prisma.aiVisibilityReport.findUnique({
+  const exact = await prisma.aiVisibilityReport.findUnique({
     where: { companySlug },
   })
+
+  if (exact) {
+    return exact
+  }
+
+  // Backward-compatible fallback for legacy slug routes such as /ai-visibility/linear.
+  // If there is a single deterministic match with a TLD suffix, resolve to that report.
+  const prefixed = await prisma.aiVisibilityReport.findMany({
+    where: {
+      companySlug: {
+        startsWith: `${companySlug}-`,
+      },
+    },
+    orderBy: {
+      lastAnalyzedAt: "desc",
+    },
+    take: 2,
+  })
+
+  if (prefixed.length === 1) {
+    return prefixed[0]
+  }
+
+  return null
 }
 
 export async function upsertProcessingReport(input: {
