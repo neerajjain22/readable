@@ -72,6 +72,10 @@
   gap: 10px;
 }
 
+.fadeIn {
+  animation: fade-in 240ms ease;
+}
+
 .infoHint {
   display: inline-flex;
   position: relative;
@@ -218,6 +222,62 @@
   gap: 8px;
 }
 
+.progressListInline {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.progressItemInline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-body);
+}
+
+.processingText {
+  margin: 12px 0;
+  color: var(--color-text-muted);
+}
+
+.skeletonBlock {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.skeletonBlock::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%);
+  animation: shimmer 1.3s infinite;
+}
+
+.skeletonScore {
+  height: 128px;
+  width: 100%;
+}
+
+.skeletonTable {
+  height: 220px;
+  width: 100%;
+}
+
+.skeletonText {
+  height: 120px;
+  width: 100%;
+}
+
+.errorText {
+  margin: 12px 0 0;
+  color: #b91c1c;
+}
+
 .nudgeRow {
   margin-top: 16px;
 }
@@ -237,6 +297,22 @@
 
   .scorePanel {
     flex-direction: column;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 

@@ -46,6 +46,12 @@ export async function findReportBySlug(companySlug: string) {
   return null
 }
 
+export async function findReportById(reportId: string) {
+  return prisma.aiVisibilityReport.findUnique({
+    where: { id: reportId },
+  })
+}
+
 export async function upsertProcessingReport(input: {
   domain: string
   companySlug: string
