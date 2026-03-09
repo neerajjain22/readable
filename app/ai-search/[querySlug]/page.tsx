@@ -99,16 +99,26 @@ export default async function AiSearchQueryPage({ params }: PageProps) {
       ? `AI assistants often emphasize ${topAttributesText || "core evaluation criteria"} when answering this query. Platforms such as ${topBrandsText} appear most frequently because they are associated with these capabilities.`
       : `AI assistants often emphasize ${topAttributesText || "core evaluation criteria"} when answering this query and prioritize products linked to these capabilities.`
 
-  const brandSummaries = topBrands.map((brand) => ({
-    ...brand,
-    summary: `${brand.brand} is commonly positioned as a ${category.toLowerCase()} platform with strengths in ${
-      topAttributesText || "core category capabilities"
-    }. It appears in responses when assistants prioritize these factors for this query.`,
-  }))
+  const brandSummaries = topBrands.map((brand, index) => {
+    const brandTopAttribute = attributeMentions[index % Math.max(attributeMentions.length, 1)]?.attribute
+    const reason =
+      brand.visibilityPercent >= 60
+        ? "frequently surfaces"
+        : brand.visibilityPercent >= 35
+          ? "appears consistently"
+          : "shows up in selected answers"
+
+    return {
+      ...brand,
+      summary: `${brand.brand} is presented as a ${category.toLowerCase()} option and ${reason} for this query. AI responses most often connect ${brand.brand} with ${
+        brandTopAttribute || topAttributesText || "core product capabilities"
+      }, which drives recommendation frequency.`,
+    }
+  })
 
   const faqItems = relatedQueries.slice(0, 3).map((item) => ({
     question: item.query,
-    answer: `AI assistant responses for "${item.query}" usually prioritize ${topAttributesText || "core evaluation criteria"} and compare brands by fit, capabilities, and visibility patterns. Reviewing this query helps identify which platforms are most frequently recommended and why.`,
+    answer: `For "${item.query}", AI assistants usually prioritize ${topAttributesText || "core evaluation criteria"} when comparing ${category.toLowerCase()} options. The strongest recommendations tend to go to platforms that are repeatedly associated with these capabilities across responses.`,
   }))
 
   const articleSchema = {
@@ -278,7 +288,8 @@ export default async function AiSearchQueryPage({ params }: PageProps) {
         <div className={styles.container}>
           <h2>About this AI search query</h2>
           <p className={styles.lead}>
-            This page analyzes how AI assistants respond when users ask the question: "{queryText}"
+            This page analyzes how AI assistants respond when users ask the question: "{queryText}" in the{" "}
+            {category.toLowerCase()} category.
           </p>
           <p className={styles.subtle}>
             Readable evaluates AI responses across multiple assistants to understand which platforms are most
@@ -290,7 +301,10 @@ export default async function AiSearchQueryPage({ params }: PageProps) {
       <section className={styles.section}>
         <div className={styles.container}>
           <h2>How AI assistants answer this question</h2>
-          <p className={styles.lead}>{responseInterpretation}</p>
+          <p className={styles.lead}>
+            {responseInterpretation} In this query cluster, recommendation patterns are shaped by how strongly brands
+            are linked to {topAttributesText || "key buyer criteria"}.
+          </p>
         </div>
       </section>
 
