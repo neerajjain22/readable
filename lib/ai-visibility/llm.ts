@@ -1,6 +1,7 @@
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini"
 const DEFAULT_OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini"
 const REQUEST_TIMEOUT_MS = Number(process.env.LLM_REQUEST_TIMEOUT_MS || 45000)
+const MAX_RETRIES = Number(process.env.LLM_MAX_RETRIES || 2)
 
 type ChatMessage = {
   role: "system" | "user"
@@ -97,21 +98,71 @@ async function callOpenRouter(messages: ChatMessage[], temperature = 0.1) {
 
 export async function generateText(messages: ChatMessage[], temperature = 0.1): Promise<string> {
   const provider = resolveProvider()
-  const result =
-    provider === "openrouter"
-      ? await callOpenRouter(messages, temperature)
-      : await callOpenAI(messages, temperature)
+  let lastError: Error | null = null
 
-  if (!result) {
-    throw new Error("LLM returned empty content")
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    try {
+      const result =
+        provider === "openrouter"
+          ? await callOpenRouter(messages, temperature)
+          : await callOpenAI(messages, temperature)
+
+      if (!result) {
+        throw new Error("LLM returned empty content")
+      }
+
+      return result
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("Unknown LLM failure")
+      if (attempt < MAX_RETRIES) {
+        const delayMs = 250 * (attempt + 1)
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+    }
   }
 
-  return result
+  throw new Error(`LLM request failed after ${MAX_RETRIES + 1} attempts: ${lastError?.message || "unknown error"}`)
+}
+
+function extractJsonObjectOrArray(input: string): string {
+  const cleaned = input.replace(/^```json\s*/i, "").replace(/^```/, "").replace(/```$/, "").trim()
+  const arrayStart = cleaned.indexOf("[")
+  const objectStart = cleaned.indexOf("{")
+
+  let start = -1
+  let opening = ""
+  let closing = ""
+
+  if (arrayStart !== -1 && (objectStart === -1 || arrayStart < objectStart)) {
+    start = arrayStart
+    opening = "["
+    closing = "]"
+  } else if (objectStart !== -1) {
+    start = objectStart
+    opening = "{"
+    closing = "}"
+  }
+
+  if (start === -1) {
+    return cleaned
+  }
+
+  let depth = 0
+  for (let i = start; i < cleaned.length; i += 1) {
+    const char = cleaned[i]
+    if (char === opening) depth += 1
+    if (char === closing) depth -= 1
+    if (depth === 0) {
+      return cleaned.slice(start, i + 1)
+    }
+  }
+
+  return cleaned
 }
 
 export async function generateJson<T>(messages: ChatMessage[]): Promise<T> {
   const raw = await generateText(messages, 0)
-  const cleaned = raw.replace(/^```json\s*/i, "").replace(/^```/, "").replace(/```$/, "").trim()
+  const cleaned = extractJsonObjectOrArray(raw)
 
   try {
     return JSON.parse(cleaned) as T

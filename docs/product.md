@@ -14,6 +14,10 @@ The platform analyzes AI-generated responses about brands and turns that into vi
 ## Key Implemented Features
 - Full marketing website
 - Homepage with rotating hero text
+- AI visibility analysis entry flow (`/analyze`)
+- AI visibility report pages (`/ai-visibility/[companySlug]`)
+- AI query intelligence pages (`/ai-search/[querySlug]`)
+- Recent AI visibility reports listing (`/recent-ai-visibility-reports`)
 - Platform pages
 - Solutions pages
 - Pricing page
@@ -33,17 +37,25 @@ The platform analyzes AI-generated responses about brands and turns that into vi
 - Programmatic callout/CTA generation in MDX
 - Internal linking engine with AI-generated anchor keywords
 - Admin route protection via HTTP Basic Auth
+- AI visibility evidence pipeline (category, competitors, buyer/comparison queries, response evidence)
+- AI visibility processing/status APIs with async generation lifecycle
+- AI visibility background processor endpoint + cron-driven recovery
 
 ## Current Development Focus
-Programmatic SEO scale and quality:
+Programmatic SEO + AI visibility intelligence:
 1. Add/maintain templates and entities
 2. Generate draft guides safely
 3. Human moderation before publishing
 4. Keep internal linking and callouts deterministic
 5. Protect admin workflows and noindex draft content
+6. Keep AI visibility reports evidence-based and conversion-oriented
+7. Maintain reliable async processing and recovery for report generation
 
 Implementation references:
 - Programmatic generator: `scripts/generateProgrammaticPages.ts`
 - Internal link migration: `scripts/migrateInternalLinks.ts`
 - Moderation UI: `app/admin/programmatic/*`
 - Programmatic route: `app/guides/[slug]/page.tsx`
+- AI visibility pipeline: `lib/ai-visibility/report.ts`
+- AI visibility prompt set: `lib/ai/prompts/*`
+- AI visibility processing route: `app/api/ai-visibility/process/route.ts`

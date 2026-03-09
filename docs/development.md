@@ -8,9 +8,16 @@ Key env vars:
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_URL`
 - `LLM_PROVIDER`
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
 - `OPENROUTER_API_KEY`
 - `OPENROUTER_MODEL`
 - `OPENROUTER_KEYWORDS_MODEL`
+- `LLM_REQUEST_TIMEOUT_MS`
+- `LLM_MAX_RETRIES`
+- `AI_VISIBILITY_PROCESS_SECRET` (or `CRON_SECRET`)
+- `AI_VISIBILITY_HEARTBEAT_MS` (optional override)
+- `AI_VISIBILITY_PROCESSING_STALE_SECONDS` (optional override)
 - `ADMIN_BASIC_AUTH_USER`
 - `ADMIN_BASIC_AUTH_PASS`
 
@@ -65,8 +72,17 @@ Run internal-link migration:
 npm run migrate:internal-links
 ```
 
+Run AI visibility query-data backfill:
+```bash
+npm run ai-visibility:backfill
+```
+
 ## Development Notes
 - Keep App Router as the active routing model.
 - Maintain compatibility with existing production routes and styles.
 - Validate changes incrementally and avoid broad refactors.
 - `/admin/programmatic` requires basic auth credentials in local env.
+- AI visibility processing:
+  - Generation is async and may continue after initial `/generate` response.
+  - `/api/ai-visibility/process` is intended for background recovery/processing.
+  - In production, Vercel cron should call `/api/ai-visibility/process?limit=1`.

@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { AI_VISIBILITY_STATUS, findReportBySlug } from "../../../lib/ai-visibility/repository"
+import { parseCompetitorVisibility, parsePositioningTable, parseQueryRows, parseResponseSamples, parseStringList, toPercent } from "../../../lib/ai-visibility/view-model"
+import ReportActions from "./ReportActions.client"
 import styles from "./page.module.css"
-
-export const dynamic = "force-dynamic"
 
 type PageProps = {
   params: {
@@ -12,30 +12,33 @@ type PageProps = {
   }
 }
 
-type BrandPerception = Record<string, Record<string, "high" | "medium" | "low">>
-
-type BuyerQuery = {
-  query: string
-  likelyMentioned: boolean
+function formatDate(date: Date) {
+  const year = date.getUTCFullYear()
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0")
+  const day = `${date.getUTCDate()}`.padStart(2, "0")
+  return `${year}-${month}-${day}`
 }
 
-type ReportInsights = {
-  bullets?: string[]
-  recommendedActions?: string[]
-  sourceSignals?: {
-    metaTitlePresent?: boolean
-    metaDescriptionPresent?: boolean
-    headingCount?: number
-    sourcePresence?: number
-  }
-  productDescription?: string
+function InfoHint({ text }: { text: string }) {
+  return (
+    <span className={styles.infoHint} aria-label={text} tabIndex={0}>
+      i<span className={styles.tooltip}>{text}</span>
+    </span>
+  )
 }
 
-function normalizeLevel(level: string): string {
-  if (level === "high") return "High"
-  if (level === "medium") return "Medium"
-  if (level === "low") return "Low"
-  return "Medium"
+function highlightBrand(text: string, brand: string) {
+  const escaped = brand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  const regex = new RegExp(`(${escaped})`, "ig")
+  return text.split(regex).map((part, index) =>
+    index % 2 === 1 ? (
+      <mark key={`${part}-${index}`} className={styles.highlight}>
+        {part}
+      </mark>
+    ) : (
+      <span key={`${part}-${index}`}>{part}</span>
+    ),
+  )
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -61,16 +64,18 @@ export default async function AiVisibilityReportPage({ params }: PageProps) {
     notFound()
   }
 
-  const competitors = (Array.isArray(report.competitors) ? report.competitors : []) as string[]
-  const attributes = (Array.isArray(report.attributes) ? report.attributes : []) as string[]
+  const visibilityScore = report.visibilityScore ?? 0
+  const buyerQueries = parseQueryRows(report.buyerQueries)
+  const responseSamples = parseResponseSamples(report.aiResponseSamples).slice(0, 4)
+  const competitorVisibility = parseCompetitorVisibility(report.competitorVisibility)
+  const insights = parseStringList(report.insights)
+  const opportunities = parseStringList(report.opportunities)
+  const positioningRows = parsePositioningTable(report)
 
-  const perceptionTable = ((report.perceptionTable || {}) as { associations?: BrandPerception })
-    .associations || {}
-
-  const buyerQueries = (Array.isArray(report.buyerQueries) ? report.buyerQueries : []) as BuyerQuery[]
-  const insights = (report.insights || {}) as ReportInsights
-
-  const buyerMentions = buyerQueries.filter((item) => item.likelyMentioned).length
+  const topCompetitors = competitorVisibility
+    .filter((item) => item.brand !== report.companyName)
+    .sort((a, b) => b.visibilityPercent - a.visibilityPercent)
+    .slice(0, 3)
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -79,10 +84,6 @@ export default async function AiVisibilityReportPage({ params }: PageProps) {
     description: `How AI systems perceive ${report.companyName} and influence buyer decisions.`,
     datePublished: report.createdAt.toISOString(),
     dateModified: report.updatedAt.toISOString(),
-    author: {
-      "@type": "Organization",
-      name: "Readable",
-    },
   }
 
   return (
@@ -91,20 +92,13 @@ export default async function AiVisibilityReportPage({ params }: PageProps) {
 
       <section className={styles.hero}>
         <div className={styles.container}>
-          <p className={styles.kicker}>AI Visibility Report</p>
+          <p className={styles.kicker}>AI Visibility Intelligence</p>
           <h1 className={styles.title}>How AI perceives {report.companyName} and influences buyers</h1>
-          <p className={styles.subtitle}>
-            Category: {report.category || "Unspecified"} · Last analyzed: {report.lastAnalyzedAt.toLocaleDateString()}
-          </p>
+          <p className={styles.subtitle}>Category: {report.category || "Software"} · Last analyzed: {formatDate(report.lastAnalyzedAt)}</p>
           <div className={styles.heroCtas}>
-            <button className="btn btn-secondary" type="button">
-              Share with team
-            </button>
+            <ReportActions />
             <Link href="/book-demo" className="btn btn-primary">
               Book AI visibility audit
-            </Link>
-            <Link href={`/analyze?domain=${encodeURIComponent(report.domain)}&refresh=1`} className="btn btn-secondary">
-              Refresh analysis
             </Link>
           </div>
         </div>
@@ -112,38 +106,127 @@ export default async function AiVisibilityReportPage({ params }: PageProps) {
 
       <section className={styles.section}>
         <div className={styles.container}>
-          <h2>AI Visibility Score</h2>
-          <div className={styles.scoreCard}>
-            <p className={styles.score}>{report.visibilityScore ?? 0}</p>
-            <p className={styles.scoreMeta}>out of 100</p>
+          <h2 className={styles.sectionTitle}>
+            AI Visibility Score <InfoHint text="Likelihood of being surfaced in AI assistant product recommendations." />
+          </h2>
+          <div className={styles.scorePanel}>
+            <div>
+              <p className={styles.scoreValue}>{visibilityScore}</p>
+              <p className={styles.scoreSub}>out of 100</p>
+              <p className={styles.lead}>
+                Companies with higher scores are more likely to appear in AI-driven product discovery.
+              </p>
+            </div>
+            <div>
+              <Link href="/book-demo" className="btn btn-secondary">
+                Learn how this score is calculated
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       <section className={styles.sectionAlt}>
         <div className={styles.container}>
-          <h2>AI Category Positioning Table</h2>
+          <h2 className={styles.sectionTitle}>
+            AI Category Positioning Table <InfoHint text="How strongly AI responses associate each brand with core buyer attributes." />
+          </h2>
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Attribute</th>
-                  <th>{report.companyName}</th>
-                  {competitors.map((competitor) => (
-                    <th key={competitor}>{competitor}</th>
+                  {positioningRows[0]?.brands.map((brand) => (
+                    <th key={brand.brand}>{brand.brand}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {attributes.map((attribute) => (
-                  <tr key={attribute}>
-                    <td>{attribute}</td>
-                    <td>{normalizeLevel(perceptionTable[report.companyName]?.[attribute] || "medium")}</td>
-                    {competitors.map((competitor) => (
-                      <td key={`${competitor}-${attribute}`}>
-                        {normalizeLevel(perceptionTable[competitor]?.[attribute] || "medium")}
-                      </td>
+                {positioningRows.map((row, rowIndex) => (
+                  <tr key={`${row.attribute}-${rowIndex}`}>
+                    <td>{row.attribute}</td>
+                    {row.brands.map((brand) => (
+                      <td key={`${row.attribute}-${brand.brand}`}>{brand.label}</td>
                     ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>
+            Buyer Query Evidence <InfoHint text="Sample buyer prompts used to evaluate AI brand mention patterns." />
+          </h2>
+          <p className={styles.lead}>
+            The queries below are sample buyer prompts analyzed in this report. Readable evaluates a much broader set
+            of AI interactions during full analysis.
+          </p>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Query</th>
+                  <th>AI Mentions Brand</th>
+                </tr>
+              </thead>
+              <tbody>
+                {buyerQueries.map((entry, index) => (
+                  <tr key={`${entry.querySlug}-${index}`}>
+                    <td>
+                      <Link href={`/ai-search/${entry.querySlug}`} className={styles.inlineLink}>
+                        {entry.query}
+                      </Link>
+                    </td>
+                    <td>{entry.brandMentioned ? "Yes" : "No"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.sectionAlt}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>
+            AI Response Examples <InfoHint text="Representative excerpts from AI assistant outputs analyzed in this report." />
+          </h2>
+          <div className={styles.grid3}>
+            {responseSamples.map((sample, index) => (
+              <article className={styles.card} key={`${sample.query}-${index}`}>
+                <p className={styles.cardTitle}>{sample.query}</p>
+                <p>{highlightBrand(sample.excerpt, report.companyName)}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>
+            Competitor Visibility <InfoHint text="Share of analyzed AI responses in which each brand is mentioned." />
+          </h2>
+          <p className={styles.lead}>
+            AI assistants frequently recommend competing tools in {report.category || "software"} discussions.
+          </p>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th>AI Visibility %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {competitorVisibility.map((row, index) => (
+                  <tr key={`${row.brand}-${index}`}>
+                    <td>{row.brand}</td>
+                    <td>{toPercent(row.visibilityPercent)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -157,71 +240,69 @@ export default async function AiVisibilityReportPage({ params }: PageProps) {
         </div>
       </section>
 
+      <section className={styles.sectionAlt}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>
+            AI Comparison Positioning <InfoHint text="How AI assistants differentiate brands in side-by-side recommendations." />
+          </h2>
+          <ul className={styles.list}>
+            {insights.map((item, index) => (
+              <li key={`${item}-${index}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <section className={styles.section}>
         <div className={styles.container}>
-          <h2>Buyer Query Influence</h2>
-          <p className={styles.subtitle}>
-            {report.companyName} is likely to appear in {buyerMentions}/{buyerQueries.length || 0} representative buyer
-            queries.
-          </p>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Buyer Query</th>
-                  <th>Likely Mentioned</th>
-                </tr>
-              </thead>
-              <tbody>
-                {buyerQueries.map((entry) => (
-                  <tr key={entry.query}>
-                    <td>{entry.query}</td>
-                    <td>{entry.likelyMentioned ? "Yes" : "No"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <h2 className={styles.sectionTitle}>
+            Visibility Opportunities <InfoHint text="Important AI recommendation conversations where your brand is less visible." />
+          </h2>
+          <p className={styles.lead}>{report.companyName} is rarely mentioned in discussions about:</p>
+          <ul className={styles.list}>
+            {opportunities.map((item, index) => (
+              <li key={`${item}-${index}`}>{item}</li>
+            ))}
+          </ul>
         </div>
       </section>
 
       <section className={styles.sectionAlt}>
         <div className={styles.container}>
-          <h2>Sources AI Learns From</h2>
-          <div className={styles.grid3}>
-            <article className={styles.card}>
-              <p className={styles.cardTitle}>Meta title present</p>
-              <p>{insights.sourceSignals?.metaTitlePresent ? "Yes" : "No"}</p>
-            </article>
-            <article className={styles.card}>
-              <p className={styles.cardTitle}>Meta description present</p>
-              <p>{insights.sourceSignals?.metaDescriptionPresent ? "Yes" : "No"}</p>
-            </article>
-            <article className={styles.card}>
-              <p className={styles.cardTitle}>Heading signal count</p>
-              <p>{insights.sourceSignals?.headingCount ?? 0}</p>
-            </article>
+          <h2 className={styles.sectionTitle}>
+            How This Analysis Works <InfoHint text="Method summary for how Readable evaluates AI visibility signals." />
+          </h2>
+          <p className={styles.lead}>
+            Readable analyzes how AI assistants respond to representative buyer queries and how brands are described
+            within those responses.
+          </p>
+          <p className={styles.subtle}>This report includes only a small sample of the prompts analyzed.</p>
+          <div className={styles.endCtaRow}>
+            <Link href="/book-demo" className="btn btn-secondary">
+              Learn the methodology
+            </Link>
           </div>
         </div>
       </section>
 
       <section className={styles.section}>
         <div className={styles.container}>
-          <h2>Recommended Actions</h2>
-          <ul className={styles.list}>
-            {(insights.recommendedActions || []).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          <h3>Perception Insights</h3>
-          <ul className={styles.list}>
-            {(insights.bullets || []).map((bullet) => (
-              <li key={bullet}>{bullet}</li>
-            ))}
-          </ul>
+          <h2 className={styles.sectionTitle}>
+            AI Discovery Risk <InfoHint text="Business risk if AI assistants do not associate your brand with key category criteria." />
+          </h2>
+          <p className={styles.lead}>
+            Buyers increasingly rely on AI assistants to shortlist vendors. If AI systems do not associate your brand
+            with critical category attributes, you may never appear in those recommendations.
+          </p>
+          {topCompetitors.length > 0 ? (
+            <p className={styles.subtle}>
+              Current visibility leaders in this category: {topCompetitors.map((item) => item.brand).join(", ")}.
+            </p>
+          ) : null}
           <div className={styles.endCtaRow}>
+            <p className={styles.lead}>Readable can help implement these improvements with no effort from your team.</p>
             <Link href="/book-demo" className="btn btn-primary">
-              Start tracking AI visibility
+              Book a free demo to get started
             </Link>
           </div>
         </div>

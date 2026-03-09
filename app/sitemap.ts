@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getAllPosts } from "../lib/posts"
-import { getRecentCompletedReports } from "../lib/ai-visibility/repository"
+import { getCompletedReportsWithQueryData, getRecentCompletedReports } from "../lib/ai-visibility/repository"
 import { getPublishedProgrammaticPages } from "../lib/programmatic/repository"
 
 const BASE_URL = "https://www.tryreadable.ai"
@@ -67,5 +67,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   )
 
-  return [...staticEntries, ...blogEntries, ...guideEntries, ...aiReportEntries]
+  const queryPagesSource = await getCompletedReportsWithQueryData(600)
+  const querySlugs = Array.from(
+    new Set(
+      queryPagesSource.flatMap((report) => {
+        const rows = [...(Array.isArray(report.buyerQueries) ? report.buyerQueries : []), ...(Array.isArray(report.comparisonQueries) ? report.comparisonQueries : [])]
+        return rows
+          .map((row) => (row && typeof row === "object" ? (row as { querySlug?: unknown }).querySlug : ""))
+          .filter((slug): slug is string => typeof slug === "string" && slug.length > 0)
+      }),
+    ),
+  )
+
+  const aiSearchEntries: MetadataRoute.Sitemap = querySlugs.map((querySlug) => ({
+    url: `${BASE_URL}/ai-search/${querySlug}`,
+    changeFrequency: "weekly",
+    priority: 0.55,
+  }))
+
+  return [...staticEntries, ...blogEntries, ...guideEntries, ...aiReportEntries, ...aiSearchEntries]
 }

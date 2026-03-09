@@ -28,6 +28,10 @@ All routes live in `app/`.
 
 Important routes:
 - `app/page.tsx`
+- `app/analyze/page.tsx`
+- `app/ai-visibility/[companySlug]/page.tsx`
+- `app/ai-search/[querySlug]/page.tsx`
+- `app/recent-ai-visibility-reports/page.tsx`
 - `app/blog/page.tsx`
 - `app/blog/[slug]/page.tsx`
 - `app/guides/page.tsx`
@@ -47,6 +51,9 @@ API handlers are under `app/api/*`.
 
 Example:
 - `app/api/case-study-download/route.ts`
+- `app/api/ai-visibility/generate/route.ts`
+- `app/api/ai-visibility/status/route.ts`
+- `app/api/ai-visibility/process/route.ts`
 
 Removed legacy OTP APIs:
 - `app/api/request-case-study/route.ts`
@@ -86,6 +93,27 @@ Case studies:
 - `PageVersion`
 - `InternalLinkTarget`
 - `InternalLinkKeyword`
+- `AiVisibilityReport`
+
+## AI Visibility System
+- Analyze entry point: `/analyze`
+- Report pages: `/ai-visibility/[companySlug]`
+- Query intelligence pages: `/ai-search/[querySlug]`
+- Recent reports listing: `/recent-ai-visibility-reports`
+
+Processing flow:
+1. Domain normalized and slug derived
+2. Existing/cached report check (30-day cache window)
+3. Processing row upserted in `AiVisibilityReport`
+4. Generation pipeline runs and persists evidence + insights
+5. Report becomes publicly available only when `status = completed`
+
+PR3 durability behavior:
+- Generation is asynchronous and non-blocking for request handlers.
+- Processing jobs are claimed from DB (`processing` rows) using transactional claim logic.
+- Active generation rows are heartbeat-updated to avoid stale false-failures.
+- Background processor endpoint (`/api/ai-visibility/process`) can recover stale/incomplete work.
+- Vercel cron (`vercel.json`) triggers processor endpoint periodically.
 
 ## Programmatic SEO Pipeline
 1. Load templates + entities

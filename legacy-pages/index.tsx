@@ -149,6 +149,18 @@ type RecentAiVisibilityReport = {
   category: string | null
 }
 
+function formatUtcDate(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return ""
+  }
+
+  const year = date.getUTCFullYear()
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0")
+  const day = `${date.getUTCDate()}`.padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
 export default function HomePage({ recentReports = [] }: { recentReports?: RecentAiVisibilityReport[] }) {
   const [domain, setDomain] = useState("")
 
@@ -377,9 +389,9 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                       journeys."
                     </p>
                     <div style={{ marginTop: "10px", display: "flex", gap: "8px", flexWrap: "wrap", minWidth: 0 }}>
-                      {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((source) => (
+                      {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((source, index) => (
                         <span
-                          key={source}
+                          key={`${source}-${index}`}
                           style={{
                             fontSize: "11px",
                             padding: "3px 8px",
@@ -477,14 +489,14 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
             </div>
             {recentReports.length > 0 ? (
               <div className={pageStyles.grid3} style={{ marginTop: "28px", gap: "20px" }}>
-                {recentReports.map((report) => (
-                  <article key={report.companySlug} className={pageStyles.card} style={{ padding: "22px" }}>
+                {recentReports.map((report, index) => (
+                  <article key={`${report.companySlug}-${index}`} className={pageStyles.card} style={{ padding: "22px" }}>
                     <h3 style={{ marginTop: 0, marginBottom: "8px" }}>{report.companyName}</h3>
                     <p className={pageStyles.text} style={{ margin: 0 }}>
                       Visibility Score: <strong>{report.visibilityScore ?? 0}</strong>
                     </p>
                     <p className={pageStyles.text} style={{ marginTop: "8px", marginBottom: 0 }}>
-                      Last analyzed: {new Date(report.lastAnalyzedAt).toLocaleDateString()}
+                      Last analyzed: {formatUtcDate(report.lastAnalyzedAt)}
                     </p>
                     {report.category ? (
                       <p className={pageStyles.text} style={{ marginTop: "8px", marginBottom: 0 }}>
@@ -512,8 +524,8 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
               Most companies today:
             </p>
             <ul className={pageStyles.list} style={{ marginTop: "20px", gap: "10px" }}>
-              {aiChannelProblems.map((problem) => (
-                <li key={problem}>{problem}</li>
+              {aiChannelProblems.map((problem, index) => (
+                <li key={`${problem}-${index}`}>{problem}</li>
               ))}
             </ul>
             <p className={pageStyles.heroDescription} style={{ lineHeight: 1.7, marginTop: "24px" }}>
@@ -534,7 +546,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
 
         {featureSections.map((feature, index) => (
           <section
-            key={feature.title}
+            key={`${feature.title}-${index}`}
             className={index % 2 === 0 ? pageStyles.section : pageStyles.sectionAlt}
             style={{ paddingTop: "104px", paddingBottom: "104px" }}
           >
@@ -564,8 +576,8 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     {feature.description}
                   </p>
                   <ul className={pageStyles.list} style={{ marginTop: "20px", gap: "10px" }}>
-                    {feature.points.map((point) => (
-                      <li key={point}>{point}</li>
+                    {feature.points.map((point, pointIndex) => (
+                      <li key={`${point}-${pointIndex}`}>{point}</li>
                     ))}
                   </ul>
                 </div>
@@ -590,8 +602,8 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
           <div className={pageStyles.container}>
             <h2 className={pageStyles.heroTitle}>What Teams Are Saying</h2>
             <div className={pageStyles.grid3} style={{ marginTop: "40px", gap: "32px" }}>
-              {testimonials.map((item) => (
-                <article key={item.name} className={pageStyles.card} style={{ padding: "32px" }}>
+              {testimonials.map((item, index) => (
+                <article key={`${item.name}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
                   <p style={{ marginTop: 0, lineHeight: 1.7 }}>"{item.quote}"</p>
                   <div style={{ marginTop: "20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px" }}>
                     <div>
@@ -620,8 +632,8 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
           <div className={pageStyles.container}>
             <h2 className={pageStyles.heroTitle}>Solutions by Team</h2>
             <div className={pageStyles.grid2} style={{ marginTop: "40px", gap: "32px" }}>
-              {solutionsByTeam.map((item) => (
-                <article key={item.title} className={pageStyles.card} style={{ padding: "32px" }}>
+              {solutionsByTeam.map((item, index) => (
+                <article key={`${item.title}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
                   <h3 style={{ marginTop: 0 }}>{item.title}</h3>
                   <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
                     {item.description}
@@ -642,8 +654,8 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
             <h2 className={pageStyles.heroTitle}>Case Studies</h2>
             <p className={pageStyles.heroDescription}>Real outcomes from teams using Readable.</p>
             <div className={pageStyles.grid3} style={{ marginTop: "40px", gap: "32px" }}>
-              {caseStudyHighlights.map((item) => (
-                <article key={item.company} className={pageStyles.card} style={{ padding: "32px" }}>
+              {caseStudyHighlights.map((item, index) => (
+                <article key={`${item.company}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
                   <h3 style={{ marginTop: 0 }}>{item.company}</h3>
                   <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
                     {item.summary}

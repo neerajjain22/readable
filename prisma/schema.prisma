@@ -76,21 +76,27 @@ model InternalLinkKeyword {
 }
 
 model AiVisibilityReport {
-  id              String   @id @default(cuid())
-  domain          String   @unique
-  companySlug     String   @unique
-  companyName     String
-  category        String?
-  visibilityScore Int?
-  competitors     Json
-  attributes      Json
-  perceptionTable Json
-  buyerQueries    Json
-  insights        Json
-  status          String   @default("processing")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  lastAnalyzedAt  DateTime
+  id                  String   @id @default(cuid())
+  domain              String   @unique
+  companySlug         String   @unique
+  companyName         String
+  category            String?
+  visibilityScore     Int?
+  competitors         Json
+  attributes          Json
+  buyerQueries        Json
+  comparisonQueries   Json
+  perceptionEvidence  Json
+  competitorVisibility Json
+  aiResponseSamples   Json
+  insights            Json
+  opportunities       Json
+  recommendations     Json
+  perceptionTable     Json
+  status              String   @default("processing")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  lastAnalyzedAt      DateTime
 
   @@index([companySlug])
 }

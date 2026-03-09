@@ -8,6 +8,7 @@ type GeneratePayload = {
 }
 
 export async function POST(request: Request) {
+  const requestId = crypto.randomUUID()
   try {
     const payload = (await request.json()) as GeneratePayload
     const domain = (payload.domain || "").trim()
@@ -27,13 +28,16 @@ export async function POST(request: Request) {
       companySlug: result.companySlug,
       status,
       cached: result.cached,
+      startedGeneration: result.startedGeneration,
       redirectNow: status === AI_VISIBILITY_STATUS.COMPLETED,
+      requestId,
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to generate report right now."
     const lower = message.toLowerCase()
     const statusCode = lower.includes("invalid domain") || lower.includes("required") ? 400 : 500
+    console.error(`[ai-visibility][${requestId}] generate route failed`, error)
 
-    return NextResponse.json({ success: false, error: message }, { status: statusCode })
+    return NextResponse.json({ success: false, error: message, requestId }, { status: statusCode })
   }
 }

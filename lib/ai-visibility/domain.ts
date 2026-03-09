@@ -63,3 +63,17 @@ export function toDisplayCompanyName(companySlug: string): string {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ")
 }
+
+export function toQuerySlug(query: string): string {
+  return query
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+}
+
+export function toBrandSlug(brandName: string): string {
+  return toQuerySlug(brandName)
+}

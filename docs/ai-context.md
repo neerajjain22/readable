@@ -28,6 +28,10 @@ Core directories:
 
 Important routes:
 - `app/page.tsx`
+- `app/analyze/page.tsx`
+- `app/ai-visibility/[companySlug]/page.tsx`
+- `app/ai-search/[querySlug]/page.tsx`
+- `app/recent-ai-visibility-reports/page.tsx`
 - `app/blog/page.tsx`
 - `app/blog/[slug]/page.tsx`
 - `app/guides/page.tsx`
@@ -45,6 +49,10 @@ Important routes:
 API layer:
 - `app/api/*`
 - Active endpoint: `app/api/case-study-download/route.ts`
+- AI visibility endpoints:
+  - `app/api/ai-visibility/generate/route.ts`
+  - `app/api/ai-visibility/status/route.ts`
+  - `app/api/ai-visibility/process/route.ts`
 
 Case study download flow (current):
 1. User selects a case study.
@@ -57,6 +65,10 @@ DB helper:
 - `lib/db.ts`
 - Prisma singleton: `lib/prisma.ts`
 - Programmatic repository: `lib/programmatic/repository.ts`
+- AI visibility services:
+  - `lib/ai-visibility/report.ts`
+  - `lib/ai-visibility/repository.ts`
+  - `lib/ai/prompts/*`
 
 Legacy removed APIs:
 - `app/api/request-case-study/route.ts`
@@ -85,6 +97,19 @@ Case studies:
 - PDF assets: `public/case-studies`
 - Loader: `lib/case-study-data.ts`
 - UI: `app/case-studies/page.tsx`, `app/case-studies/CaseStudiesClient.tsx`
+
+AI visibility:
+- Report route: `/ai-visibility/[companySlug]`
+- Query route: `/ai-search/[querySlug]`
+- Recent reports route: `/recent-ai-visibility-reports`
+- Analyze flow: `/analyze` -> generate -> poll status -> redirect when completed
+- Status lifecycle: `processing` | `completed` | `failed`
+- Public visibility rule: only `completed` reports are shown
+- Processing reliability:
+  - DB-backed job claiming for `processing` reports
+  - heartbeat updates to keep active processing fresh
+  - recoverability through `/api/ai-visibility/process`
+  - periodic processing via Vercel cron (`vercel.json`)
 
 ## Programmatic + Internal Linking Workflows
 - Generator creates draft pages section-by-section with LLM.

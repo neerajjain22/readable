@@ -14,6 +14,11 @@
 - Avoid route-breaking changes.
 - Do not change route structure unless explicitly requested.
 
+## Long-Running Work
+- Do not block request/response cycles with long AI pipelines in API routes.
+- Prefer async processing patterns with status endpoints for user-facing progress flows.
+- For recoverable background work, use secure processor endpoints and scheduled triggers.
+
 ## Styling Conventions
 - Use CSS Modules for page/component styles.
 - Keep global styles in `styles/globals.css`.

@@ -8,13 +8,17 @@ type GenerateResponse = {
   success: boolean
   companySlug?: string
   status?: string
+  startedGeneration?: boolean
   redirectNow?: boolean
   error?: string
+  requestId?: string
 }
 
 type StatusResponse = {
   success: boolean
   status?: string
+  processingAgeSeconds?: number
+  generationActive?: boolean
   error?: string
 }
 
@@ -24,6 +28,14 @@ const PROGRESS_STEPS = [
   "Evaluating AI descriptions",
   "Analyzing buyer queries",
   "Generating AI visibility report",
+]
+
+const FINAL_STEP_STATUSES = [
+  "Analyzing AI response patterns",
+  "Comparing competitor visibility",
+  "Computing AI visibility score",
+  "Generating positioning insights",
+  "Finalizing report data",
 ]
 
 export default function AnalyzeClient({
@@ -39,6 +51,8 @@ export default function AnalyzeClient({
   const [running, setRunning] = useState(false)
   const [companySlug, setCompanySlug] = useState("")
   const [stepIndex, setStepIndex] = useState(0)
+  const [finalStatusIndex, setFinalStatusIndex] = useState(0)
+  const [ellipsisCount, setEllipsisCount] = useState(1)
 
   const completedStepCount = useMemo(() => {
     if (!running) {
@@ -47,6 +61,31 @@ export default function AnalyzeClient({
 
     return Math.min(PROGRESS_STEPS.length - 1, stepIndex)
   }, [running, stepIndex])
+
+  const finalStepActive = running && completedStepCount >= PROGRESS_STEPS.length - 1
+
+  useEffect(() => {
+    if (!finalStepActive) {
+      setFinalStatusIndex(0)
+      setEllipsisCount(1)
+      return
+    }
+
+    const statusInterval = window.setInterval(() => {
+      setFinalStatusIndex((prev) => (prev + 1) % FINAL_STEP_STATUSES.length)
+    }, 2000)
+
+    const dotsInterval = window.setInterval(() => {
+      setEllipsisCount((prev) => (prev % 3) + 1)
+    }, 500)
+
+    return () => {
+      window.clearInterval(statusInterval)
+      window.clearInterval(dotsInterval)
+    }
+  }, [finalStepActive])
+
+  const finalStepMessage = `${FINAL_STEP_STATUSES[finalStatusIndex]}${".".repeat(ellipsisCount)}`
 
   async function pollStatus(slug: string) {
     const response = await fetch(`/api/ai-visibility/status?companySlug=${encodeURIComponent(slug)}`, {
@@ -103,7 +142,9 @@ export default function AnalyzeClient({
 
       setCompanySlug(payload.companySlug)
 
+      let statusPollCount = 0
       const interval = window.setInterval(async () => {
+        statusPollCount += 1
         try {
           const status = await pollStatus(payload.companySlug as string)
 
@@ -119,6 +160,13 @@ export default function AnalyzeClient({
             window.clearInterval(interval)
             setRunning(false)
             setError("Report generation failed. Please try again.")
+          }
+
+          if (statusPollCount > 240) {
+            window.clearInterval(progressInterval)
+            window.clearInterval(interval)
+            setRunning(false)
+            setError("Report generation is taking longer than expected. Please retry in a minute.")
           }
         } catch {
           window.clearInterval(progressInterval)
@@ -178,6 +226,14 @@ export default function AnalyzeClient({
               </li>
             ))}
           </ul>
+          {finalStepActive ? (
+            <p className={styles.finalStepSubStatus} aria-live="polite">
+              {finalStepMessage}
+            </p>
+          ) : null}
+          <div className={styles.progressBar} aria-hidden="true">
+            <span className={styles.progressBarIndicator} />
+          </div>
           {companySlug ? <p className={styles.muted}>Company slug: {companySlug}</p> : null}
         </div>
       ) : null}

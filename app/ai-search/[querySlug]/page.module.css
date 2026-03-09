@@ -1,0 +1,157 @@
+.page {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.hero {
+  padding: 120px 0 72px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 70%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.title {
+  margin: 12px 0 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.12;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+}
+
+.subtle {
+  margin: 12px 0 0;
+  color: var(--color-text-muted);
+}
+
+.section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sectionAlt {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-light);
+}
+
+.lead {
+  margin: 12px 0 0;
+  color: var(--color-text-body);
+  max-width: 75ch;
+}
+
+.grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  padding: 14px;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.tableWrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--color-border);
+  padding: 10px 12px;
+  text-align: left;
+  background: #fff;
+}
+
+.table th {
+  background: #eef5ff;
+}
+
+.brandGrid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.brandCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  padding: 14px;
+}
+
+.inlineLink {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+.list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.ctaRow {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brandGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .hero {
+    padding-top: 98px;
+  }
+}
