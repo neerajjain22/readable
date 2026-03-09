@@ -59,6 +59,24 @@ function formatDate(value: string) {
   return `${year}-${month}-${day}`
 }
 
+function isValidAnalyzedDate(value: string) {
+  const date = new Date(value)
+  return !Number.isNaN(date.getTime()) && date.getUTCFullYear() > 1970
+}
+
+function stripTldSuffix(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((token) => !/^(com|net|org|io|ai|app|co|dev|tech|in|us|uk)$/i.test(token))
+    .join(" ")
+}
+
+function displayCompanyName(name: string) {
+  const cleaned = stripTldSuffix(name).trim()
+  return cleaned || name
+}
+
 function initialStageFlags(report: ReportPayload): StageFlags {
   const done = report.status === "completed"
   return {
@@ -187,16 +205,18 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
     { key: "visibility", label: "Visibility calculations complete", done: flags.visibilityComplete },
     { key: "insights", label: "Generating insights", done: flags.insightsComplete },
   ]
+  const displayName = displayCompanyName(report.companyName)
+  const hasValidLastAnalyzedDate = isValidAnalyzedDate(report.lastAnalyzedAt)
 
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.container}>
           <p className={styles.kicker}>AI Visibility Intelligence</p>
-          <h1 className={styles.title}>How AI perceives {report.companyName} and influences buyers</h1>
+          <h1 className={styles.title}>How AI perceives {displayName} and influences buyers</h1>
           <p className={styles.subtitle}>
-            Category: {flags.categoryComplete && report.category ? report.category : "Analyzing category..."} · Last analyzed:{" "}
-            {report.lastAnalyzedAt ? formatDate(report.lastAnalyzedAt) : "Pending"}
+            Category: {flags.categoryComplete && report.category ? report.category : "Analyzing category..."}
+            {hasValidLastAnalyzedDate ? ` · Last analyzed: ${formatDate(report.lastAnalyzedAt)}` : ""}
           </p>
           <div className={styles.heroCtas}>
             <ReportActions />
@@ -207,20 +227,27 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         </div>
       </section>
 
-      <section className={styles.sectionAlt}>
-        <div className={styles.container}>
-          <h2 className={styles.sectionTitle}>Report generation progress</h2>
-          <ul className={styles.progressListInline}>
-            {progressItems.map((item) => (
-              <li key={item.key} className={styles.progressItemInline}>
-                <span className={styles.statusDot} data-active={item.done} />
-                <span>{item.label}{item.done ? "" : "..."}</span>
-              </li>
-            ))}
-          </ul>
-          {isFailed ? <p className={styles.errorText}>Report generation failed. Please refresh or retry analysis.</p> : null}
-        </div>
-      </section>
+      {isProcessing ? (
+        <section className={styles.sectionAlt}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Report generation progress</h2>
+            <ul className={styles.progressListInline}>
+              {progressItems.map((item) => (
+                <li key={item.key} className={styles.progressItemInline}>
+                  <span className={styles.statusDot} data-active={item.done} />
+                  <span>
+                    {item.label}
+                    {item.done ? "" : "..."}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {isFailed ? (
+              <p className={styles.errorText}>Report generation failed. Please refresh or retry analysis.</p>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       <section className={styles.section}>
         <div className={styles.container}>
@@ -237,6 +264,11 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
                 <p className={styles.lead}>
                   Companies with higher scores are more likely to appear in AI-driven product discovery.
                 </p>
+                <div className={styles.nudgeRow}>
+                  <Link href="/book-demo" className={styles.inlineLink}>
+                    Learn how this score is calculated
+                  </Link>
+                </div>
               </div>
             </div>
           </SectionState>
@@ -306,6 +338,11 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className={styles.nudgeRow}>
+              <Link href="/book-demo" className="btn btn-primary">
+                Improve AI visibility
+              </Link>
             </div>
           </SectionState>
         </div>
@@ -409,6 +446,44 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
               ))}
             </ul>
           </SectionState>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>How This Analysis Works</h2>
+          <p className={styles.lead}>
+            Readable analyzes how AI assistants respond to representative buyer queries and how brands are described
+            within those responses.
+          </p>
+          <p className={styles.subtle}>This report includes only a small sample of the prompts analyzed.</p>
+          <div className={styles.nudgeRow}>
+            <Link href="/book-demo" className={styles.inlineLink}>
+              Learn the methodology
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.sectionAlt}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>AI Discovery Risk</h2>
+          <p className={styles.lead}>
+            Buyers increasingly rely on AI assistants to shortlist vendors. If AI systems do not associate your brand
+            with critical category attributes, you may never appear in those recommendations.
+          </p>
+          <p className={styles.subtle}>
+            Readable can help implement these improvements with no effort from your team.
+          </p>
+          <p className={styles.subtle}>Book a free demo to get started.</p>
+          <div className={styles.endCtaRow}>
+            <Link href="/analyze" className="btn btn-secondary">
+              Analyze your brand
+            </Link>
+            <Link href="/book-demo" className="btn btn-primary">
+              Book a demo
+            </Link>
+          </div>
         </div>
       </section>
     </main>
