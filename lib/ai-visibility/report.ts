@@ -513,7 +513,7 @@ function pickCompanyName(signals: HomepageSignals, fallbackSlug: string, domain:
   }
 
   if (signals.metaTitle) {
-    const firstPart = signals.metaTitle.split(/[|:-]/)[0]?.trim()
+    const firstPart = signals.metaTitle.split(/[|:\-–—]/)[0]?.trim()
     if (firstPart) {
       return firstPart
     }
@@ -525,6 +525,16 @@ function pickCompanyName(signals: HomepageSignals, fallbackSlug: string, domain:
 function toPercentage(numerator: number, denominator: number) {
   if (!denominator) return 0
   return Math.round((numerator / denominator) * 100)
+}
+
+function clampToPercent(value: number) {
+  return Math.max(0, Math.min(100, value))
+}
+
+function averagePercent(values: number[]) {
+  if (values.length === 0) return 0
+  const total = values.reduce((sum, value) => sum + value, 0)
+  return total / values.length
 }
 
 function toAssociationLabel(percent: number): "high" | "medium" | "low" {
@@ -978,7 +988,33 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
     }
   })
 
-  const visibilityScore = toPercentage(targetBuyerMentions, buyerEvidence.length)
+  const targetAllMentions = allEvidence.filter((item) => item.targetMentioned).length
+  const queryPresence = toPercentage(targetAllMentions, allEvidence.length)
+  const attributeStrength = Math.round(averagePercent(targetAttributes.map((row) => row.associationPercent)))
+
+  const targetVisibilityPercent = competitorVisibility.find((row) => row.brand === companyName)?.visibilityPercent || 0
+  const topCompetitorVisibility = competitors.length
+    ? Math.max(
+        ...competitorVisibility
+          .filter((row) => row.brand !== companyName)
+          .map((row) => row.visibilityPercent),
+      )
+    : 0
+  const competitiveParity = competitors.length
+    ? clampToPercent(50 + (targetVisibilityPercent - topCompetitorVisibility))
+    : 50
+
+  let visibilityScore = Math.round(
+    0.45 * queryPresence +
+      0.35 * attributeStrength +
+      0.2 * competitiveParity,
+  )
+
+  if (allEvidence.length < 8) {
+    visibilityScore = Math.round(visibilityScore * 0.85)
+  }
+
+  visibilityScore = clampToPercent(visibilityScore)
 
   const aiResponseSamples = allEvidence
     .filter((item) => item.targetMentioned)
