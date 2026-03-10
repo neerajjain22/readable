@@ -3,6 +3,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/ai-search-field-guide",
+        destination: "https://tryreadable.ai/guides/ai-search-field-guide",
+        permanent: true,
+      },
+      {
         source: "/resources/guides",
         destination: "/guides",
         permanent: true,
@@ -17,4 +22,3 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-
