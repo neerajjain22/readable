@@ -71,7 +71,9 @@ Use:
 Not:
 "Agile Workflow Platform"
 
-10. Return ONLY valid JSON.
+10. Use extracted company context to choose a granular, buyer-recognizable category label.
+11. Prefer specific categories like "Online Personal Loan Marketplace" instead of generic labels like "Financial Services" when context supports it.
+12. Return ONLY valid JSON.
 
 OUTPUT FORMAT
 
@@ -83,4 +85,16 @@ OUTPUT FORMAT
 
 export function buildCategoryDetectionUserPrompt(cleanedHomepageText: string) {
   return `Analyze this website content and determine the primary product category.\n\nReturn JSON:\n{"category":"","subcategories":[],"productDescription":""}\n\nWebsite content:\n${cleanedHomepageText}`
+}
+
+export function buildCategoryDetectionUserPromptWithContext(input: {
+  cleanedHomepageText: string
+  industryCategory: string
+  subCategory: string
+  businessModel: string
+  targetCustomerSegment: string
+  primaryGeography: string
+  companyScale: string
+}) {
+  return `Analyze this website content and determine the primary product category.\n\nUse this context to choose a granular category:\n- industryCategory: ${input.industryCategory}\n- subCategory: ${input.subCategory}\n- businessModel: ${input.businessModel}\n- targetCustomerSegment: ${input.targetCustomerSegment}\n- primaryGeography: ${input.primaryGeography}\n- companyScale: ${input.companyScale}\n\nReturn JSON:\n{"category":"","subcategories":[],"productDescription":""}\n\nWebsite content:\n${input.cleanedHomepageText}`
 }

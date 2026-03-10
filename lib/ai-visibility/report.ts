@@ -8,16 +8,22 @@ import {
 import { BUYER_QUERIES_SYSTEM_PROMPT, buildBuyerQueriesUserPrompt } from "../ai/prompts/buyerQueries"
 import {
   CATEGORY_DETECTION_SYSTEM_PROMPT,
-  buildCategoryDetectionUserPrompt,
+  buildCategoryDetectionUserPromptWithContext,
 } from "../ai/prompts/categoryDetection"
 import {
   COMPARISON_QUERIES_SYSTEM_PROMPT,
   buildComparisonQueriesUserPrompt,
 } from "../ai/prompts/comparisonQueries"
 import {
+  COMPETITOR_VALIDATION_SYSTEM_PROMPT,
   COMPETITOR_DISCOVERY_SYSTEM_PROMPT,
   buildCompetitorDiscoveryUserPrompt,
+  buildCompetitorValidationUserPrompt,
 } from "../ai/prompts/competitorDiscovery"
+import {
+  CONTEXT_EXTRACTION_SYSTEM_PROMPT,
+  buildContextExtractionUserPrompt,
+} from "../ai/prompts/contextExtraction"
 import {
   buildInsightGenerationUserPrompt,
   buildOpportunityGenerationUserPrompt,
@@ -121,6 +127,16 @@ type CategoryResponse = {
   category: string
   subcategories: string[]
   productDescription: string
+}
+
+type CompanyContext = {
+  companyName: string
+  industryCategory: string
+  subCategory: string
+  businessModel: string
+  targetCustomerSegment: string
+  primaryGeography: string
+  companyScale: string
 }
 
 type QueryEvidence = {
@@ -352,6 +368,28 @@ function normalizeBrandName(raw: string) {
 
   const cleaned = value.replace(/\s+/g, " ").replace(/\s*\/\s*/g, " / ").trim()
   return cleaned
+}
+
+function isInvalidBrandToken(raw: string) {
+  const normalized = normalizeForMatch(raw)
+  if (!normalized) return true
+
+  const blocked = new Set([
+    "you",
+    "i",
+    "we",
+    "they",
+    "our",
+    "your",
+    "their",
+    "company",
+    "platform",
+    "product",
+    "service",
+    "solution",
+  ])
+
+  return blocked.has(normalized)
 }
 
 function escapeRegExp(value: string) {
@@ -625,7 +663,18 @@ async function detectCategory(domain: string, signals: HomepageSignals): Promise
   try {
     const response = await generateJson<CategoryResponse>([
       { role: "system", content: CATEGORY_DETECTION_SYSTEM_PROMPT },
-      { role: "user", content: buildCategoryDetectionUserPrompt(signals.cleanedText) },
+      {
+        role: "user",
+        content: buildCategoryDetectionUserPromptWithContext({
+          cleanedHomepageText: signals.cleanedText,
+          industryCategory: "Software",
+          subCategory: "",
+          businessModel: "SaaS platform",
+          targetCustomerSegment: "Business buyers",
+          primaryGeography: "Global",
+          companyScale: "Mid-market company",
+        }),
+      },
     ])
 
     return {
@@ -643,16 +692,138 @@ async function detectCategory(domain: string, signals: HomepageSignals): Promise
   }
 }
 
-async function discoverCompetitors(category: string, companyName: string): Promise<string[]> {
+async function extractCompanyContext(
+  signals: HomepageSignals,
+  fallbackCompanyName: string,
+): Promise<CompanyContext> {
+  try {
+    const response = await generateJson<Partial<CompanyContext>>([
+      { role: "system", content: CONTEXT_EXTRACTION_SYSTEM_PROMPT },
+      { role: "user", content: buildContextExtractionUserPrompt(signals.cleanedText) },
+    ])
+
+    return {
+      companyName: (response.companyName || fallbackCompanyName).trim() || fallbackCompanyName,
+      industryCategory: (response.industryCategory || "Software").trim() || "Software",
+      subCategory: (response.subCategory || "").trim(),
+      businessModel: (response.businessModel || "SaaS platform").trim() || "SaaS platform",
+      targetCustomerSegment: (response.targetCustomerSegment || "Business buyers").trim() || "Business buyers",
+      primaryGeography: (response.primaryGeography || "Global").trim() || "Global",
+      companyScale: (response.companyScale || "Mid-market company").trim() || "Mid-market company",
+    }
+  } catch (error) {
+    logStep("extractCompanyContext", "using fallback company context", error)
+    return {
+      companyName: fallbackCompanyName,
+      industryCategory: "Software",
+      subCategory: "",
+      businessModel: "SaaS platform",
+      targetCustomerSegment: "Business buyers",
+      primaryGeography: "Global",
+      companyScale: "Mid-market company",
+    }
+  }
+}
+
+async function detectCategoryWithContext(domain: string, signals: HomepageSignals, context: CompanyContext): Promise<CategoryResponse> {
+  const override = MONOPOLY_OVERRIDES[domain]
+  if (override) {
+    return {
+      category: override.category,
+      subcategories: override.subcategories,
+      productDescription: override.productDescription,
+    }
+  }
+
+  try {
+    const response = await generateJson<CategoryResponse>([
+      { role: "system", content: CATEGORY_DETECTION_SYSTEM_PROMPT },
+      {
+        role: "user",
+        content: buildCategoryDetectionUserPromptWithContext({
+          cleanedHomepageText: signals.cleanedText,
+          industryCategory: context.industryCategory,
+          subCategory: context.subCategory,
+          businessModel: context.businessModel,
+          targetCustomerSegment: context.targetCustomerSegment,
+          primaryGeography: context.primaryGeography,
+          companyScale: context.companyScale,
+        }),
+      },
+    ])
+
+    return {
+      category: (response.category || context.subCategory || "Software").trim() || "Software",
+      subcategories: sanitizeStringList(response.subcategories, 5),
+      productDescription: (response.productDescription || "").trim(),
+    }
+  } catch (error) {
+    logStep("detectCategoryWithContext", "using fallback category", error)
+    return {
+      category: context.subCategory || "Software",
+      subcategories: [],
+      productDescription: "",
+    }
+  }
+}
+
+async function discoverCompetitors(
+  category: string,
+  companyName: string,
+  context: CompanyContext,
+): Promise<string[]> {
   try {
     const response = await generateJson<string[]>([
       { role: "system", content: COMPETITOR_DISCOVERY_SYSTEM_PROMPT },
-      { role: "user", content: buildCompetitorDiscoveryUserPrompt(category) },
+      {
+        role: "user",
+        content: buildCompetitorDiscoveryUserPrompt({
+          category,
+          companyName,
+          subCategory: context.subCategory || category,
+          businessModel: context.businessModel,
+          targetCustomerSegment: context.targetCustomerSegment,
+          primaryGeography: context.primaryGeography,
+          companyScale: context.companyScale,
+        }),
+      },
     ])
 
-    return sanitizeStringList(response)
+    const candidates = sanitizeStringList(response)
       .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
-      .slice(0, 3)
+      .filter((brand) => !isInvalidBrandToken(brand))
+      .slice(0, 5)
+
+    if (candidates.length === 0) {
+      return []
+    }
+
+    try {
+      const validation = await generateJson<{ validCompetitors?: string[] }>([
+        { role: "system", content: COMPETITOR_VALIDATION_SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: buildCompetitorValidationUserPrompt({
+            targetCompany: companyName,
+            category,
+            subCategory: context.subCategory || category,
+            businessModel: context.businessModel,
+            targetCustomerSegment: context.targetCustomerSegment,
+            primaryGeography: context.primaryGeography,
+            companyScale: context.companyScale,
+            competitors: candidates,
+          }),
+        },
+      ])
+
+      return sanitizeStringList(validation.validCompetitors, 5)
+        .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
+        .filter((brand) => !isInvalidBrandToken(brand))
+        .slice(0, 3)
+    } catch (error) {
+      logStep("discoverCompetitors", "validation failed, using candidate list", error)
+      return candidates.slice(0, 3)
+    }
   } catch (error) {
     logStep("discoverCompetitors", "using empty competitor fallback", error)
     return []
@@ -677,13 +848,22 @@ async function extractAttributes(category: string): Promise<string[]> {
   return fallbackAttributes()
 }
 
-async function generateBuyerQueries(category: string): Promise<string[]> {
+async function generateBuyerQueries(category: string, context: CompanyContext): Promise<string[]> {
   let queries: string[] = []
 
   try {
     const response = await generateJson<string[]>([
       { role: "system", content: BUYER_QUERIES_SYSTEM_PROMPT },
-      { role: "user", content: buildBuyerQueriesUserPrompt(category) },
+      {
+        role: "user",
+        content: buildBuyerQueriesUserPrompt({
+          category,
+          subCategory: context.subCategory || category,
+          businessModel: context.businessModel,
+          targetCustomerSegment: context.targetCustomerSegment,
+          primaryGeography: context.primaryGeography,
+        }),
+      },
     ])
     queries = sanitizeStringList(response, 12)
     if (queries.length === 12) {
@@ -711,12 +891,27 @@ async function generateBuyerQueries(category: string): Promise<string[]> {
   return sanitizeStringList([...queries, ...fallbacks], 12)
 }
 
-async function generateComparisonQueries(targetBrand: string, competitors: string[]): Promise<string[]> {
+async function generateComparisonQueries(
+  targetBrand: string,
+  competitors: string[],
+  category: string,
+  context: CompanyContext,
+): Promise<string[]> {
   let queries: string[] = []
   try {
     const response = await generateJson<string[]>([
       { role: "system", content: COMPARISON_QUERIES_SYSTEM_PROMPT },
-      { role: "user", content: buildComparisonQueriesUserPrompt(targetBrand, competitors) },
+      {
+        role: "user",
+        content: buildComparisonQueriesUserPrompt({
+          targetBrand,
+          competitors,
+          category,
+          subCategory: context.subCategory || category,
+          primaryGeography: context.primaryGeography,
+          targetCustomerSegment: context.targetCustomerSegment,
+        }),
+      },
     ])
     queries = sanitizeStringList(response)
   } catch (error) {
@@ -908,15 +1103,17 @@ function buildQueryAttributeSnapshot(evidence: QueryEvidence, attributes: string
 async function runPipeline(domain: string, companySlug: string): Promise<PipelineOutput> {
   logStep("runPipeline", `start for ${domain}`)
   const homepage = await fetchHomepageSignals(domain)
-  const companyName = pickCompanyName(homepage, companySlug, domain)
+  const fallbackCompanyName = pickCompanyName(homepage, companySlug, domain)
+  const companyContext = await extractCompanyContext(homepage, fallbackCompanyName)
+  const companyName = (companyContext.companyName || fallbackCompanyName).trim() || fallbackCompanyName
   logStep("runPipeline", `company identified as ${companyName}`)
-  const categoryResult = await detectCategory(domain, homepage)
-  const initialCompetitors = await discoverCompetitors(categoryResult.category, companyName)
+  const categoryResult = await detectCategoryWithContext(domain, homepage, companyContext)
+  const initialCompetitors = await discoverCompetitors(categoryResult.category, companyName, companyContext)
   const initialAttributes = await extractAttributes(categoryResult.category)
   logStep("runPipeline", `category=${categoryResult.category}, initialCompetitors=${initialCompetitors.length}, initialAttributes=${initialAttributes.length}`)
 
-  const buyerQueries = await generateBuyerQueries(categoryResult.category)
-  const comparisonQueries = await generateComparisonQueries(companyName, initialCompetitors)
+  const buyerQueries = await generateBuyerQueries(categoryResult.category, companyContext)
+  const comparisonQueries = await generateComparisonQueries(companyName, initialCompetitors, categoryResult.category, companyContext)
   logStep("runPipeline", `buyerQueries=${buyerQueries.length}, comparisonQueries=${comparisonQueries.length}`)
 
   const buyerEvidence = await collectAiResponses(
@@ -955,27 +1152,40 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
     attributes = defaultTableAttributes()
   }
 
-  const competitors = uniqueByNormalized([
+  const mergedCompetitors = uniqueByNormalized([
     ...responseDerivedCompetitors,
     ...initialCompetitors.map(normalizeBrandName),
   ])
     .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
+    .filter((brand) => !isInvalidBrandToken(brand))
     .slice(0, 3)
 
-  logStep("runPipeline", `selected competitors=${competitors.join(", ") || "none"}, attributes=${attributes.join(", ")}`)
+  const finalizedCompetitors =
+    initialCompetitors.length >= 3
+      ? mergedCompetitors
+      : uniqueByNormalized([
+          ...responseDerivedCompetitors,
+          ...mergedCompetitors,
+          ...initialCompetitors.map(normalizeBrandName),
+        ])
+          .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
+          .filter((brand) => !isInvalidBrandToken(brand))
+          .slice(0, 3)
+
+  logStep("runPipeline", `selected competitors=${finalizedCompetitors.join(", ") || "none"}, attributes=${attributes.join(", ")}`)
 
   const targetBuyerMentions = buyerEvidence.filter((item) => item.targetMentioned).length
   const targetComparisonMentions = comparisonEvidence.filter((item) => item.targetMentioned).length
 
   const targetAttributes = await detectAttributeAssociations("__target__", attributes, allEvidence)
   const competitorAttributes = await Promise.all(
-    competitors.map(async (brand) => ({
+    finalizedCompetitors.map(async (brand) => ({
       brand,
       attributes: await detectAttributeAssociations(brand, attributes, allEvidence),
     })),
   )
 
-  const competitorVisibility: CompetitorVisibilityItem[] = [companyName, ...competitors].map((brand) => {
+  const competitorVisibility: CompetitorVisibilityItem[] = [companyName, ...finalizedCompetitors].map((brand) => {
     const mentions = allEvidence.filter((item) =>
       brand === companyName ? item.targetMentioned : isBrandMentionedInEvidence(item, brand),
     ).length
@@ -993,14 +1203,14 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
   const attributeStrength = Math.round(averagePercent(targetAttributes.map((row) => row.associationPercent)))
 
   const targetVisibilityPercent = competitorVisibility.find((row) => row.brand === companyName)?.visibilityPercent || 0
-  const topCompetitorVisibility = competitors.length
+  const topCompetitorVisibility = finalizedCompetitors.length
     ? Math.max(
         ...competitorVisibility
           .filter((row) => row.brand !== companyName)
           .map((row) => row.visibilityPercent),
       )
     : 0
-  const competitiveParity = competitors.length
+  const competitiveParity = finalizedCompetitors.length
     ? clampToPercent(50 + (targetVisibilityPercent - topCompetitorVisibility))
     : 50
 
@@ -1042,7 +1252,7 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
       { role: "system", content: INSIGHT_GENERATION_SYSTEM_PROMPT },
       {
         role: "user",
-        content: buildInsightGenerationUserPrompt(companyName, competitors, buyerEvidence, comparisonEvidence),
+        content: buildInsightGenerationUserPrompt(companyName, finalizedCompetitors, buyerEvidence, comparisonEvidence),
       },
     ])
   } catch (error) {
@@ -1099,7 +1309,7 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
       ? opportunities
       : [
           `Increase coverage for high-intent category queries where competitors are mentioned without ${companyName}.`,
-          `Strengthen comparison-page narratives versus ${competitors[0] || "top alternatives"} to improve assistant recall.`,
+          `Strengthen comparison-page narratives versus ${finalizedCompetitors[0] || "top alternatives"} to improve assistant recall.`,
           `Expand citation-ready pages around ${attributes[0] || "core use cases"} and ${attributes[1] || "buyer criteria"}.`,
         ]
 
@@ -1107,7 +1317,7 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
     recommendations.length > 0
       ? recommendations
       : [
-          `Publish dedicated comparison pages targeting queries such as \"${companyName} vs ${competitors[0] || "alternative"}\".`,
+          `Publish dedicated comparison pages targeting queries such as \"${companyName} vs ${finalizedCompetitors[0] || "alternative"}\".`,
           `Tighten category positioning statements across homepage, docs, and product pages for consistent AI retrieval.`,
           `Build citation-focused proof pages with benchmarks, integrations, and pricing clarity for assistant grounding.`,
         ]
@@ -1124,14 +1334,14 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
   return {
     companyName,
     category: categoryResult.category,
-    competitors,
+    competitors: finalizedCompetitors,
     attributes,
     buyerQueries: buyerEvidence.map((item) => ({
       query: item.query,
       querySlug: item.querySlug,
       brandMentioned: item.targetMentioned,
       responseExcerpt: item.responseExcerpt,
-      brandVisibility: buildQueryVisibilitySnapshot(item, companyName, competitors),
+      brandVisibility: buildQueryVisibilitySnapshot(item, companyName, finalizedCompetitors),
       attributeMentions: buildQueryAttributeSnapshot(item, attributes),
       relatedQueries: buildRelatedQueryLinks([...buyerEvidence, ...comparisonEvidence], item.querySlug),
       relatedGuides,
@@ -1141,7 +1351,7 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
       querySlug: item.querySlug,
       brandMentioned: item.targetMentioned,
       responseExcerpt: item.responseExcerpt,
-      brandVisibility: buildQueryVisibilitySnapshot(item, companyName, competitors),
+      brandVisibility: buildQueryVisibilitySnapshot(item, companyName, finalizedCompetitors),
       attributeMentions: buildQueryAttributeSnapshot(item, attributes),
       relatedQueries: buildRelatedQueryLinks([...buyerEvidence, ...comparisonEvidence], item.querySlug),
       relatedGuides,
@@ -1163,7 +1373,7 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
     insights: safeInsights,
     opportunities: safeOpportunities,
     recommendations: safeRecommendations,
-    perceptionTable: buildPerceptionTable(companyName, competitors, targetAttributes, competitorAttributes),
+    perceptionTable: buildPerceptionTable(companyName, finalizedCompetitors, targetAttributes, competitorAttributes),
   }
 }
 

@@ -114,8 +114,8 @@ export default function Header() {
           </nav>
 
           <div className={styles.actions}>
-            <Link href="/contact" className="btn btn-secondary">
-              Contact
+            <Link href="https://growth.tryreadable.ai/" className="btn btn-secondary">
+              Sign up
             </Link>
             <Link href="/book-demo" className="btn btn-primary">
               Book a Demo
