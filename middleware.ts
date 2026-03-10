@@ -32,6 +32,16 @@ function decodeBasicAuth(header: string) {
 }
 
 export function middleware(request: NextRequest) {
+  const host = (request.headers.get("host") || "").toLowerCase()
+  if (host.endsWith(".vercel.app")) {
+    return new NextResponse("Not Found", { status: 404 })
+  }
+
+  const isAdminRoute = request.nextUrl.pathname === "/admin/programmatic" || request.nextUrl.pathname.startsWith("/admin/programmatic/")
+  if (!isAdminRoute) {
+    return NextResponse.next()
+  }
+
   const expectedUser = process.env.ADMIN_BASIC_AUTH_USER
   const expectedPass = process.env.ADMIN_BASIC_AUTH_PASS
 
@@ -61,5 +71,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/programmatic", "/admin/programmatic/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 }

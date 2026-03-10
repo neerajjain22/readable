@@ -129,6 +129,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   const [status, setStatus] = useState(initialReport.status)
   const isProcessing = status === "processing"
   const isFailed = status === "failed"
+  const isCompleted = status === "completed"
+  const showLoadingUi = !isCompleted
   const generationTips = [
     "AI assistants increasingly influence how buyers discover products.",
     "Brands that appear frequently in AI recommendations capture more discovery traffic.",
@@ -188,10 +190,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   }, [isProcessing, report.id])
 
   useEffect(() => {
-    if (!isProcessing) {
-      if (status === "completed") {
-        setSimulatedProgress(100)
-      }
+    if (status === "completed") {
+      setSimulatedProgress(100)
       return
     }
 
@@ -216,10 +216,10 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
     return () => {
       window.clearInterval(intervalId)
     }
-  }, [isProcessing, status])
+  }, [status])
 
   useEffect(() => {
-    if (!isProcessing) {
+    if (!showLoadingUi) {
       return
     }
 
@@ -234,7 +234,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
     return () => {
       window.clearInterval(intervalId)
     }
-  }, [isProcessing, generationTips.length])
+  }, [showLoadingUi, generationTips.length])
 
   const buyerQueries = useMemo(() => parseQueryRows(report.buyerQueries), [report.buyerQueries])
   const responseSamples = useMemo(() => parseResponseSamples(report.aiResponseSamples).slice(0, 4), [report.aiResponseSamples])
@@ -284,7 +284,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
               Book AI visibility audit
             </Link>
           </div>
-          {isProcessing ? (
+          {showLoadingUi ? (
             <div className={styles.progressWrap}>
               <div className={styles.progressTrack} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}>
                 <span className={styles.progressFill} style={{ width: `${progressPercent}%` }} />
@@ -295,12 +295,13 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
               <p className={`${styles.progressTip} ${tipVisible ? styles.tipVisible : styles.tipHidden}`}>
                 {generationTips[tipIndex]}
               </p>
+              {isFailed ? <p className={styles.errorText}>Generation hit an issue. Please retry the analysis.</p> : null}
             </div>
           ) : null}
         </div>
       </section>
 
-      {isProcessing ? (
+      {showLoadingUi ? (
         <section className={styles.sectionAlt}>
           <div className={styles.container}>
             <h2 className={styles.sectionTitle}>Report generation progress</h2>
