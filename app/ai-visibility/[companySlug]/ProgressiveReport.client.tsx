@@ -122,10 +122,20 @@ function SectionState({
 export default function ProgressiveReport({ initialReport }: { initialReport: ReportPayload }) {
   const [report, setReport] = useState<ReportPayload>(initialReport)
   const [flags, setFlags] = useState<StageFlags>(initialStageFlags(initialReport))
+  const [simulatedProgress, setSimulatedProgress] = useState(initialReport.status === "completed" ? 100 : 0)
+  const [tipIndex, setTipIndex] = useState(0)
+  const [tipVisible, setTipVisible] = useState(true)
 
   const [status, setStatus] = useState(initialReport.status)
   const isProcessing = status === "processing"
   const isFailed = status === "failed"
+  const generationTips = [
+    "AI assistants increasingly influence how buyers discover products.",
+    "Brands that appear frequently in AI recommendations capture more discovery traffic.",
+    "Readable analyzes thousands of AI responses to understand how brands are positioned.",
+    "Many companies underestimate how often AI assistants recommend competitors.",
+    "Understanding how AI describes your brand can reveal hidden visibility gaps.",
+  ]
 
   useEffect(() => {
     if (!isProcessing) {
@@ -177,6 +187,55 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
     }
   }, [isProcessing, report.id])
 
+  useEffect(() => {
+    if (!isProcessing) {
+      if (status === "completed") {
+        setSimulatedProgress(100)
+      }
+      return
+    }
+
+    const startedAt = Date.now()
+    const tickMs = 500
+
+    const intervalId = window.setInterval(() => {
+      const elapsedSeconds = (Date.now() - startedAt) / 1000
+      let nextProgress = 0
+
+      if (elapsedSeconds <= 30) {
+        nextProgress = (elapsedSeconds / 30) * 30
+      } else {
+        const slowPhase = Math.min((elapsedSeconds - 30) / 210, 1)
+        const eased = 1 - (1 - slowPhase) * (1 - slowPhase)
+        nextProgress = 30 + eased * 65
+      }
+
+      setSimulatedProgress((prev) => Math.max(prev, Math.min(95, nextProgress)))
+    }, tickMs)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [isProcessing, status])
+
+  useEffect(() => {
+    if (!isProcessing) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      setTipVisible(false)
+      window.setTimeout(() => {
+        setTipIndex((prev) => (prev + 1) % generationTips.length)
+        setTipVisible(true)
+      }, 220)
+    }, 8000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [isProcessing, generationTips.length])
+
   const buyerQueries = useMemo(() => parseQueryRows(report.buyerQueries), [report.buyerQueries])
   const responseSamples = useMemo(() => parseResponseSamples(report.aiResponseSamples).slice(0, 4), [report.aiResponseSamples])
   const competitorVisibility = useMemo(
@@ -207,6 +266,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   ]
   const displayName = displayCompanyName(report.companyName)
   const hasValidLastAnalyzedDate = isValidAnalyzedDate(report.lastAnalyzedAt)
+  const progressPercent = status === "completed" ? 100 : Math.round(simulatedProgress)
 
   return (
     <main className={styles.page}>
@@ -224,6 +284,19 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
               Book AI visibility audit
             </Link>
           </div>
+          {isProcessing ? (
+            <div className={styles.progressWrap}>
+              <div className={styles.progressTrack} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}>
+                <span className={styles.progressFill} style={{ width: `${progressPercent}%` }} />
+              </div>
+              <p className={styles.progressHelper}>
+                Generating your AI visibility report. This usually takes about 3-4 minutes.
+              </p>
+              <p className={`${styles.progressTip} ${tipVisible ? styles.tipVisible : styles.tipHidden}`}>
+                {generationTips[tipIndex]}
+              </p>
+            </div>
+          ) : null}
         </div>
       </section>
 

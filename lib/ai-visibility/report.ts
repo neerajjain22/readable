@@ -382,14 +382,39 @@ function isInvalidBrandToken(raw: string) {
     "our",
     "your",
     "their",
+    "it",
+    "them",
+    "here",
+    "there",
+    "this",
+    "that",
+    "these",
+    "those",
     "company",
     "platform",
     "product",
     "service",
     "solution",
+    "brand",
+    "vendor",
+    "tool",
+    "tools",
+    "app",
+    "apps",
+    "software",
+    "website",
   ])
 
-  return blocked.has(normalized)
+  if (blocked.has(normalized)) {
+    return true
+  }
+
+  // Filter out short non-brand stopwords that may slip through LLM outputs.
+  if (normalized.length <= 2) {
+    return true
+  }
+
+  return false
 }
 
 function escapeRegExp(value: string) {

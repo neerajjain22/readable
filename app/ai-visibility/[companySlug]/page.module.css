@@ -42,6 +42,59 @@
   flex-wrap: wrap;
 }
 
+.progressWrap {
+  margin-top: 18px;
+  max-width: 100%;
+}
+
+.progressTrack {
+  height: 6px;
+  border-radius: 4px;
+  background: #dbe2ea;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 70%, #60a5fa 100%);
+  transition: width 500ms ease;
+  position: relative;
+}
+
+.progressFill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+  animation: progress-shimmer 1.8s infinite linear;
+}
+
+.progressHelper {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.progressTip {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  color: #1f3654;
+  transition: opacity 220ms ease;
+}
+
+.tipVisible {
+  opacity: 1;
+}
+
+.tipHidden {
+  opacity: 0;
+}
+
 .copyWrap {
   display: inline-flex;
   align-items: center;
@@ -313,6 +366,16 @@
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes progress-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(360%);
   }
 }
 
