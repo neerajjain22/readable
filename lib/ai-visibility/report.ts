@@ -139,6 +139,16 @@ type CompanyContext = {
   companyScale: string
 }
 
+const GENERIC_CATEGORY_VALUES = new Set([
+  "software",
+  "saas",
+  "technology",
+  "tech",
+  "digital platform",
+  "platform",
+  "business software",
+])
+
 type QueryEvidence = {
   query: string
   querySlug: string
@@ -702,18 +712,19 @@ async function detectCategory(domain: string, signals: HomepageSignals): Promise
       },
     ])
 
+    const category = (response.category || "").trim()
+    if (!category || GENERIC_CATEGORY_VALUES.has(category.toLowerCase())) {
+      throw new Error("Category detection returned empty or overly generic category")
+    }
+
     return {
-      category: (response.category || "Software").trim() || "Software",
+      category,
       subcategories: sanitizeStringList(response.subcategories, 5),
       productDescription: (response.productDescription || "").trim(),
     }
   } catch (error) {
-    logStep("detectCategory", "using fallback category", error)
-    return {
-      category: "Software",
-      subcategories: [],
-      productDescription: "",
-    }
+    logStep("detectCategory", "category detection failed", error)
+    throw new Error("Category detection failed")
   }
 }
 
@@ -777,18 +788,19 @@ async function detectCategoryWithContext(domain: string, signals: HomepageSignal
       },
     ])
 
+    const category = (response.category || context.subCategory || "").trim()
+    if (!category || GENERIC_CATEGORY_VALUES.has(category.toLowerCase())) {
+      throw new Error("Category detection returned empty or overly generic category")
+    }
+
     return {
-      category: (response.category || context.subCategory || "Software").trim() || "Software",
+      category,
       subcategories: sanitizeStringList(response.subcategories, 5),
       productDescription: (response.productDescription || "").trim(),
     }
   } catch (error) {
-    logStep("detectCategoryWithContext", "using fallback category", error)
-    return {
-      category: context.subCategory || "Software",
-      subcategories: [],
-      productDescription: "",
-    }
+    logStep("detectCategoryWithContext", "category detection failed", error)
+    throw new Error("Category detection failed")
   }
 }
 
