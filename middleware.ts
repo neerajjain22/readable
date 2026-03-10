@@ -32,12 +32,16 @@ function decodeBasicAuth(header: string) {
 }
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+  const isAiVisibilityProcessRoute =
+    pathname === "/api/ai-visibility/process" || pathname.startsWith("/api/ai-visibility/process/")
+
   const host = (request.headers.get("host") || "").toLowerCase()
-  if (host.endsWith(".vercel.app")) {
+  if (host.endsWith(".vercel.app") && !isAiVisibilityProcessRoute) {
     return new NextResponse("Not Found", { status: 404 })
   }
 
-  const isAdminRoute = request.nextUrl.pathname === "/admin/programmatic" || request.nextUrl.pathname.startsWith("/admin/programmatic/")
+  const isAdminRoute = pathname === "/admin/programmatic" || pathname.startsWith("/admin/programmatic/")
   if (!isAdminRoute) {
     return NextResponse.next()
   }
