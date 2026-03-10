@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import type { ReactNode } from "react"
+import { isValidElement } from "react"
 import Breadcrumbs from "../../../components/Breadcrumbs"
 import GuideCollectionPage from "../../../components/guides/GuideCollectionPage"
 import GuideSummary from "../../../components/guides/GuideSummary"
@@ -23,6 +25,8 @@ import { renderMdx } from "../../../lib/mdx/renderMdx"
 import { prisma } from "../../../lib/prisma"
 import pageStyles from "../../../components/programmatic/programmatic.module.css"
 import sharedStyles from "../../../styles/Page.module.css"
+import GuideToc from "../../resources/guides/[slug]/GuideToc"
+import editorialPageStyles from "../../resources/guides/[slug]/page.module.css"
 import {
   getGeneratedPageBySlug,
 } from "../../../lib/programmatic/repository"
@@ -34,6 +38,11 @@ type RouteParams = {
   params: { slug: string }
 }
 
+type TocItem = {
+  id: string
+  title: string
+}
+
 function getDisplayGuideTitle(title: string, entityName: string) {
   const normalizedEntitySlug = entityName.trim().toLowerCase().replace(/\s+/g, "-")
   const pattern = new RegExp(`\\b${normalizedEntitySlug}\\b`, "gi")
@@ -42,6 +51,50 @@ function getDisplayGuideTitle(title: string, entityName: string) {
 
 function excerpt(input: string): string {
   return input.replace(/[#*_`>\-]/g, "").replace(/\s+/g, " ").trim().slice(0, 160)
+}
+
+function stripHtml(input: string): string {
+  return input.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim()
+}
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+}
+
+function getRawHtmlToc(content: string): TocItem[] {
+  return Array.from(content.matchAll(/<article[^>]*id="([^"]+)"[^>]*>[\s\S]*?<h2>([\s\S]*?)<\/h2>/g)).map(
+    (match) => ({
+      id: match[1],
+      title: stripHtml(match[2]),
+    }),
+  )
+}
+
+function getMarkdownToc(content: string): TocItem[] {
+  return Array.from(content.matchAll(/^##\s+(.+)$/gm)).map((match) => {
+    const title = match[1].trim()
+    return { id: slugify(title), title }
+  })
+}
+
+function getTextFromNode(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node)
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child) => getTextFromNode(child)).join("")
+  }
+
+  if (isValidElement(node)) {
+    return getTextFromNode(node.props.children)
+  }
+
+  return ""
 }
 
 export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
@@ -243,6 +296,7 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
     }
 
     const isRawHtmlGuide = guide.content.trimStart().startsWith("<")
+    const tocItems = isRawHtmlGuide ? getRawHtmlToc(guide.content) : getMarkdownToc(guide.content)
 
     return (
       <main className={sharedStyles.page}>
@@ -262,12 +316,26 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
 
         <section className={sharedStyles.sectionAlt}>
           <article className={sharedStyles.container}>
-            <div className={sharedStyles.heroDescription}>
-              {isRawHtmlGuide ? (
-                <div dangerouslySetInnerHTML={{ __html: guide.content }} />
-              ) : (
-                renderMdx(guide.content)
-              )}
+            <div className={editorialPageStyles.layout}>
+              <div className={`${sharedStyles.heroDescription} ${editorialPageStyles.content}`}>
+                {isRawHtmlGuide ? (
+                  <div dangerouslySetInnerHTML={{ __html: guide.content }} />
+                ) : (
+                  renderMdx(guide.content, {
+                    h2: ({ children, ...props }) => {
+                      const headingText = getTextFromNode(children)
+                      const id = slugify(headingText)
+
+                      return (
+                        <h2 id={id} {...props}>
+                          {children}
+                        </h2>
+                      )
+                    },
+                  })
+                )}
+              </div>
+              {tocItems.length > 0 ? <GuideToc items={tocItems} /> : null}
             </div>
           </article>
         </section>
