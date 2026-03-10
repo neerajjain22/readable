@@ -119,6 +119,22 @@ function SectionState({
   )
 }
 
+function renderRatingBadge(value: string) {
+  if (value === "Strong") {
+    return <span className={`${styles.ratingPill} ${styles.ratingStrong}`}>Strong</span>
+  }
+
+  if (value === "Moderate") {
+    return <span className={`${styles.ratingPill} ${styles.ratingModerate}`}>Moderate</span>
+  }
+
+  if (value === "Limited") {
+    return <span className={`${styles.ratingPill} ${styles.ratingLimited}`}>Limited</span>
+  }
+
+  return value
+}
+
 export default function ProgressiveReport({ initialReport }: { initialReport: ReportPayload }) {
   const [report, setReport] = useState<ReportPayload>(initialReport)
   const [flags, setFlags] = useState<StageFlags>(initialStageFlags(initialReport))
@@ -165,14 +181,18 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
           insightsComplete: statusPayload.insightsComplete,
         }
 
-        setFlags(nextFlags)
-        setStatus(statusPayload.status)
-
         const reportResponse = await fetch(`/api/report/${encodeURIComponent(report.id)}`, { cache: "no-store" })
         const reportPayload = (await reportResponse.json()) as { success: boolean; report?: ReportPayload }
-        if (reportResponse.ok && reportPayload.success && reportPayload.report && !stopped) {
+        if (reportResponse.ok && reportPayload.success && reportPayload.report) {
           setReport(reportPayload.report)
         }
+
+        if (stopped) {
+          return
+        }
+
+        setFlags(nextFlags)
+        setStatus(statusPayload.status)
       } catch {
         // keep current UI state and continue polling
       }
@@ -372,7 +392,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
                     <tr key={`${row.attribute}-${index}`}>
                       <td>{row.attribute}</td>
                       {row.brands.map((brand) => (
-                        <td key={`${row.attribute}-${brand.brand}`}>{brand.label}</td>
+                        <td key={`${row.attribute}-${brand.brand}`}>{renderRatingBadge(brand.label)}</td>
                       ))}
                     </tr>
                   ))}
