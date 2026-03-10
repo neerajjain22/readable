@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import Breadcrumbs from "../../../components/Breadcrumbs"
 import GuideCollectionPage from "../../../components/guides/GuideCollectionPage"
 import GuideSummary from "../../../components/guides/GuideSummary"
 import ProgrammaticLayout from "../../../components/programmatic/ProgrammaticLayout"
@@ -17,8 +18,11 @@ import {
 } from "../../../lib/internalLinks"
 import { getCollectionIntro, getCollectionSlug, getCollectionSlugFromPattern, getCollectionTitle } from "../../../lib/programmatic/collections"
 import { PAGE_STATUS } from "../../../lib/programmatic/constants"
+import { getGuideBySlug } from "../../../lib/guides"
+import { renderMdx } from "../../../lib/mdx/renderMdx"
 import { prisma } from "../../../lib/prisma"
 import pageStyles from "../../../components/programmatic/programmatic.module.css"
+import sharedStyles from "../../../styles/Page.module.css"
 import {
   getGeneratedPageBySlug,
 } from "../../../lib/programmatic/repository"
@@ -114,6 +118,23 @@ export async function generateMetadata({ params }: RouteParams): Promise<Metadat
       description: getCollectionIntro(template, template.generatedPages.length, { platformToken }).slice(0, 160),
       alternates: {
         canonical: `${BASE_URL}/guides/${canonicalSlug}`,
+      },
+    }
+  }
+
+  const guide = getGuideBySlug(params.slug)
+
+  if (guide) {
+    return {
+      title: `${guide.title} | Readable Guides`,
+      description: guide.description,
+      alternates: {
+        canonical: `${BASE_URL}/guides/${guide.slug}`,
+      },
+      openGraph: {
+        title: `${guide.title} | Readable Guides`,
+        description: guide.description,
+        type: "article",
       },
     }
   }
@@ -215,7 +236,43 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
   )
 
   if (!matchedTemplate) {
-    notFound()
+    const guide = getGuideBySlug(params.slug)
+
+    if (!guide) {
+      notFound()
+    }
+
+    const isRawHtmlGuide = guide.content.trimStart().startsWith("<")
+
+    return (
+      <main className={sharedStyles.page}>
+        <section className={sharedStyles.section}>
+          <div className={sharedStyles.container}>
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Guides", href: "/guides" },
+                { label: guide.title },
+              ]}
+            />
+            <h1 className={sharedStyles.heroTitle}>{guide.title}</h1>
+            <p className={sharedStyles.text}>{guide.author}</p>
+          </div>
+        </section>
+
+        <section className={sharedStyles.sectionAlt}>
+          <article className={sharedStyles.container}>
+            <div className={sharedStyles.heroDescription}>
+              {isRawHtmlGuide ? (
+                <div dangerouslySetInnerHTML={{ __html: guide.content }} />
+              ) : (
+                renderMdx(guide.content)
+              )}
+            </div>
+          </article>
+        </section>
+      </main>
+    )
   }
 
   return (
