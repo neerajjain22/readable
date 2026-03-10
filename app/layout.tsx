@@ -1,6 +1,7 @@
 import "../styles/globals.css"
 import type { Metadata } from "next"
 import Script from "next/script"
+import GlobalGtmClickTracker from "../components/analytics/GlobalGtmClickTracker"
 import Header from "../components/Header"
 import Footer from "../components/footer"
 
@@ -50,6 +51,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             />
           </noscript>
         ) : null}
+        <GlobalGtmClickTracker />
         <Header />
         {children}
         <Footer />

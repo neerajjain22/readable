@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { pushDataLayerEvent } from "../../components/analytics/GlobalGtmClickTracker"
 import styles from "./page.module.css"
 
 type GenerateResponse = {
@@ -85,6 +86,12 @@ export default function AnalyzeClient({
       setError("Please enter a valid website URL.")
       return
     }
+
+    pushDataLayerEvent({
+      event: "analyze_submit",
+      submit_source: "analyze_page",
+      force_refresh: shouldForceRefresh,
+    })
 
     setError("")
     setRunning(true)

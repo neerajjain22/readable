@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { pushDataLayerEvent } from "../../components/analytics/GlobalGtmClickTracker"
 import styles from "./case-studies.module.css"
 
 type CaseStudy = {
@@ -88,6 +89,11 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
       setError("")
       const payload = await submitDownload(study.slug, email)
       setSuccessMessage("Case study download started.")
+      pushDataLayerEvent({
+        event: "case_study_download",
+        case_study_slug: study.slug,
+        entry_point: "stored_email",
+      })
       triggerDownload(payload.downloadUrl!)
     } catch (downloadError) {
       const message = downloadError instanceof Error ? downloadError.message : "Failed to download case study."
@@ -115,6 +121,11 @@ export default function CaseStudiesClient({ studies }: { studies: CaseStudy[] })
       }
 
       setSuccessMessage("Case study download started.")
+      pushDataLayerEvent({
+        event: "case_study_download",
+        case_study_slug: selectedStudy.slug,
+        entry_point: "modal_email",
+      })
       closeModal()
       triggerDownload(payload.downloadUrl!)
     } catch (requestError) {

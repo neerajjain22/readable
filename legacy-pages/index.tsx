@@ -9,6 +9,7 @@ import RotatingText from "../components/RotatingText"
 import AIInfluencePreview from "../components/product-placeholders/AIInfluencePreview"
 import AgentAnalyticsPreview from "../components/product-placeholders/AgentAnalyticsPreview"
 import AgentOptimizedPagesPreview from "../components/product-placeholders/AgentOptimizedPagesPreview"
+import { pushDataLayerEvent } from "../components/analytics/GlobalGtmClickTracker"
 import pageStyles from "../styles/Page.module.css"
 
 const logos = [
@@ -170,6 +171,12 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
     if (!cleanDomain) {
       return
     }
+
+    pushDataLayerEvent({
+      event: "analyze_submit",
+      submit_source: "home_hero",
+      force_refresh: false,
+    })
 
     window.location.href = `/analyze?domain=${encodeURIComponent(cleanDomain)}`
   }
