@@ -16,6 +16,7 @@
     "ai-visibility:cleanup-targets": "node scripts/delete-ai-visibility-reports.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@prisma/client": "^6.4.1",
     "@vercel/postgres": "^0.10.0",
     "gray-matter": "^4.0.3",

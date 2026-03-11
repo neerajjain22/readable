@@ -69,7 +69,7 @@ DB helper:
   - `lib/ai-visibility/report.ts`
   - `lib/ai-visibility/repository.ts`
   - `lib/ai/prompts/*`
-  - `lib/ai-visibility/llm.ts` (supports `LLM_PROVIDER=openrouter|bedrock`; Bedrock falls back to OpenRouter if configured)
+  - `lib/ai-visibility/llm.ts` (thin wrapper over shared `lib/services/llm.ts` using Anthropic SDK)
 
 Legacy removed APIs:
 - `app/api/request-case-study/route.ts`
@@ -118,7 +118,7 @@ AI visibility:
 - `--refresh-callouts` mode updates only callouts + versions.
 - Internal linking engine:
   - registers destination pages in `InternalLinkTarget`
-  - generates keywords in `InternalLinkKeyword` using OpenRouter
+  - generates keywords in `InternalLinkKeyword` using Claude Haiku via Anthropic SDK
   - injects links into MDX at generation/migration time
   - avoids headings/code blocks/existing links/URLs
 

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { generateSectionContent } from "../lib/llm.ts"
+import { generateText } from "../lib/services/llm.ts"
 import { generateSlug } from "../lib/programmatic/generateSlug.ts"
 import { generateTitle } from "../lib/programmatic/generateContent.ts"
 import { splitGuideSections } from "../lib/internalLinks/index.ts"
@@ -166,11 +167,6 @@ function insertCallout(sectionContent: string, paragraphToAnchor: string, summar
 }
 
 async function summarizeParagraph(paragraph: string) {
-  const provider = (process.env.LLM_PROVIDER || "openai").toLowerCase()
-  if (provider !== "openai" && provider !== "openrouter") {
-    throw new Error("Unsupported LLM_PROVIDER. Use 'openai' or 'openrouter'.")
-  }
-
   const prompt = `Summarize the following paragraph into a single key insight (25–35 words).
 Focus on the most important takeaway.
 Do not repeat the heading.
@@ -178,94 +174,25 @@ Do not repeat the heading.
 Paragraph:
 ${paragraph}`
 
-  if (provider === "openrouter") {
-    const apiKey = process.env.OPENROUTER_API_KEY
-    if (!apiKey) {
-      throw new Error("OPENROUTER_API_KEY is missing")
-    }
-
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-      }),
-    })
-
-    if (!response.ok) {
-      const text = await response.text()
-      throw new Error(`OpenRouter summary request failed: ${response.status} ${text}`)
-    }
-
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>
-    }
-    const content = payload.choices?.[0]?.message?.content?.trim()
-    if (!content) {
-      throw new Error("OpenRouter returned empty summary content")
-    }
-    return content
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is missing")
-  }
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-    }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`OpenAI summary request failed: ${response.status} ${text}`)
-  }
-
-  const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>
-  }
-  const content = payload.choices?.[0]?.message?.content?.trim()
-  if (!content) {
-    throw new Error("OpenAI returned empty summary content")
-  }
-
-  return content
+  return generateText([{ role: "user", content: prompt }], { model: "haiku", temperature: 0.3 })
 }
 
 async function summarizeWithRetry(paragraph: string) {
-  let lastError: Error | null = null
-
   for (let attempt = 1; attempt <= MAX_RETRIES_PER_SUMMARY; attempt += 1) {
     try {
       const summary = await summarizeParagraph(paragraph)
       if (isInvalidInsightSummary(summary)) {
         return null
       }
-
       return summary
     } catch (error) {
-      lastError = error as Error
-      if (attempt < MAX_RETRIES_PER_SUMMARY) {
-        await new Promise((resolve) => setTimeout(resolve, 350 * attempt))
+      if (attempt === MAX_RETRIES_PER_SUMMARY) {
+        console.warn(`Skipping callout summary due to repeated failures: ${(error as Error)?.message || "unknown error"}`)
+        return null
       }
     }
   }
 
-  console.warn(`Skipping callout summary due to repeated failures: ${lastError?.message || "unknown error"}`)
   return null
 }
 
