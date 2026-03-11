@@ -478,6 +478,43 @@ function extractBrandMentionsFromResponses(
   const knownCandidates = uniqueByNormalized(fallbackCompetitors.map(normalizeBrandName)).filter(
     (brand) => normalizeForMatch(brand) !== targetNorm,
   )
+  const knownCandidateNorms = new Set(knownCandidates.map((brand) => normalizeForMatch(brand)))
+
+  const hardBlockedInferredSingleTokens = new Set([
+    "indian",
+    "global",
+    "local",
+    "national",
+    "international",
+    "digital",
+    "online",
+    "premium",
+    "affordable",
+    "best",
+    "top",
+    "leading",
+    "most",
+    "better",
+    "new",
+  ])
+
+  const contextDependentSingleTokens = new Set(["more"])
+
+  function shouldKeepInferredSingleToken(norm: string, count: number) {
+    if (knownCandidateNorms.has(norm)) {
+      return true
+    }
+
+    if (hardBlockedInferredSingleTokens.has(norm)) {
+      return false
+    }
+
+    if (contextDependentSingleTokens.has(norm)) {
+      return count >= 3
+    }
+
+    return true
+  }
 
   const mentionCounts = new Map<string, number>()
   for (const candidate of knownCandidates) {
@@ -515,6 +552,15 @@ function extractBrandMentionsFromResponses(
   const ranked = Array.from(mentionCounts.entries())
     .filter(([, count]) => count > 0)
     .sort((a, b) => b[1] - a[1])
+    .filter(([brand, count]) => {
+      const norm = normalizeForMatch(brand)
+      const words = norm.split(" ").filter(Boolean)
+      if (words.length !== 1) {
+        return true
+      }
+
+      return shouldKeepInferredSingleToken(norm, count)
+    })
     .map(([brand]) => brand)
 
   const selected = uniqueByNormalized(
