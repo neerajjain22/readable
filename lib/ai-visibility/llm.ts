@@ -1,6 +1,6 @@
 import crypto from "node:crypto"
 
-const DEFAULT_PROVIDER = "openrouter"
+const DEFAULT_PROVIDER = "bedrock"
 const ENFORCED_OPENROUTER_MODEL = "anthropic/claude-3.5-sonnet"
 const ENFORCED_BEDROCK_MODEL = process.env.BEDROCK_MODEL_ID || "anthropic.claude-3-5-sonnet-20240620-v1:0"
 const REQUEST_TIMEOUT_MS = Number(process.env.LLM_REQUEST_TIMEOUT_MS || 15000)
