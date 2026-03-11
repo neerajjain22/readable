@@ -399,10 +399,11 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
               {progressItems.map((item) => (
                 <li key={item.key} className={styles.progressItemInline}>
                   <span className={styles.statusDot} data-active={item.done} />
-                  <span>
+                  <span className={styles.progressItemLabel}>
                     {item.label}
                     {item.done ? "" : "..."}
                   </span>
+                  {item.done ? <span className={styles.progressDonePill}>Done</span> : null}
                 </li>
               ))}
             </ul>
