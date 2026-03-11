@@ -69,7 +69,7 @@ DB helper:
   - `lib/ai-visibility/report.ts`
   - `lib/ai-visibility/repository.ts`
   - `lib/ai/prompts/*`
-  - `lib/ai-visibility/llm.ts` (supports `LLM_PROVIDER=openrouter|bedrock`; Bedrock falls back to OpenRouter if configured)
+  - `lib/ai-visibility/llm.ts` (thin wrapper over shared `lib/services/llm.ts` using Anthropic SDK)
 
 Legacy removed APIs:
 - `app/api/request-case-study/route.ts`
