@@ -365,7 +365,12 @@ function normalizeBrandName(raw: string) {
   const value = raw.trim()
   if (!value) return ""
 
-  const normalized = normalizeForMatch(value)
+  let normalized = normalizeForMatch(value)
+  normalized = normalized
+    .replace(/\b(inc|llc|ltd|limited|corp|corporation|co|company|group|technologies|technology|solutions|clinic|labs|lab)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+
   const aliases: Record<string, string> = {
     "meta platforms": "Meta",
     meta: "Meta",
@@ -377,6 +382,36 @@ function normalizeBrandName(raw: string) {
 
   if (aliases[normalized]) {
     return aliases[normalized]
+  }
+
+  const tokens = normalized.split(" ").filter(Boolean)
+  if (tokens.length >= 2) {
+    const key = tokens.join(" ")
+    if (aliases[key]) {
+      return aliases[key]
+    }
+  }
+
+  const firstToken = tokens[0]
+  if (firstToken && aliases[firstToken]) {
+    return aliases[firstToken]
+  }
+
+  if (firstToken && tokens.length > 1) {
+    // Collapse long-form variants to a canonical short brand when likely the same company
+    // e.g. "Kaya Skin Clinic" -> "Kaya"
+    const stopwords = new Set([
+      "skin",
+      "clinic",
+      "clinics",
+      "salon",
+      "spa",
+      "official",
+    ])
+    const remaining = tokens.slice(1).filter((token) => !stopwords.has(token))
+    if (remaining.length === 0) {
+      return firstToken.charAt(0).toUpperCase() + firstToken.slice(1)
+    }
   }
 
   const cleaned = value.replace(/\s+/g, " ").replace(/\s*\/\s*/g, " / ").trim()
