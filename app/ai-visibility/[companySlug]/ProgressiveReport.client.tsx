@@ -51,6 +51,24 @@ type StageStatusResponse = StageFlags & {
   error?: string
 }
 
+const REPORT_STATUS = {
+  PROCESSING: "processing",
+  COMPLETED: "completed",
+  FAILED: "failed",
+} as const
+
+type ReportStatus = (typeof REPORT_STATUS)[keyof typeof REPORT_STATUS]
+
+function hasArrayContent(value: unknown) {
+  return Array.isArray(value) && value.length > 0
+}
+
+function normalizeReportStatus(status: string): ReportStatus {
+  if (status === REPORT_STATUS.COMPLETED) return REPORT_STATUS.COMPLETED
+  if (status === REPORT_STATUS.FAILED) return REPORT_STATUS.FAILED
+  return REPORT_STATUS.PROCESSING
+}
+
 function formatDate(value: string) {
   const date = new Date(value)
   const year = date.getUTCFullYear()
@@ -78,43 +96,61 @@ function displayCompanyName(name: string) {
 }
 
 function initialStageFlags(report: ReportPayload): StageFlags {
-  const done = report.status === "completed"
+  const done = report.status === REPORT_STATUS.COMPLETED
   return {
     categoryComplete: done || Boolean(report.category),
-    queriesComplete: done || Array.isArray(report.buyerQueries),
-    responsesComplete: done || Array.isArray(report.aiResponseSamples),
-    attributesComplete: done || (Array.isArray(report.attributes) && Array.isArray(report.competitors)),
+    queriesComplete: done || hasArrayContent(report.buyerQueries),
+    responsesComplete: done || hasArrayContent(report.aiResponseSamples),
+    attributesComplete: done || (hasArrayContent(report.attributes) && hasArrayContent(report.competitors)),
     visibilityComplete: done || typeof report.visibilityScore === "number",
     insightsComplete:
       done ||
-      (Array.isArray(report.insights) && Array.isArray(report.opportunities) && Array.isArray(report.recommendations)),
+      (hasArrayContent(report.insights) && hasArrayContent(report.opportunities) && hasArrayContent(report.recommendations)),
   }
 }
 
 function SectionState({
   title,
   complete,
+  failed,
   processingText,
+  failureText,
   skeleton,
   children,
 }: {
   title: string
   complete: boolean
+  failed: boolean
   processingText: string
+  failureText?: string
   skeleton: React.ReactNode
   children: React.ReactNode
 }) {
+  if (complete) {
+    return (
+      <>
+        <h2 className={styles.sectionTitle}>{title}</h2>
+        <div className={styles.fadeIn}>{children}</div>
+      </>
+    )
+  }
+
+  if (failed) {
+    return (
+      <>
+        <h2 className={styles.sectionTitle}>{title}</h2>
+        <p className={styles.errorText}>{failureText || "Unable to generate this section because report generation failed."}</p>
+      </>
+    )
+  }
+
   return (
     <>
       <h2 className={styles.sectionTitle}>{title}</h2>
-      {complete ? (
-        <div className={styles.fadeIn}>{children}</div>
-      ) : (
-        <div>
-          <p className={styles.processingText}>{processingText}</p>
-          {skeleton}
-        </div>
-      )}
+      <div>
+        <p className={styles.processingText}>{processingText}</p>
+        {skeleton}
+      </div>
     </>
   )
 }
@@ -142,11 +178,11 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   const [tipIndex, setTipIndex] = useState(0)
   const [tipVisible, setTipVisible] = useState(true)
 
-  const [status, setStatus] = useState(initialReport.status)
-  const isProcessing = status === "processing"
-  const isFailed = status === "failed"
-  const isCompleted = status === "completed"
-  const showLoadingUi = !isCompleted
+  const [status, setStatus] = useState<ReportStatus>(normalizeReportStatus(initialReport.status))
+  const isProcessing = status === REPORT_STATUS.PROCESSING
+  const isFailed = status === REPORT_STATUS.FAILED
+  const isCompleted = status === REPORT_STATUS.COMPLETED
+  const showLoadingUi = isProcessing
   const generationTips = [
     "AI assistants increasingly influence how buyers discover products.",
     "Brands that appear frequently in AI recommendations capture more discovery traffic.",
@@ -156,7 +192,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   ]
 
   useEffect(() => {
-    if (!isProcessing) {
+    if (isCompleted || isFailed) {
       return
     }
 
@@ -172,7 +208,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
           return
         }
 
-        const nextFlags: StageFlags = {
+        const statusFlags: StageFlags = {
           categoryComplete: statusPayload.categoryComplete,
           queriesComplete: statusPayload.queriesComplete,
           responsesComplete: statusPayload.responsesComplete,
@@ -181,18 +217,48 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
           insightsComplete: statusPayload.insightsComplete,
         }
 
+        const statusFromStatusRoute = normalizeReportStatus(statusPayload.status)
         const reportResponse = await fetch(`/api/report/${encodeURIComponent(report.id)}`, { cache: "no-store" })
         const reportPayload = (await reportResponse.json()) as { success: boolean; report?: ReportPayload }
-        if (reportResponse.ok && reportPayload.success && reportPayload.report) {
-          setReport(reportPayload.report)
+        const hasFreshReport = reportResponse.ok && reportPayload.success && Boolean(reportPayload.report)
+
+        if (hasFreshReport && reportPayload.report) {
+          const nextReport = reportPayload.report
+          const reportBackedStatus = normalizeReportStatus(nextReport.status)
+          setReport(nextReport)
+          setFlags(initialStageFlags(nextReport))
+
+          if (statusFromStatusRoute === REPORT_STATUS.FAILED) {
+            setStatus(REPORT_STATUS.FAILED)
+            return
+          }
+
+          if (reportBackedStatus === REPORT_STATUS.COMPLETED || reportBackedStatus === REPORT_STATUS.FAILED) {
+            setStatus(reportBackedStatus)
+            return
+          }
+
+          setStatus(reportBackedStatus)
+          return
         }
 
         if (stopped) {
           return
         }
 
-        setFlags(nextFlags)
-        setStatus(statusPayload.status)
+        setFlags(statusFlags)
+        if (statusFromStatusRoute === REPORT_STATUS.FAILED) {
+          setStatus(REPORT_STATUS.FAILED)
+          return
+        }
+
+        // Keep polling until report payload itself confirms completion.
+        if (statusFromStatusRoute === REPORT_STATUS.COMPLETED) {
+          setStatus(REPORT_STATUS.PROCESSING)
+          return
+        }
+
+        setStatus(REPORT_STATUS.PROCESSING)
       } catch {
         // keep current UI state and continue polling
       }
@@ -207,11 +273,15 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
       stopped = true
       window.clearInterval(intervalId)
     }
-  }, [isProcessing, report.id])
+  }, [isCompleted, isFailed, report.id])
 
   useEffect(() => {
-    if (status === "completed") {
+    if (status === REPORT_STATUS.COMPLETED) {
       setSimulatedProgress(100)
+      return
+    }
+
+    if (status !== REPORT_STATUS.PROCESSING) {
       return
     }
 
@@ -286,7 +356,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   ]
   const displayName = displayCompanyName(report.companyName)
   const hasValidLastAnalyzedDate = isValidAnalyzedDate(report.lastAnalyzedAt)
-  const progressPercent = status === "completed" ? 100 : Math.round(simulatedProgress)
+  const progressPercent = isCompleted ? 100 : Math.round(simulatedProgress)
 
   return (
     <main className={styles.page}>
@@ -295,7 +365,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
           <p className={styles.kicker}>AI Visibility Intelligence</p>
           <h1 className={styles.title}>How AI perceives {displayName} and influences buyers</h1>
           <p className={styles.subtitle}>
-            Category: {flags.categoryComplete && report.category ? report.category : "Analyzing category..."}
+            Category: {report.category ? report.category : "Analyzing category..."}
             {hasValidLastAnalyzedDate ? ` · Last analyzed: ${formatDate(report.lastAnalyzedAt)}` : ""}
           </p>
           <div className={styles.heroCtas}>
@@ -315,9 +385,9 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
               <p className={`${styles.progressTip} ${tipVisible ? styles.tipVisible : styles.tipHidden}`}>
                 {generationTips[tipIndex]}
               </p>
-              {isFailed ? <p className={styles.errorText}>Generation hit an issue. Please retry the analysis.</p> : null}
             </div>
           ) : null}
+          {isFailed ? <p className={styles.errorText}>Generation hit an issue. Please retry the analysis.</p> : null}
         </div>
       </section>
 
@@ -347,7 +417,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="AI Visibility Score"
-            complete={flags.visibilityComplete && typeof report.visibilityScore === "number"}
+            complete={typeof report.visibilityScore === "number"}
+            failed={isFailed}
             processingText="Computing AI visibility score..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonScore}`} />}
           >
@@ -373,7 +444,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="AI Category Positioning Table"
-            complete={flags.attributesComplete && positioningRows.length > 0}
+            complete={positioningRows.length > 0}
+            failed={isFailed}
             processingText="Comparing competitors and extracting attributes..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonTable}`} />}
           >
@@ -407,7 +479,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="Buyer Query Evidence"
-            complete={flags.queriesComplete && buyerQueries.length > 0}
+            complete={buyerQueries.length > 0}
+            failed={isFailed}
             processingText="Generating representative buyer queries..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonTable}`} />}
           >
@@ -446,7 +519,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="AI Response Examples"
-            complete={flags.responsesComplete && responseSamples.length > 0}
+            complete={responseSamples.length > 0}
+            failed={isFailed}
             processingText="Analyzing AI responses..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
           >
@@ -466,7 +540,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="Competitor Visibility"
-            complete={flags.responsesComplete && competitorVisibility.length > 0}
+            complete={competitorVisibility.length > 0}
+            failed={isFailed}
             processingText="Collecting competitor visibility signals..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonTable}`} />}
           >
@@ -496,7 +571,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="AI Comparison Positioning"
-            complete={flags.insightsComplete && insights.length > 0}
+            complete={insights.length > 0}
+            failed={isFailed}
             processingText="Generating positioning insights..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
           >
@@ -513,7 +589,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="Visibility Opportunities"
-            complete={flags.insightsComplete && opportunities.length > 0}
+            complete={opportunities.length > 0}
+            failed={isFailed}
             processingText="Comparing missed recommendation conversations..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
           >
@@ -530,7 +607,8 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         <div className={styles.container}>
           <SectionState
             title="Recommendations"
-            complete={flags.insightsComplete && recommendations.length > 0}
+            complete={recommendations.length > 0}
+            failed={isFailed}
             processingText="Finalizing recommendations..."
             skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
           >

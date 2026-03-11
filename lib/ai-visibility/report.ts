@@ -1,4 +1,5 @@
 import { prisma } from "../prisma"
+import type { Prisma } from "@prisma/client"
 import {
   ATTRIBUTE_EXTRACTION_SYSTEM_PROMPT,
   RESPONSE_ATTRIBUTE_EXTRACTION_SYSTEM_PROMPT,
@@ -220,6 +221,8 @@ type PipelineOutput = {
     associations: Record<string, Record<string, "high" | "medium" | "low">>
   }
 }
+
+type StageUpdateWriter = (stage: string, data: Prisma.AiVisibilityReportUpdateInput) => Promise<void>
 
 const MONOPOLY_OVERRIDES: Record<
   string,
@@ -1137,7 +1140,36 @@ function buildQueryAttributeSnapshot(evidence: QueryEvidence, attributes: string
   }))
 }
 
-async function runPipeline(domain: string, companySlug: string): Promise<PipelineOutput> {
+function buildInitialQueryRows(queries: string[]) {
+  return queries.map((query) => ({
+    query,
+    querySlug: toQuerySlug(query),
+    brandMentioned: false,
+    responseExcerpt: "",
+    brandVisibility: [],
+    attributeMentions: [],
+    relatedQueries: [],
+    relatedGuides: [],
+  }))
+}
+
+async function runPipeline(
+  domain: string,
+  companySlug: string,
+  onStageUpdate?: StageUpdateWriter,
+): Promise<PipelineOutput> {
+  async function persistStage(stage: string, data: Prisma.AiVisibilityReportUpdateInput) {
+    if (!onStageUpdate) {
+      return
+    }
+
+    try {
+      await onStageUpdate(stage, data)
+    } catch (error) {
+      logStep("runPipeline", `stage persistence failed at ${stage}`, error)
+    }
+  }
+
   logStep("runPipeline", `start for ${domain}`)
   const homepage = await fetchHomepageSignals(domain)
   const fallbackCompanyName = pickCompanyName(homepage, companySlug, domain)
@@ -1145,6 +1177,10 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
   const companyName = (companyContext.companyName || fallbackCompanyName).trim() || fallbackCompanyName
   logStep("runPipeline", `company identified as ${companyName}`)
   const categoryResult = await detectCategoryWithContext(domain, homepage, companyContext)
+  await persistStage("category", {
+    companyName,
+    category: categoryResult.category,
+  })
   const initialCompetitors = await discoverCompetitors(categoryResult.category, companyName, companyContext)
   const initialAttributes = await extractAttributes(categoryResult.category)
   logStep("runPipeline", `category=${categoryResult.category}, initialCompetitors=${initialCompetitors.length}, initialAttributes=${initialAttributes.length}`)
@@ -1152,6 +1188,10 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
   const buyerQueries = await generateBuyerQueries(categoryResult.category, companyContext)
   const comparisonQueries = await generateComparisonQueries(companyName, initialCompetitors, categoryResult.category, companyContext)
   logStep("runPipeline", `buyerQueries=${buyerQueries.length}, comparisonQueries=${comparisonQueries.length}`)
+  await persistStage("queries", {
+    buyerQueries: buildInitialQueryRows(buyerQueries),
+    comparisonQueries: buildInitialQueryRows(comparisonQueries),
+  })
 
   const buyerEvidence = await collectAiResponses(
     categoryResult.category,
@@ -1168,9 +1208,50 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
     comparisonQueries,
   )
   logStep("runPipeline", `responses collected buyer=${buyerEvidence.length}, comparison=${comparisonEvidence.length}`)
+  await persistStage("responses", {
+    buyerQueries: buyerEvidence.map((item) => ({
+      query: item.query,
+      querySlug: item.querySlug,
+      brandMentioned: item.targetMentioned,
+      responseExcerpt: item.responseExcerpt,
+      brandVisibility: [],
+      attributeMentions: [],
+      relatedQueries: [],
+      relatedGuides: [],
+    })),
+    comparisonQueries: comparisonEvidence.map((item) => ({
+      query: item.query,
+      querySlug: item.querySlug,
+      brandMentioned: item.targetMentioned,
+      responseExcerpt: item.responseExcerpt,
+      brandVisibility: [],
+      attributeMentions: [],
+      relatedQueries: [],
+      relatedGuides: [],
+    })),
+  })
 
   const allEvidence = [...buyerEvidence, ...comparisonEvidence]
   const allResponseTexts = allEvidence.map((item) => item.response).filter((item) => item.trim().length > 0)
+  const aiResponseSamples = allEvidence
+    .filter((item) => item.targetMentioned)
+    .slice(0, 3)
+    .map((item) => ({
+      query: item.query,
+      excerpt: extractExcerpt(item.response, companyName),
+    }))
+
+  const fallbackSample = {
+    query: buyerEvidence[0]?.query || "",
+    excerpt: buyerEvidence[0]?.response?.slice(0, 220) || "",
+  }
+
+  while (aiResponseSamples.length < 3 && fallbackSample.query) {
+    aiResponseSamples.push(fallbackSample)
+  }
+  await persistStage("responseSamples", {
+    aiResponseSamples,
+  })
 
   const responseDerivedCompetitors = extractBrandMentionsFromResponses(allResponseTexts, companyName, initialCompetitors)
   const responseDerivedAttributes = await extractAttributesFromResponses(categoryResult.category, allResponseTexts)
@@ -1262,23 +1343,23 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
   }
 
   visibilityScore = clampToPercent(visibilityScore)
-
-  const aiResponseSamples = allEvidence
-    .filter((item) => item.targetMentioned)
-    .slice(0, 3)
-    .map((item) => ({
-      query: item.query,
-      excerpt: extractExcerpt(item.response, companyName),
-    }))
-
-  const fallbackSample = {
-    query: buyerEvidence[0]?.query || "",
-    excerpt: buyerEvidence[0]?.response?.slice(0, 220) || "",
-  }
-
-  while (aiResponseSamples.length < 3 && fallbackSample.query) {
-    aiResponseSamples.push(fallbackSample)
-  }
+  await persistStage("attributes-and-visibility", {
+    competitors: finalizedCompetitors,
+    attributes,
+    perceptionEvidence: {
+      target: targetAttributes,
+      competitors: competitorAttributes,
+      counts: {
+        totalBuyerQueries: buyerEvidence.length,
+        targetBuyerMentions,
+        totalComparisonQueries: comparisonEvidence.length,
+        targetComparisonMentions,
+        totalMentionsAcrossAllQueries: targetBuyerMentions + targetComparisonMentions,
+      },
+    },
+    competitorVisibility,
+    visibilityScore,
+  })
 
   let insightsResponse: { insights?: string[] } | string[] = []
   let opportunitiesResponse: { opportunities?: string[] } | string[] = []
@@ -1358,6 +1439,11 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
           `Tighten category positioning statements across homepage, docs, and product pages for consistent AI retrieval.`,
           `Build citation-focused proof pages with benchmarks, integrations, and pricing clarity for assistant grounding.`,
         ]
+  await persistStage("insights", {
+    insights: safeInsights,
+    opportunities: safeOpportunities,
+    recommendations: safeRecommendations,
+  })
 
   const relatedGuides = buildRelatedGuides(categoryResult.category)
   const buildRelatedQueryLinks = (all: QueryEvidence[], currentSlug: string) =>
@@ -1414,6 +1500,16 @@ async function runPipeline(domain: string, companySlug: string): Promise<Pipelin
   }
 }
 
+async function persistPipelineStage(reportId: string, data: Prisma.AiVisibilityReportUpdateInput) {
+  await prisma.aiVisibilityReport.update({
+    where: { id: reportId },
+    data: {
+      ...data,
+      updatedAt: new Date(),
+    },
+  })
+}
+
 async function finalizeReport(reportId: string, payload: PipelineOutput) {
   await prisma.aiVisibilityReport.update({
     where: { id: reportId },
@@ -1463,7 +1559,10 @@ async function scheduleAiVisibilityGeneration(input: {
 
     try {
       await touchProcessingReport(input.reportId)
-      const output = await runPipeline(input.domain, input.companySlug)
+      const output = await runPipeline(input.domain, input.companySlug, async (stage, data) => {
+        await persistPipelineStage(input.reportId, data)
+        logStep("persistPipelineStage", `${stage} saved for ${input.companySlug}`)
+      })
       await finalizeReport(input.reportId, output)
     } catch (error) {
       await markReportFailed(input.reportId)

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { AI_VISIBILITY_STATUS, findReportById } from "../../../../lib/ai-visibility/repository"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 function hasArrayContent(raw: unknown) {
   return Array.isArray(raw) && raw.length > 0
 }
@@ -24,18 +27,16 @@ function stageFlagsFromReport(report: {
   return {
     processingAgeSeconds,
     flags: {
-      categoryComplete: done || Boolean(report.category) || processingAgeSeconds >= 15,
-      queriesComplete: done || hasArrayContent(report.buyerQueries) || processingAgeSeconds >= 35,
-      responsesComplete: done || hasArrayContent(report.aiResponseSamples) || processingAgeSeconds >= 65,
-      attributesComplete:
-        done || (hasArrayContent(report.attributes) && hasArrayContent(report.competitors)) || processingAgeSeconds >= 85,
-      visibilityComplete: done || typeof report.visibilityScore === "number" || processingAgeSeconds >= 105,
+      categoryComplete: done || Boolean(report.category),
+      queriesComplete: done || hasArrayContent(report.buyerQueries),
+      responsesComplete: done || hasArrayContent(report.aiResponseSamples),
+      attributesComplete: done || (hasArrayContent(report.attributes) && hasArrayContent(report.competitors)),
+      visibilityComplete: done || typeof report.visibilityScore === "number",
       insightsComplete:
         done ||
         (hasArrayContent(report.insights) &&
           hasArrayContent(report.opportunities) &&
-          hasArrayContent(report.recommendations)) ||
-        processingAgeSeconds >= 125,
+          hasArrayContent(report.recommendations)),
     },
   }
 }
@@ -56,13 +57,20 @@ export async function GET(
 
   const { flags, processingAgeSeconds } = stageFlagsFromReport(report)
 
-  return NextResponse.json({
-    success: true,
-    reportId: report.id,
-    companySlug: report.companySlug,
-    status: report.status,
-    processingAgeSeconds,
-    updatedAt: report.updatedAt.toISOString(),
-    ...flags,
-  })
+  return NextResponse.json(
+    {
+      success: true,
+      reportId: report.id,
+      companySlug: report.companySlug,
+      status: report.status,
+      processingAgeSeconds,
+      updatedAt: report.updatedAt.toISOString(),
+      ...flags,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      },
+    },
+  )
 }
