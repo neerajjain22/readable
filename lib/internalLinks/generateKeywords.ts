@@ -1,5 +1,4 @@
-const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
-const OPENROUTER_MODEL = process.env.OPENROUTER_KEYWORDS_MODEL || "openai/gpt-4o-mini"
+import { generateText } from "../services/llm"
 
 function parseKeywordArray(raw: string): string[] {
   const start = raw.indexOf("[")
@@ -51,11 +50,6 @@ function normalizeKeywords(input: string[]) {
 }
 
 export async function generateKeywordsForArticle(title: string, summary: string): Promise<string[]> {
-  const apiKey = process.env.OPENROUTER_API_KEY
-  if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is missing")
-  }
-
   const prompt = `Generate 4-6 internal-link anchor phrases for this article.
 
 Title: ${title}
@@ -69,40 +63,14 @@ Rules:
 - Avoid generic anchors like "SEO strategy" or "learn more".
 - Prefer specific entity-driven phrases.`
 
-  const response = await fetch(OPENROUTER_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://tryreadable.ai",
-      "X-Title": "Readable",
-    },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      temperature: 0.3,
-      messages: [
-        {
-          role: "system",
-          content: "You generate internal linking anchor phrases for SEO.",
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    }),
-  })
+  const raw = await generateText(
+    [
+      { role: "system", content: "You generate internal linking anchor phrases for SEO." },
+      { role: "user", content: prompt },
+    ],
+    { model: "haiku", temperature: 0.3 }
+  )
 
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`OpenRouter keyword generation failed: ${response.status} ${text}`)
-  }
-
-  const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>
-  }
-  const raw = payload.choices?.[0]?.message?.content?.trim() || ""
   const parsed = parseKeywordArray(raw)
-
   return normalizeKeywords(parsed)
 }
