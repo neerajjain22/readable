@@ -162,6 +162,15 @@ function formatUtcDate(value: string): string {
   return `${year}-${month}-${day}`
 }
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("")
+}
+
 export default function HomePage({ recentReports = [] }: { recentReports?: RecentAiVisibilityReport[] }) {
   const [domain, setDomain] = useState("")
 
@@ -199,7 +208,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
 
       <main className={pageStyles.page}>
         <section
-          className={pageStyles.section}
+          className={`${pageStyles.section} ${pageStyles.heroSection}`}
           style={{
             paddingTop: "128px",
             paddingBottom: "112px",
@@ -261,35 +270,9 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                 </div>
               </div>
 
-              <div
-                style={{
-                  background:
-                    "radial-gradient(circle at 70% 20%, rgba(99,102,241,0.18), transparent 60%), radial-gradient(circle at 30% 80%, rgba(99,102,241,0.10), transparent 60%), #F8FAFC",
-                  borderRadius: "20px",
-                  padding: "16px",
-                }}
-              >
-                <div
-                  style={{
-                    border: "1px solid #E5E7EB",
-                    borderRadius: "18px",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
-                    background: "#FFFFFF",
-                    padding: "16px",
-                    display: "grid",
-                    gap: "12px",
-                    transform: "translateY(-3px)",
-                  }}
-                >
-                  <div
-                    style={{
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "12px",
-                      background: "#FFFFFF",
-                      padding: "12px",
-                      minWidth: 0,
-                    }}
-                  >
+              <div className={pageStyles.heroVisualShell}>
+                <div className={pageStyles.heroVisualPanel}>
+                  <div className={pageStyles.heroVisualCard}>
                     <p
                       style={{
                         margin: 0,
@@ -308,15 +291,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     </p>
                   </div>
 
-                  <article
-                    style={{
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "12px",
-                      background: "#FFFFFF",
-                      padding: "12px",
-                      minWidth: 0,
-                    }}
-                  >
+                  <article className={pageStyles.heroVisualCard}>
                     <p
                       style={{
                         margin: 0,
@@ -372,15 +347,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     </p>
                   </article>
 
-                  <article
-                    style={{
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "12px",
-                      background: "#FFFFFF",
-                      padding: "12px",
-                      minWidth: 0,
-                    }}
-                  >
+                  <article className={pageStyles.heroVisualCard}>
                     <p
                       style={{
                         margin: 0,
@@ -426,7 +393,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
         <section className={pageStyles.section} style={{ paddingTop: "96px", paddingBottom: "96px" }}>
           <div className={pageStyles.container}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "baseline" }}>
-              <h2 className={pageStyles.heroTitle}>Recently Generated Reports</h2>
+              <h2 className={pageStyles.heroTitle}>Recent AI Influence Reports</h2>
               <Link href="/recent-ai-visibility-reports" className={pageStyles.inlineLink}>
                 View all reports →
               </Link>
@@ -434,7 +401,11 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
             {recentReports.length > 0 ? (
               <div className={pageStyles.grid3} style={{ marginTop: "28px", gap: "20px" }}>
                 {recentReports.map((report, index) => (
-                  <article key={`${report.companySlug}-${index}`} className={pageStyles.card} style={{ padding: "22px" }}>
+                  <article
+                    key={`${report.companySlug}-${index}`}
+                    className={`${pageStyles.card} ${pageStyles.testimonialCard}`}
+                    style={{ padding: "22px" }}
+                  >
                     <h3 style={{ marginTop: 0, marginBottom: "8px" }}>{report.companyName}</h3>
                     <p className={pageStyles.text} style={{ margin: 0 }}>
                       Visibility Score: <strong>{report.visibilityScore ?? 0}</strong>
@@ -579,14 +550,21 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
             <h2 className={pageStyles.heroTitle}>What Teams Are Saying</h2>
             <div className={pageStyles.grid3} style={{ marginTop: "40px", gap: "32px" }}>
               {testimonials.map((item, index) => (
-                <article key={`${item.name}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
+                <article
+                  key={`${item.name}-${index}`}
+                  className={`${pageStyles.card} ${pageStyles.testimonialCard}`}
+                  style={{ padding: "32px" }}
+                >
                   <p style={{ marginTop: 0, lineHeight: 1.7 }}>"{item.quote}"</p>
-                  <div style={{ marginTop: "20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px" }}>
-                    <div>
-                      <p style={{ margin: 0, fontWeight: 700 }}>{item.name}</p>
-                      <p className={pageStyles.text} style={{ marginTop: "4px", marginBottom: 0 }}>
-                        {item.role} - {item.company}
-                      </p>
+                  <div className={pageStyles.testimonialHeader}>
+                    <div className={pageStyles.testimonialIdentity}>
+                      <span className={pageStyles.testimonialAvatar}>{getInitials(item.name)}</span>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 700 }}>{item.name}</p>
+                        <p className={pageStyles.text} style={{ marginTop: "4px", marginBottom: 0 }}>
+                          {item.role} - {item.company}
+                        </p>
+                      </div>
                     </div>
                     <a
                       href={item.linkedin}
@@ -633,7 +611,11 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
             <p className={pageStyles.heroDescription}>Real outcomes from teams using Readable.</p>
             <div className={pageStyles.grid3} style={{ marginTop: "40px", gap: "32px" }}>
               {caseStudyHighlights.map((item, index) => (
-                <article key={`${item.company}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
+                <article
+                  key={`${item.company}-${index}`}
+                  className={`${pageStyles.card} ${pageStyles.testimonialCard}`}
+                  style={{ padding: "32px" }}
+                >
                   <h3 style={{ marginTop: 0 }}>{item.company}</h3>
                   <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
                     {item.summary}
