@@ -35,7 +35,7 @@ export default function CalloutBox(props: CalloutBoxProps) {
 
   const ctaHref =
     props.cta === "analyze"
-      ? "https://agents.soniclinker.com/view-report/?domain="
+      ? "/"
       : "/book-demo"
 
   const ctaLabel = props.cta === "analyze" ? "Analyze Your Website" : "Book a Demo"
