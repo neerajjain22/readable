@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import ReportActions from "./ReportActions.client"
 import {
@@ -171,12 +171,41 @@ function renderRatingBadge(value: string) {
   return value
 }
 
+function stageFlagsChanged(previous: StageFlags, next: StageFlags) {
+  return (
+    previous.categoryComplete !== next.categoryComplete ||
+    previous.queriesComplete !== next.queriesComplete ||
+    previous.responsesComplete !== next.responsesComplete ||
+    previous.attributesComplete !== next.attributesComplete ||
+    previous.visibilityComplete !== next.visibilityComplete ||
+    previous.insightsComplete !== next.insightsComplete
+  )
+}
+
+function pollingDelayMs(elapsedSeconds: number) {
+  if (elapsedSeconds < 30) {
+    return Math.max(0, Math.ceil((30 - elapsedSeconds) * 1000))
+  }
+
+  if (elapsedSeconds < 150) {
+    return 30000
+  }
+
+  if (elapsedSeconds < 180) {
+    return 15000
+  }
+
+  return 5000
+}
+
 export default function ProgressiveReport({ initialReport }: { initialReport: ReportPayload }) {
   const [report, setReport] = useState<ReportPayload>(initialReport)
   const [flags, setFlags] = useState<StageFlags>(initialStageFlags(initialReport))
   const [simulatedProgress, setSimulatedProgress] = useState(initialReport.status === "completed" ? 100 : 0)
   const [tipIndex, setTipIndex] = useState(0)
   const [tipVisible, setTipVisible] = useState(true)
+  const startedAtRef = useRef(Date.now())
+  const flagsRef = useRef<StageFlags>(initialStageFlags(initialReport))
 
   const [status, setStatus] = useState<ReportStatus>(normalizeReportStatus(initialReport.status))
   const isProcessing = status === REPORT_STATUS.PROCESSING
@@ -192,19 +221,51 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
   ]
 
   useEffect(() => {
+    flagsRef.current = flags
+  }, [flags])
+
+  useEffect(() => {
+    startedAtRef.current = Date.now()
+  }, [report.id])
+
+  useEffect(() => {
     if (isCompleted || isFailed) {
       return
     }
 
     let stopped = false
+    let timeoutId: number | undefined
+
+    const scheduleNextPoll = (immediate = false) => {
+      if (stopped) {
+        return
+      }
+
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return
+      }
+
+      const elapsedSeconds = (Date.now() - startedAtRef.current) / 1000
+      const delay = immediate ? 0 : pollingDelayMs(elapsedSeconds)
+
+      timeoutId = window.setTimeout(() => {
+        void poll()
+      }, delay)
+    }
 
     const poll = async () => {
       try {
+        if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+          scheduleNextPoll()
+          return
+        }
+
         const statusResponse = await fetch(`/api/report-status/${encodeURIComponent(report.id)}`, {
           cache: "no-store",
         })
         const statusPayload = (await statusResponse.json()) as StageStatusResponse
         if (!statusResponse.ok || !statusPayload.success || stopped) {
+          scheduleNextPoll()
           return
         }
 
@@ -218,60 +279,90 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
         }
 
         const statusFromStatusRoute = normalizeReportStatus(statusPayload.status)
-        const reportResponse = await fetch(`/api/report/${encodeURIComponent(report.id)}`, { cache: "no-store" })
-        const reportPayload = (await reportResponse.json()) as { success: boolean; report?: ReportPayload }
-        const hasFreshReport = reportResponse.ok && reportPayload.success && Boolean(reportPayload.report)
-
-        if (hasFreshReport && reportPayload.report) {
-          const nextReport = reportPayload.report
-          const reportBackedStatus = normalizeReportStatus(nextReport.status)
-          setReport(nextReport)
-          setFlags(initialStageFlags(nextReport))
-
-          if (statusFromStatusRoute === REPORT_STATUS.FAILED) {
-            setStatus(REPORT_STATUS.FAILED)
-            return
-          }
-
-          if (reportBackedStatus === REPORT_STATUS.COMPLETED || reportBackedStatus === REPORT_STATUS.FAILED) {
-            setStatus(reportBackedStatus)
-            return
-          }
-
-          setStatus(reportBackedStatus)
-          return
-        }
-
-        if (stopped) {
-          return
-        }
-
+        const previousFlags = flagsRef.current
         setFlags(statusFlags)
+        flagsRef.current = statusFlags
+
+        const shouldFetchReport =
+          stageFlagsChanged(previousFlags, statusFlags) ||
+          statusFromStatusRoute === REPORT_STATUS.COMPLETED ||
+          statusFromStatusRoute === REPORT_STATUS.FAILED
+
+        if (shouldFetchReport) {
+          const reportMode =
+            statusFromStatusRoute === REPORT_STATUS.COMPLETED || statusFromStatusRoute === REPORT_STATUS.FAILED
+              ? "full"
+              : "partial"
+          const reportResponse = await fetch(`/api/report/${encodeURIComponent(report.id)}?mode=${reportMode}`, {
+            cache: "no-store",
+          })
+          const reportPayload = (await reportResponse.json()) as { success: boolean; report?: ReportPayload }
+          const hasFreshReport = reportResponse.ok && reportPayload.success && Boolean(reportPayload.report)
+
+          if (hasFreshReport && reportPayload.report) {
+            const nextReport = reportPayload.report
+            const reportBackedStatus = normalizeReportStatus(nextReport.status)
+            const mergedReport = { ...report, ...nextReport }
+            setReport((prev) => ({ ...prev, ...nextReport }))
+            const nextFlags = initialStageFlags(mergedReport)
+            setFlags(nextFlags)
+            flagsRef.current = nextFlags
+            setStatus(reportBackedStatus)
+
+            if (reportBackedStatus === REPORT_STATUS.COMPLETED || reportBackedStatus === REPORT_STATUS.FAILED) {
+              return
+            }
+          }
+        }
+
         if (statusFromStatusRoute === REPORT_STATUS.FAILED) {
           setStatus(REPORT_STATUS.FAILED)
           return
         }
 
-        // Keep polling until report payload itself confirms completion.
         if (statusFromStatusRoute === REPORT_STATUS.COMPLETED) {
+          // status says completed but report payload isn't fully available yet
+          // keep polling until full report can be loaded
           setStatus(REPORT_STATUS.PROCESSING)
+          scheduleNextPoll()
           return
         }
 
         setStatus(REPORT_STATUS.PROCESSING)
+        scheduleNextPoll()
       } catch {
         // keep current UI state and continue polling
+        scheduleNextPoll()
       }
     }
 
-    void poll()
-    const intervalId = window.setInterval(() => {
-      void poll()
-    }, 2000)
+    const onVisibilityChange = () => {
+      if (stopped) {
+        return
+      }
+
+      if (document.visibilityState === "visible") {
+        if (timeoutId) {
+          window.clearTimeout(timeoutId)
+        }
+        scheduleNextPoll(true)
+        return
+      }
+
+      if (timeoutId) {
+        window.clearTimeout(timeoutId)
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange)
+    scheduleNextPoll()
 
     return () => {
       stopped = true
-      window.clearInterval(intervalId)
+      if (timeoutId) {
+        window.clearTimeout(timeoutId)
+      }
+      document.removeEventListener("visibilitychange", onVisibilityChange)
     }
   }, [isCompleted, isFailed, report.id])
 

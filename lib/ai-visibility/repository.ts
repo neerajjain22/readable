@@ -52,6 +52,46 @@ export async function findReportById(reportId: string) {
   })
 }
 
+export async function findReportStatusById(reportId: string) {
+  const rows = await prisma.$queryRaw<
+    Array<{
+      id: string
+      companySlug: string
+      status: string
+      updatedAt: Date
+      category: string | null
+      visibilityScore: number | null
+      hasBuyerQueries: boolean
+      hasAiResponseSamples: boolean
+      hasAttributes: boolean
+      hasCompetitors: boolean
+      hasInsights: boolean
+      hasOpportunities: boolean
+      hasRecommendations: boolean
+    }>
+  >`
+    SELECT
+      id,
+      "companySlug",
+      status,
+      "updatedAt",
+      category,
+      "visibilityScore",
+      CASE WHEN jsonb_typeof("buyerQueries") = 'array' AND jsonb_array_length("buyerQueries") > 0 THEN true ELSE false END AS "hasBuyerQueries",
+      CASE WHEN jsonb_typeof("aiResponseSamples") = 'array' AND jsonb_array_length("aiResponseSamples") > 0 THEN true ELSE false END AS "hasAiResponseSamples",
+      CASE WHEN jsonb_typeof(attributes) = 'array' AND jsonb_array_length(attributes) > 0 THEN true ELSE false END AS "hasAttributes",
+      CASE WHEN jsonb_typeof(competitors) = 'array' AND jsonb_array_length(competitors) > 0 THEN true ELSE false END AS "hasCompetitors",
+      CASE WHEN jsonb_typeof(insights) = 'array' AND jsonb_array_length(insights) > 0 THEN true ELSE false END AS "hasInsights",
+      CASE WHEN jsonb_typeof(opportunities) = 'array' AND jsonb_array_length(opportunities) > 0 THEN true ELSE false END AS "hasOpportunities",
+      CASE WHEN jsonb_typeof(recommendations) = 'array' AND jsonb_array_length(recommendations) > 0 THEN true ELSE false END AS "hasRecommendations"
+    FROM "AiVisibilityReport"
+    WHERE id = ${reportId}
+    LIMIT 1
+  `
+
+  return rows[0] || null
+}
+
 export async function upsertProcessingReport(input: {
   domain: string
   companySlug: string

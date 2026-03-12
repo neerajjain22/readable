@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: { reportId: string } },
 ) {
   const reportId = (params.reportId || "").trim()
@@ -18,10 +18,31 @@ export async function GET(
     return NextResponse.json({ success: false, error: "Report not found" }, { status: 404 })
   }
 
-  return NextResponse.json(
-    {
-      success: true,
-      report: {
+  const { searchParams } = new URL(request.url)
+  const mode = (searchParams.get("mode") || "full").trim().toLowerCase()
+  const isPartial = mode === "partial"
+
+  const reportPayload = isPartial
+    ? {
+        id: report.id,
+        companySlug: report.companySlug,
+        companyName: report.companyName,
+        category: report.category,
+        visibilityScore: report.visibilityScore,
+        competitors: report.competitors,
+        attributes: report.attributes,
+        buyerQueries: report.buyerQueries,
+        comparisonQueries: report.comparisonQueries,
+        aiResponseSamples: report.aiResponseSamples,
+        insights: report.insights,
+        opportunities: report.opportunities,
+        recommendations: report.recommendations,
+        status: report.status,
+        createdAt: report.createdAt.toISOString(),
+        updatedAt: report.updatedAt.toISOString(),
+        lastAnalyzedAt: report.lastAnalyzedAt.toISOString(),
+      }
+    : {
         id: report.id,
         companySlug: report.companySlug,
         companyName: report.companyName,
@@ -41,7 +62,12 @@ export async function GET(
         createdAt: report.createdAt.toISOString(),
         updatedAt: report.updatedAt.toISOString(),
         lastAnalyzedAt: report.lastAnalyzedAt.toISOString(),
-      },
+      }
+
+  return NextResponse.json(
+    {
+      success: true,
+      report: reportPayload,
     },
     {
       headers: {

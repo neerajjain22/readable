@@ -1,24 +1,20 @@
 import { NextResponse } from "next/server"
-import { AI_VISIBILITY_STATUS, findReportById } from "../../../../lib/ai-visibility/repository"
+import { AI_VISIBILITY_STATUS, findReportStatusById } from "../../../../lib/ai-visibility/repository"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-function hasArrayContent(raw: unknown) {
-  return Array.isArray(raw) && raw.length > 0
-}
-
 function stageFlagsFromReport(report: {
   status: string
   category: string | null
-  buyerQueries: unknown
-  aiResponseSamples: unknown
-  attributes: unknown
-  competitors: unknown
+  hasBuyerQueries: boolean
+  hasAiResponseSamples: boolean
+  hasAttributes: boolean
+  hasCompetitors: boolean
   visibilityScore: number | null
-  insights: unknown
-  opportunities: unknown
-  recommendations: unknown
+  hasInsights: boolean
+  hasOpportunities: boolean
+  hasRecommendations: boolean
   updatedAt: Date
 }) {
   const processingAgeSeconds = Math.max(0, Math.round((Date.now() - report.updatedAt.getTime()) / 1000))
@@ -28,15 +24,15 @@ function stageFlagsFromReport(report: {
     processingAgeSeconds,
     flags: {
       categoryComplete: done || Boolean(report.category),
-      queriesComplete: done || hasArrayContent(report.buyerQueries),
-      responsesComplete: done || hasArrayContent(report.aiResponseSamples),
-      attributesComplete: done || (hasArrayContent(report.attributes) && hasArrayContent(report.competitors)),
+      queriesComplete: done || report.hasBuyerQueries,
+      responsesComplete: done || report.hasAiResponseSamples,
+      attributesComplete: done || (report.hasAttributes && report.hasCompetitors),
       visibilityComplete: done || typeof report.visibilityScore === "number",
       insightsComplete:
         done ||
-        (hasArrayContent(report.insights) &&
-          hasArrayContent(report.opportunities) &&
-          hasArrayContent(report.recommendations)),
+        (report.hasInsights &&
+          report.hasOpportunities &&
+          report.hasRecommendations),
     },
   }
 }
@@ -50,7 +46,7 @@ export async function GET(
     return NextResponse.json({ success: false, error: "reportId is required" }, { status: 400 })
   }
 
-  const report = await findReportById(reportId)
+  const report = await findReportStatusById(reportId)
   if (!report) {
     return NextResponse.json({ success: false, error: "Report not found" }, { status: 404 })
   }
