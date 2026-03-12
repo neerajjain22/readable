@@ -212,11 +212,10 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                 <h1 id="home-hero-title" className={pageStyles.heroTitle}>
                   Understand How AI Influences Your
                   <br />
-                  <RotatingText words={["Brand", "Buyers", "Category", "Growth"]} />
+                  <RotatingText words={["Growth", "Buyers"]} />
                 </h1>
                 <p className={pageStyles.heroDescription} style={{ marginTop: "24px" }}>
-                  Readable helps you understand how AI positions your brand, measure its influence on
-                  buyers, and improve the content that shapes decisions.
+                  See what AI says about your brand and how it drives buyer traffic and decisions.
                 </p>
 
                 <div
@@ -265,7 +264,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     </button>
                   </div>
                   <p className={pageStyles.text} style={{ marginTop: "10px", marginBottom: 0 }}>
-                    No credit card. Free sign-up.
+                    Free report • No signup required • Takes 3-4 minutes
                   </p>
                 </div>
               </div>
