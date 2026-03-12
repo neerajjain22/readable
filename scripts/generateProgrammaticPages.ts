@@ -94,6 +94,35 @@ function splitParagraphs(content: string) {
     .filter(Boolean)
 }
 
+const GENERIC_SECTION_PHRASES = [
+  "in today's digital landscape",
+  "as technology continues to evolve",
+  "in the modern business world",
+  "it is important to note",
+  "in conclusion",
+]
+
+function hasPracticalMarker(content: string) {
+  return (
+    /\b(for example|for instance|e\.g\.|example:|in practice|recommend|should|steps?|checklist)\b/i.test(content) ||
+    /\bif\b[\s\S]{0,80}\bthen\b/i.test(content)
+  )
+}
+
+function needsQualityRetry(content: string) {
+  const normalized = normalizeForComparison(content)
+  if (!normalized) {
+    return true
+  }
+
+  const hasGenericBoilerplate = GENERIC_SECTION_PHRASES.some((phrase) => normalized.includes(phrase))
+  if (hasGenericBoilerplate) {
+    return true
+  }
+
+  return !hasPracticalMarker(content)
+}
+
 function isInvalidInsightSummary(summary: string) {
   const normalized = summary.toLowerCase().trim()
   if (!normalized) {
@@ -233,8 +262,14 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
     const section = sections[index]
     const resolvedSectionTitle = replaceTokens(section, entity)
     console.log(`Generating section: ${entity.slug} -> ${resolvedSectionTitle}`)
-    const sectionBody = await generateWithRetry(template.name, resolvedSectionTitle, entity)
-    const trimmedBody = sectionBody.trim()
+    let sectionBody = await generateWithRetry(template.name, resolvedSectionTitle, entity)
+    let trimmedBody = sectionBody.trim()
+
+    if (needsQualityRetry(trimmedBody)) {
+      console.log(`Retrying generic section once: ${entity.slug} -> ${resolvedSectionTitle}`)
+      sectionBody = await generateWithRetry(template.name, resolvedSectionTitle, entity)
+      trimmedBody = sectionBody.trim()
+    }
 
     if (!shouldInsertCalloutForHeading(resolvedSectionTitle)) {
       blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)

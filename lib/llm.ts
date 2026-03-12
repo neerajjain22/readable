@@ -6,7 +6,7 @@ type EntityInput = {
 }
 
 function buildPrompt(topic: string, sectionTitle: string, entity: EntityInput) {
-  return `You are writing a long-form technical SEO guide.
+  return `You are writing a long-form technical SEO guide in an expert-led voice.
 
 Topic:
 ${topic}
@@ -20,12 +20,15 @@ ${entity.name}
 Requirements:
 
 • Write 200–300 words
-• Clear explanations
+• Use a practical, expert point of view (confident and specific, not generic encyclopedia tone)
+• Include at least one concrete scenario or example relevant to ${entity.name}
+• Include at least one actionable recommendation a team can implement
 • Mention the entity naturally
-• Mention ChatGPT and AI agents
-• Avoid marketing language
-• Avoid repetition
-• Write in clear paragraphs
+• Mention ChatGPT and AI agents where relevant
+• Avoid marketing hype and broad filler statements
+• Avoid repetition across sections
+• Write in clear paragraphs with concise transitions
+• Avoid generic openers like "In today's digital landscape" or "As technology evolves"
 • Do not output raw HTML tags (for example: <main>, <nav>, <article>, <section>, <div>)`
 }
 
