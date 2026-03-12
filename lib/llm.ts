@@ -1,4 +1,4 @@
-import { generateText } from "./services/llm"
+import { generateText } from "./services/llm.ts"
 
 type EntityInput = {
   name: string

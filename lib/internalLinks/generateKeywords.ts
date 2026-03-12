@@ -1,4 +1,4 @@
-import { generateText } from "../services/llm"
+import { generateText } from "../services/llm.ts"
 
 function parseKeywordArray(raw: string): string[] {
   const start = raw.indexOf("[")

@@ -24,6 +24,16 @@ type TemplateWithSections = {
 type EntityType = "cms" | "business_category"
 type CalloutCta = "analyze" | "demo"
 
+function getArgValue(flag: string) {
+  const arg = process.argv.find((entry) => entry.startsWith(`${flag}=`))
+  if (!arg) {
+    return undefined
+  }
+
+  const value = arg.slice(flag.length + 1).trim()
+  return value.length > 0 ? value : undefined
+}
+
 function getArticleSummary(content: string) {
   return content
     .replace(/```[\s\S]*?```/g, " ")
@@ -251,8 +261,13 @@ async function buildMdxForEntity(template: TemplateWithSections, entity: { name:
   return blocks.join("\n\n")
 }
 
-async function refreshExistingCallouts() {
+async function refreshExistingCallouts(slugFilter?: string) {
   const pages = await prisma.generatedPage.findMany({
+    where: slugFilter
+      ? {
+          slug: slugFilter,
+        }
+      : undefined,
     orderBy: {
       updatedAt: "desc",
     },
@@ -364,14 +379,22 @@ async function resolveEntityTypeForTemplate(template: TemplateWithSections): Pro
 
 async function main() {
   const refreshCalloutsOnly = process.argv.includes("--refresh-callouts")
+  const slugFilter = getArgValue("--slug")
+  const templateFilter = getArgValue("--template")
+  const entityFilter = getArgValue("--entity")
+
   if (refreshCalloutsOnly) {
-    await refreshExistingCallouts()
+    await refreshExistingCallouts(slugFilter)
     return
   }
 
-  const templates = (await prisma.template.findMany({
+  const allTemplates = (await prisma.template.findMany({
     orderBy: [{ createdAt: "desc" }, { version: "desc" }],
   })) as TemplateWithSections[]
+
+  const templates = templateFilter
+    ? allTemplates.filter((template) => template.slugPattern === templateFilter || template.name === templateFilter)
+    : allTemplates
 
   if (templates.length === 0) {
     throw new Error("No template found. Seed template data first.")
@@ -382,11 +405,14 @@ async function main() {
 
   for (const template of templates) {
     const entityType = await resolveEntityTypeForTemplate(template)
-    const entities = await prisma.entity.findMany({
+    const baseEntities = await prisma.entity.findMany({
       where: { type: entityType },
       orderBy: { name: "asc" },
       take: MAX_PAGES_PER_RUN,
     })
+    const entities = entityFilter
+      ? baseEntities.filter((entity) => entity.slug === entityFilter || entity.name === entityFilter)
+      : baseEntities
 
     if (entities.length === 0) {
       console.log(`Skipping template ${template.slugPattern}: no ${entityType} entities found`)
