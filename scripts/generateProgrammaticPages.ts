@@ -12,6 +12,9 @@ const prisma = new PrismaClient()
 const MAX_PAGES_PER_RUN = 20
 const MAX_RETRIES_PER_SECTION = 3
 const MAX_RETRIES_PER_SUMMARY = 3
+const MIN_INTERNAL_LINKS = 3
+const MIN_EXTERNAL_LINKS = 3
+const EXTERNAL_LINK_TIMEOUT_MS = 8000
 
 type TemplateWithSections = {
   id: string
@@ -42,6 +45,236 @@ function getArticleSummary(content: string) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 220)
+}
+
+function extractMarkdownLinks(content: string) {
+  const links: Array<{ label: string; href: string }> = []
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g
+  let match = regex.exec(content)
+  while (match) {
+    links.push({
+      label: match[1].trim(),
+      href: match[2].trim(),
+    })
+    match = regex.exec(content)
+  }
+
+  return links
+}
+
+function countInternalLinks(content: string) {
+  const links = extractMarkdownLinks(content)
+  return links.filter((link) => link.href.startsWith("/")).length
+}
+
+function isHttpUrl(value: string) {
+  try {
+    const parsed = new URL(value)
+    return parsed.protocol === "https:" || parsed.protocol === "http:"
+  } catch {
+    return false
+  }
+}
+
+function parseJsonObject(raw: string) {
+  const cleaned = raw.replace(/^```json\s*/i, "").replace(/^```/, "").replace(/```$/, "").trim()
+  const objectStart = cleaned.indexOf("{")
+  const arrayStart = cleaned.indexOf("[")
+  const start =
+    objectStart === -1 ? arrayStart : arrayStart === -1 ? objectStart : Math.min(objectStart, arrayStart)
+  if (start === -1) {
+    return cleaned
+  }
+
+  return cleaned.slice(start)
+}
+
+async function validateExternalUrl(url: string) {
+  if (!isHttpUrl(url)) {
+    return false
+  }
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), EXTERNAL_LINK_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "ReadableGuideLinkValidator/1.0",
+      },
+    })
+
+    if (response.status === 404 || response.status >= 500) {
+      return false
+    }
+
+    return response.status < 400
+  } catch {
+    return false
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+function appendReadMoreSection(content: string, links: Array<{ title: string; href: string }>) {
+  if (links.length === 0) {
+    return content
+  }
+
+  const sectionLines = [
+    "## Read more",
+    ...links.map((item) => `- [${item.title}](${item.href})`),
+  ]
+
+  return `${content.trim()}\n\n${sectionLines.join("\n")}`.trim()
+}
+
+function appendSourcesSection(content: string, sources: Array<{ title: string; url: string }>) {
+  if (sources.length === 0) {
+    return content
+  }
+
+  const sectionLines = [
+    "## Sources",
+    ...sources.map((item) => `- [${item.title}](${item.url})`),
+  ]
+
+  return `${content.trim()}\n\n${sectionLines.join("\n")}`.trim()
+}
+
+async function ensureMinimumInternalLinks(content: string, currentSlug: string) {
+  const currentInternalCount = countInternalLinks(content)
+  if (currentInternalCount >= MIN_INTERNAL_LINKS) {
+    return content
+  }
+
+  const existingInternalLinks = new Set(
+    extractMarkdownLinks(content)
+      .map((link) => link.href)
+      .filter((href) => href.startsWith("/")),
+  )
+
+  const candidates = await prisma.generatedPage.findMany({
+    where: {
+      slug: {
+        not: currentSlug,
+      },
+      status: "published",
+    },
+    select: {
+      slug: true,
+      title: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+    take: 20,
+  })
+
+  const needed = MIN_INTERNAL_LINKS - currentInternalCount
+  const selected = candidates
+    .map((item) => ({
+      title: item.title,
+      href: `/guides/${item.slug}`,
+    }))
+    .filter((item) => !existingInternalLinks.has(item.href))
+    .slice(0, needed)
+
+  const updated = appendReadMoreSection(content, selected)
+  if (countInternalLinks(updated) < MIN_INTERNAL_LINKS) {
+    throw new Error(`Failed internal link minimum for ${currentSlug}. Required ${MIN_INTERNAL_LINKS}.`)
+  }
+
+  return updated
+}
+
+async function generateValidatedExternalSources(
+  title: string,
+  summary: string,
+  entityName: string,
+  topic: string,
+) {
+  const fallbackSources = [
+    {
+      title: "Google Search: Creating helpful content",
+      url: "https://developers.google.com/search/docs/fundamentals/creating-helpful-content",
+    },
+    {
+      title: "Google Search: Overview of Google crawlers",
+      url: "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    },
+    {
+      title: "Schema.org Getting Started",
+      url: "https://schema.org/docs/gs.html",
+    },
+  ]
+
+  let llmSources: Array<{ title: string; url: string }> = []
+
+  try {
+    const prompt = `Generate 6 credible external source links for this guide.
+
+Guide title: ${title}
+Entity: ${entityName}
+Topic: ${topic}
+Summary: ${summary}
+
+Rules:
+- Return JSON only with this shape: {"sources":[{"title":"","url":""}]}
+- Sources must be real and publicly accessible URLs
+- Prefer official docs, standards bodies, or trusted industry publications
+- No homepage-only links unless unavoidable
+- No fictional or guessed URLs`
+
+    const response = await generateText(
+      [{ role: "user", content: prompt }],
+      { model: "haiku", temperature: 0.1 },
+    )
+    const parsedRaw = JSON.parse(parseJsonObject(response)) as { sources?: Array<{ title?: string; url?: string }> }
+    llmSources = (parsedRaw.sources || [])
+      .map((item) => ({
+        title: String(item.title || "").trim(),
+        url: String(item.url || "").trim(),
+      }))
+      .filter((item) => item.title.length > 0 && item.url.length > 0)
+  } catch {
+    llmSources = []
+  }
+
+  const combined = [...llmSources, ...fallbackSources]
+  const seen = new Set<string>()
+  const validated: Array<{ title: string; url: string }> = []
+
+  for (const source of combined) {
+    const normalized = source.url.trim()
+    if (!normalized || seen.has(normalized)) {
+      continue
+    }
+    seen.add(normalized)
+
+    const isValid = await validateExternalUrl(normalized)
+    if (!isValid) {
+      continue
+    }
+
+    validated.push({
+      title: source.title,
+      url: normalized,
+    })
+
+    if (validated.length >= MIN_EXTERNAL_LINKS) {
+      break
+    }
+  }
+
+  if (validated.length < MIN_EXTERNAL_LINKS) {
+    throw new Error(`Failed external link minimum for ${entityName}. Required ${MIN_EXTERNAL_LINKS}.`)
+  }
+
+  return validated
 }
 
 function replaceTokens(input: string, entity: { name: string; slug: string }) {
@@ -468,7 +701,15 @@ async function main() {
       const title = generateTitle(template.name, { name: entity.name, slug: entity.slug })
       const rawContent = await buildMdxForEntity(template, { name: entity.name, slug: entity.slug })
       await registerInternalLinkTarget(slug, title, getArticleSummary(rawContent), prisma)
-      const content = await injectInternalLinks(rawContent, { excludeSlug: slug, maxLinks: 6 })
+      const contentWithInternalInjection = await injectInternalLinks(rawContent, { excludeSlug: slug, maxLinks: 6 })
+      const contentWithInternalMinimum = await ensureMinimumInternalLinks(contentWithInternalInjection, slug)
+      const externalSources = await generateValidatedExternalSources(
+        title,
+        getArticleSummary(contentWithInternalMinimum),
+        entity.name,
+        template.name,
+      )
+      const content = appendSourcesSection(contentWithInternalMinimum, externalSources)
 
       const page = await prisma.generatedPage.create({
         data: {

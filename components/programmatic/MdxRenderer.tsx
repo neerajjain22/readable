@@ -16,10 +16,11 @@ export default function MdxRenderer({ source }: MdxRendererProps) {
         CalloutBox,
         a: ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
           const isExternal = href && (href.startsWith("http://") || href.startsWith("https://"))
+          const { rel: _rel, target: _target, ...rest } = props
           return isExternal ? (
-            <a href={href} rel="nofollow noopener" target="_blank" {...props}>{children}</a>
+            <a href={href} rel="nofollow noopener" target="_blank" {...rest}>{children}</a>
           ) : (
-            <a href={href} {...props}>{children}</a>
+            <a href={href} {...rest}>{children}</a>
           )
         },
         h2: ({ children }) => {
