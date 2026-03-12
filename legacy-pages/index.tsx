@@ -264,7 +264,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     </button>
                   </div>
                   <p className={pageStyles.text} style={{ marginTop: "10px", marginBottom: 0 }}>
-                    Free report • No signup required • Takes 3-4 minutes
+                    Free report • No signup required
                   </p>
                 </div>
               </div>
