@@ -54,6 +54,8 @@ Example:
 - `app/api/ai-visibility/generate/route.ts`
 - `app/api/ai-visibility/status/route.ts`
 - `app/api/ai-visibility/process/route.ts`
+- `app/api/report-status/[reportId]/route.ts`
+- `app/api/report/[reportId]/route.ts`
 
 Removed legacy OTP APIs:
 - `app/api/request-case-study/route.ts`
@@ -108,7 +110,11 @@ Processing flow:
 4. Generation pipeline runs and persists evidence + insights
 5. Report becomes publicly available only when `status = completed`
 
-PR3 durability behavior:
+UX + durability behavior:
+- `/analyze` redirects to `/ai-visibility/{companySlug}` immediately after generation is created/started.
+- Report page progressively renders sections while polling:
+  - `/api/report-status/{reportId}` for stage flags
+  - `/api/report/{reportId}` for partial/full payload updates
 - Generation is asynchronous and non-blocking for request handlers.
 - Processing jobs are claimed from DB (`processing` rows) using transactional claim logic.
 - Active generation rows are heartbeat-updated to avoid stale false-failures.
@@ -136,6 +142,8 @@ PR3 durability behavior:
 - Uses HTTP Basic Auth via:
   - `ADMIN_BASIC_AUTH_USER`
   - `ADMIN_BASIC_AUTH_PASS`
+- `middleware.ts` also blocks public traffic on `*.vercel.app` hosts with `404`.
+- Exception: `/api/ai-visibility/process` remains accessible for scheduled background processing.
 
 ## Components
 Shared UI components are in `components/`.

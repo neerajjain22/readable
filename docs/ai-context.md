@@ -53,6 +53,8 @@ API layer:
   - `app/api/ai-visibility/generate/route.ts`
   - `app/api/ai-visibility/status/route.ts`
   - `app/api/ai-visibility/process/route.ts`
+  - `app/api/report-status/[reportId]/route.ts`
+  - `app/api/report/[reportId]/route.ts`
 
 Case study download flow (current):
 1. User selects a case study.
@@ -103,9 +105,12 @@ AI visibility:
 - Report route: `/ai-visibility/[companySlug]`
 - Query route: `/ai-search/[querySlug]`
 - Recent reports route: `/recent-ai-visibility-reports`
-- Analyze flow: `/analyze` -> generate -> poll status -> redirect when completed
+- Analyze flow: `/analyze` -> generate -> immediate redirect to `/ai-visibility/[companySlug]` -> progressive section hydration via polling
 - Status lifecycle: `processing` | `completed` | `failed`
 - Public visibility rule: only `completed` reports are shown
+- Progressive report polling endpoints:
+  - `/api/report-status/{reportId}`
+  - `/api/report/{reportId}`
 - Processing reliability:
   - DB-backed job claiming for `processing` reports
   - heartbeat updates to keep active processing fresh
@@ -124,6 +129,8 @@ AI visibility:
 
 ## Security Notes
 - Admin moderation routes are HTTP Basic Auth protected by `middleware.ts`.
+- Public host restriction is enforced in `middleware.ts`: `*.vercel.app` hosts return `404` for normal traffic.
+- Exception: `/api/ai-visibility/process` is allowed on `*.vercel.app` for cron/background processing.
 - Required env vars:
   - `ADMIN_BASIC_AUTH_USER`
   - `ADMIN_BASIC_AUTH_PASS`

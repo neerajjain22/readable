@@ -77,6 +77,10 @@ npm run ai-visibility:backfill
 - `/admin/programmatic` requires basic auth credentials in local env.
 - AI visibility processing:
   - Generation is async and may continue after initial `/generate` response.
+  - `/analyze` redirects to `/ai-visibility/{companySlug}` immediately after job creation/start.
+  - Report page progressively fills sections by polling:
+    - `/api/report-status/{reportId}`
+    - `/api/report/{reportId}`
   - `/api/ai-visibility/process` is intended for background recovery/processing.
   - In production, Vercel cron should call `/api/ai-visibility/process?limit=1`.
   - AI visibility LLM uses Claude Sonnet via Anthropic SDK.
