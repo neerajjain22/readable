@@ -8,7 +8,8 @@ type MdxRendererProps = {
 }
 
 export default function MdxRenderer({ source }: MdxRendererProps) {
-  const safeSource = sanitizeProgrammaticMdx(source)
+  const noEmDashSource = source.replace(/—/g, ", ")
+  const safeSource = sanitizeProgrammaticMdx(noEmDashSource)
 
   return (
     <>

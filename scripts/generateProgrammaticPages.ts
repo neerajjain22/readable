@@ -145,6 +145,68 @@ function appendSourcesSection(content: string, sources: Array<{ title: string; u
   return `${content.trim()}\n\n${sectionLines.join("\n")}`.trim()
 }
 
+function normalizeGuideTypography(content: string) {
+  // Hard guard: never keep em dashes in generated guides.
+  return content.replace(/—/g, ", ")
+}
+
+function injectInlineExternalLinks(
+  content: string,
+  sources: Array<{ title: string; url: string }>,
+  maxInlineLinks = 3,
+) {
+  if (!sources.length || maxInlineLinks <= 0) {
+    return content
+  }
+
+  const existingUrls = new Set(
+    extractMarkdownLinks(content)
+      .map((link) => link.href.trim())
+      .filter((href) => isHttpUrl(href)),
+  )
+
+  const sections = splitGuideSections(content)
+  if (sections.length === 0) {
+    return content
+  }
+
+  const rebuilt: string[] = []
+  let sourceIndex = 0
+  let inserted = 0
+
+  for (const section of sections) {
+    let sectionBody = section.body.trim()
+    const isEligibleSection = !["faq", "summary"].includes(section.heading.trim().toLowerCase())
+
+    if (isEligibleSection && inserted < maxInlineLinks) {
+      while (sourceIndex < sources.length && inserted < maxInlineLinks) {
+        const source = sources[sourceIndex]
+        sourceIndex += 1
+
+        if (existingUrls.has(source.url)) {
+          continue
+        }
+
+        const paragraphs = splitParagraphs(sectionBody)
+        if (paragraphs.length === 0) {
+          continue
+        }
+
+        const readMoreLine = `Read more: [${source.title}](${source.url}).`
+        paragraphs[0] = `${paragraphs[0]} ${readMoreLine}`.trim()
+        sectionBody = paragraphs.join("\n\n")
+        existingUrls.add(source.url)
+        inserted += 1
+        break
+      }
+    }
+
+    rebuilt.push(`## ${section.heading}\n\n${sectionBody}`.trim())
+  }
+
+  return rebuilt.join("\n\n").trim()
+}
+
 async function ensureMinimumInternalLinks(content: string, currentSlug: string) {
   const currentInternalCount = countInternalLinks(content)
   if (currentInternalCount >= MIN_INTERNAL_LINKS) {
@@ -732,7 +794,9 @@ async function main() {
         entity.name,
         template.name,
       )
-      const content = appendSourcesSection(contentWithInternalMinimum, externalSources)
+      const contentWithInlineExternal = injectInlineExternalLinks(contentWithInternalMinimum, externalSources, 3)
+      const withSources = appendSourcesSection(contentWithInlineExternal, externalSources)
+      const content = normalizeGuideTypography(withSources)
 
       const page = await prisma.generatedPage.create({
         data: {
