@@ -951,6 +951,49 @@ async function discoverCompetitors(
   }
 }
 
+async function validateFinalCompetitors(
+  candidates: string[],
+  category: string,
+  companyName: string,
+  context: CompanyContext,
+) {
+  const sanitizedCandidates = sanitizeStringList(candidates)
+    .map(normalizeBrandName)
+    .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
+    .filter((brand) => !isInvalidBrandToken(brand))
+
+  if (sanitizedCandidates.length === 0) {
+    return [] as string[]
+  }
+
+  try {
+    const validation = await generateJson<{ validCompetitors?: string[] }>([
+      { role: "system", content: COMPETITOR_VALIDATION_SYSTEM_PROMPT },
+      {
+        role: "user",
+        content: buildCompetitorValidationUserPrompt({
+          targetCompany: companyName,
+          category,
+          subCategory: context.subCategory || category,
+          businessModel: context.businessModel,
+          targetCustomerSegment: context.targetCustomerSegment,
+          primaryGeography: context.primaryGeography,
+          companyScale: context.companyScale,
+          competitors: sanitizedCandidates,
+        }),
+      },
+    ])
+
+    return sanitizeStringList(validation.validCompetitors, 5)
+      .map(normalizeBrandName)
+      .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
+      .filter((brand) => !isInvalidBrandToken(brand))
+  } catch (error) {
+    logStep("validateFinalCompetitors", "final validation failed, using sanitized candidates", error)
+    return sanitizedCandidates
+  }
+}
+
 async function extractAttributes(category: string): Promise<string[]> {
   try {
     const response = await generateJson<string[]>([
@@ -1359,7 +1402,7 @@ async function runPipeline(
     .filter((brand) => !isInvalidBrandToken(brand))
     .slice(0, 3)
 
-  const finalizedCompetitors =
+  const provisionalCompetitors =
     initialCompetitors.length >= 3
       ? mergedCompetitors
       : uniqueByNormalized([
@@ -1370,6 +1413,19 @@ async function runPipeline(
           .filter((brand) => normalizeForMatch(brand) !== normalizeForMatch(companyName))
           .filter((brand) => !isInvalidBrandToken(brand))
           .slice(0, 3)
+
+  const validatedProvisional = uniqueByNormalized(
+    await validateFinalCompetitors(provisionalCompetitors, categoryResult.category, companyName, companyContext),
+  )
+
+  const validatedInitial = uniqueByNormalized(
+    await validateFinalCompetitors(initialCompetitors, categoryResult.category, companyName, companyContext),
+  )
+
+  const finalizedCompetitors = uniqueByNormalized([
+    ...validatedProvisional,
+    ...validatedInitial,
+  ]).slice(0, 3)
 
   logStep("runPipeline", `selected competitors=${finalizedCompetitors.join(", ") || "none"}, attributes=${attributes.join(", ")}`)
 
