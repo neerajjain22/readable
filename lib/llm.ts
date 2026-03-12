@@ -23,6 +23,9 @@ Requirements:
 • Use a practical, expert point of view (confident and specific, not generic encyclopedia tone)
 • Include at least one concrete scenario or example relevant to ${entity.name}
 • Include at least one actionable recommendation a team can implement
+• When comparison is relevant, include one compact markdown table (2–4 rows) instead of only prose
+• Use short bullet points where helpful to avoid large text walls
+• Include one concise "Expert tip:" sentence with a practical implementation nuance
 • Mention the entity naturally
 • Mention ChatGPT and AI agents where relevant
 • Avoid marketing hype and broad filler statements
