@@ -13,7 +13,7 @@ import { pushDataLayerEvent } from "../components/analytics/GlobalGtmClickTracke
 import pageStyles from "../styles/Page.module.css"
 
 const logos = [
-  { src: "/images/logos/CapillaryTech.webp", alt: "CapillaryTech logo" },
+  { src: "/images/logos/Capillary-Technology.png", alt: "CapillaryTech logo" },
   { src: "/images/logos/Dominos-logo.png", alt: "Domino's logo" },
   { src: "/images/logos/Ultrahuman.f1670267324.png", alt: "Ultrahuman logo" },
   { src: "/images/logos/beato-logo.c19ba735.svg", alt: "BeatO logo" },
