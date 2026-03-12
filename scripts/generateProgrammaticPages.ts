@@ -342,6 +342,17 @@ function hasPracticalMarker(content: string) {
   )
 }
 
+function hasDecisionRuleMarker(content: string) {
+  return (
+    /\bif\b[\s\S]{0,100}\b(prioritize|choose|select|avoid|then)\b/i.test(content) ||
+    /\bwhen\b[\s\S]{0,100}\b(prioritize|choose|select|avoid)\b/i.test(content)
+  )
+}
+
+function hasInformationGainMarker(content: string) {
+  return /\b(non-obvious|tradeoff|common mistake|pitfall|in practice|counterintuitive)\b/i.test(content)
+}
+
 function needsQualityRetry(content: string) {
   const normalized = normalizeForComparison(content)
   if (!normalized) {
@@ -353,7 +364,19 @@ function needsQualityRetry(content: string) {
     return true
   }
 
-  return !hasPracticalMarker(content)
+  if (!hasPracticalMarker(content)) {
+    return true
+  }
+
+  if (!hasDecisionRuleMarker(content)) {
+    return true
+  }
+
+  if (!hasInformationGainMarker(content)) {
+    return true
+  }
+
+  return false
 }
 
 function isInvalidInsightSummary(summary: string) {

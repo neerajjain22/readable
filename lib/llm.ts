@@ -23,6 +23,9 @@ Requirements:
 • Use a practical, expert point of view (confident and specific, not generic encyclopedia tone)
 • Include at least one concrete scenario or example relevant to ${entity.name}
 • Include at least one actionable recommendation a team can implement
+• Include one non-obvious takeaway that goes beyond basic definitions
+• Include one decision rule in this form or equivalent: "If X, prioritize Y"
+• Include one practical tradeoff or common mistake to avoid
 • When comparison is relevant, include one compact markdown table (2–4 rows) instead of only prose
 • Use short bullet points where helpful to avoid large text walls
 • Include one concise "Expert tip:" sentence with a practical implementation nuance
@@ -33,6 +36,7 @@ Requirements:
 • Avoid repetition across sections
 • Write in clear paragraphs with concise transitions
 • Avoid generic openers like "In today's digital landscape" or "As technology evolves"
+• Do not write only definitional restatements; provide implementation-level guidance
 • Do not output raw HTML tags (for example: <main>, <nav>, <article>, <section>, <div>)`
 }
 
