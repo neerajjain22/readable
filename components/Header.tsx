@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import styles from "../styles/components/Header.module.css"
 
@@ -59,7 +60,10 @@ export default function Header() {
       <div className={styles.container}>
         <div className={styles.row}>
           <Link href="/" className={styles.logo} aria-label="Readable home">
-            Readable
+            <Image src="/images/readable-icon.png" alt="" width={22} height={22} className={styles.logoIcon} aria-hidden="true" />
+            <span className={styles.logoText}>
+              Readab<span className={styles.logoAccent}>l</span>e
+            </span>
           </Link>
 
           <nav className={styles.desktopNav} aria-label="Primary">

@@ -25,6 +25,24 @@
   font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.logoText {
+  display: inline-block;
+}
+
+.logoAccent {
+  color: #6366f1;
 }
 
 .desktopNav {
