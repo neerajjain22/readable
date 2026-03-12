@@ -228,44 +228,36 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     maxWidth: "640px",
                   }}
                 >
-                  <div style={{ display: "flex", gap: "0", flexWrap: "wrap" }}>
-                    <input
-                      type="url"
-                      placeholder="Enter your website URL"
-                      aria-label="Website URL"
-                      className={pageStyles.searchInput}
-                      value={domain}
-                      onChange={(event) => setDomain(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault()
-                          handleAnalyze()
-                        }
-                      }}
-                      style={{
-                        borderTopRightRadius: "0",
-                        borderBottomRightRadius: "0",
-                        minHeight: "48px",
-                        borderRight: "0",
-                      }}
-                    />
+                  <div className={pageStyles.heroAnalyzeStack}>
+                    <div className={pageStyles.analyzeInputWrap}>
+                      <span className={pageStyles.analyzeInputIcon} aria-hidden="true">🌐</span>
+                      <input
+                        type="url"
+                        placeholder="Type your website URL here (e.g. hubspot.com)"
+                        aria-label="Website URL"
+                        className={`${pageStyles.searchInput} ${pageStyles.analyzeInput}`}
+                        value={domain}
+                        autoFocus
+                        onChange={(event) => setDomain(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault()
+                            handleAnalyze()
+                          }
+                        }}
+                      />
+                    </div>
                     <button
                       type="button"
-                      className="btn btn-primary"
+                      className={`btn btn-primary ${pageStyles.analyzeButton}`}
                       onClick={handleAnalyze}
-                      style={{
-                        borderTopLeftRadius: "0",
-                        borderBottomLeftRadius: "0",
-                        minHeight: "48px",
-                        whiteSpace: "nowrap",
-                      }}
                     >
-                      Analyze My Brand
+                      Get My Free Report
                     </button>
+                    <p className={pageStyles.heroMicrocopy}>
+                      Most brands are surprised by what AI says about them.
+                    </p>
                   </div>
-                  <p className={pageStyles.text} style={{ marginTop: "10px", marginBottom: 0 }}>
-                    Free report • No signup required
-                  </p>
                 </div>
               </div>
 
@@ -312,7 +304,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                       AI Influence Snapshot
                     </p>
                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
-                      Analyzing: yourbrand.com
+                      Analyzing: hubspot.com
                     </p>
                   </div>
 
@@ -336,7 +328,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                         lineHeight: 1.4,
                       }}
                     >
-                      AI Influence Score
+                      Hubspot AI Influence Score
                     </p>
                     <p style={{ margin: "8px 0 0", fontSize: "24px", fontWeight: 600, lineHeight: 1.1 }}>
                       74 / 100
@@ -361,10 +353,22 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                       />
                     </div>
                     <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
-                      Strong visibility in category prompts
+                      Top AI Associations
                     </p>
                     <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
-                      2 positioning issues detected
+                      • marketing automation
+                    </p>
+                    <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      • CRM platform
+                    </p>
+                    <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      Missing Topics
+                    </p>
+                    <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      • enterprise security
+                    </p>
+                    <p style={{ margin: "6px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
+                      • customer data governance
                     </p>
                   </article>
 
@@ -388,11 +392,11 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                         lineHeight: 1.4,
                       }}
                     >
-                      How AI Describes Your Brand
+                      How AI Describes Hubspot.com
                     </p>
                     <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#4B5563", lineHeight: 1.6 }}>
-                      "Readable helps companies understand how AI systems influence brand discovery and buyer
-                      journeys."
+                      "HubSpot is frequently described as a CRM and marketing automation platform for
+                      scaling inbound and revenue operations."
                     </p>
                     <div style={{ marginTop: "10px", display: "flex", gap: "8px", flexWrap: "wrap", minWidth: 0 }}>
                       {["ChatGPT", "Claude", "Gemini", "Perplexity"].map((source, index) => (
@@ -413,73 +417,7 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
                     </div>
                   </article>
 
-                  <article
-                    style={{
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "12px",
-                      background: "#FFFFFF",
-                      padding: "12px",
-                      minWidth: 0,
-                    }}
-                  >
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "12px",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        color: "#6B7280",
-                        fontWeight: 600,
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      Opportunities Detected
-                    </p>
-                    <ul className={pageStyles.list} style={{ marginTop: "10px", gap: "8px" }}>
-                      <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
-                        Competitor mentioned in 3 high value prompts
-                      </li>
-                      <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
-                        Product positioning inconsistent
-                      </li>
-                      <li style={{ fontSize: "12px", color: "#4B5563", lineHeight: 1.4 }}>
-                        Missing comparison content
-                      </li>
-                    </ul>
-                  </article>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          className={pageStyles.sectionAlt}
-          style={{
-            paddingTop: "64px",
-            paddingBottom: "64px",
-          }}
-          aria-label="Teams from these companies use Readable"
-        >
-          <div className={pageStyles.container}>
-            <p
-              className={pageStyles.text}
-              style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 600, margin: 0 }}
-            >
-              Teams from more than 100 companies use Readable everyday
-            </p>
-            <div className={pageStyles.logoMarquee} style={{ marginTop: "24px" }}>
-              <div className={pageStyles.logoTrack}>
-                {[...logos, ...logos].map((logo, index) => (
-                  <Image
-                    key={`${logo.src}-${index}`}
-                    src={logo.src}
-                    alt={logo.alt}
-                    width={160}
-                    height={32}
-                    className={pageStyles.logoImage}
-                  />
-                ))}
               </div>
             </div>
           </div>
@@ -520,6 +458,38 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
             ) : (
               <p className={pageStyles.heroDescription}>Reports will appear here as they are generated.</p>
             )}
+          </div>
+        </section>
+
+        <section
+          className={pageStyles.sectionAlt}
+          style={{
+            paddingTop: "64px",
+            paddingBottom: "64px",
+          }}
+          aria-label="Teams from these companies use Readable"
+        >
+          <div className={pageStyles.container}>
+            <p
+              className={pageStyles.text}
+              style={{ textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 600, margin: 0 }}
+            >
+              Teams from more than 100 companies use Readable everyday
+            </p>
+            <div className={pageStyles.logoMarquee} style={{ marginTop: "24px" }}>
+              <div className={pageStyles.logoTrack}>
+                {[...logos, ...logos].map((logo, index) => (
+                  <Image
+                    key={`${logo.src}-${index}`}
+                    src={logo.src}
+                    alt={logo.alt}
+                    width={160}
+                    height={32}
+                    className={pageStyles.logoImage}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -634,26 +604,28 @@ export default function HomePage({ recentReports = [] }: { recentReports?: Recen
           </div>
         </section>
 
-        <section className={pageStyles.sectionAlt} style={{ paddingTop: "112px", paddingBottom: "112px" }}>
-          <div className={pageStyles.container}>
-            <h2 className={pageStyles.heroTitle}>Solutions by Team</h2>
-            <div className={pageStyles.grid2} style={{ marginTop: "40px", gap: "32px" }}>
-              {solutionsByTeam.map((item, index) => (
-                <article key={`${item.title}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
-                  <h3 style={{ marginTop: 0 }}>{item.title}</h3>
-                  <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
-                    {item.description}
-                  </p>
-                  <div style={{ marginTop: "16px" }}>
-                    <Link href={item.href} className={pageStyles.inlineLink}>
-                      View {item.title} →
-                    </Link>
-                  </div>
-                </article>
-              ))}
+        {false ? (
+          <section className={pageStyles.sectionAlt} style={{ paddingTop: "112px", paddingBottom: "112px" }}>
+            <div className={pageStyles.container}>
+              <h2 className={pageStyles.heroTitle}>Solutions by Team</h2>
+              <div className={pageStyles.grid2} style={{ marginTop: "40px", gap: "32px" }}>
+                {solutionsByTeam.map((item, index) => (
+                  <article key={`${item.title}-${index}`} className={pageStyles.card} style={{ padding: "32px" }}>
+                    <h3 style={{ marginTop: 0 }}>{item.title}</h3>
+                    <p className={pageStyles.text} style={{ marginTop: "12px", lineHeight: 1.7 }}>
+                      {item.description}
+                    </p>
+                    <div style={{ marginTop: "16px" }}>
+                      <Link href={item.href} className={pageStyles.inlineLink}>
+                        View {item.title} →
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         <section className={pageStyles.section} style={{ paddingTop: "104px", paddingBottom: "104px" }}>
           <div className={pageStyles.container}>
