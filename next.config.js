@@ -32,6 +32,16 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
+      {
+        source: "/blog/proactive-ai-agents",
+        destination: "/blog/google-analytics-ai-agents",
+        permanent: true,
+      },
+      {
+        source: "/contact-us",
+        destination: "/contact",
+        permanent: true,
+      },
     ]
   },
 }
