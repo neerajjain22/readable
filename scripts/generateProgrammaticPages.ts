@@ -1,8 +1,15 @@
-import { PrismaClient } from "@prisma/client"
-import { generateSectionContent } from "../lib/llm.ts"
+import { Prisma, PrismaClient } from "@prisma/client"
+import { generateSectionContent, type EntitySpecificityHints } from "../lib/llm.ts"
 import { generateText } from "../lib/services/llm.ts"
 import { generateSlug } from "../lib/programmatic/generateSlug.ts"
 import { generateTitle } from "../lib/programmatic/generateContent.ts"
+import {
+  buildSpecificityMetadata,
+  getDeterministicEntitySpecificity,
+  getUserDefinedEntitySpecificity,
+  mergeEntitySpecificityProfiles,
+  type PartialEntitySpecificity,
+} from "../lib/programmatic/entitySpecificity.ts"
 import { splitGuideSections } from "../lib/internalLinks/index.ts"
 import { injectInternalLinks } from "../lib/internalLinks/injectInternalLinks.ts"
 import { registerInternalLinkTarget } from "./registerInternalLinkTarget.ts"
@@ -26,6 +33,20 @@ type TemplateWithSections = {
 
 type EntityType = "cms" | "business_category"
 type CalloutCta = "analyze" | "demo"
+
+type GeneratorEntity = {
+  id: string
+  name: string
+  slug: string
+  type: string
+  metadata?: unknown
+}
+
+type PromptEntity = {
+  name: string
+  slug: string
+  metadata?: Record<string, unknown> | null
+}
 
 function getArgValue(flag: string) {
   const arg = process.argv.find((entry) => entry.startsWith(`${flag}=`))
@@ -87,6 +108,40 @@ function parseJsonObject(raw: string) {
   }
 
   return cleaned.slice(start)
+}
+
+function normalizeString(value: unknown) {
+  if (typeof value !== "string") {
+    return ""
+  }
+
+  return value.trim().replace(/\s+/g, " ")
+}
+
+function normalizeStringArray(value: unknown) {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  const seen = new Set<string>()
+  const result: string[] = []
+
+  for (const item of value) {
+    const normalized = normalizeString(item)
+    if (!normalized) {
+      continue
+    }
+
+    const key = normalized.toLowerCase()
+    if (seen.has(key)) {
+      continue
+    }
+
+    seen.add(key)
+    result.push(normalized)
+  }
+
+  return result
 }
 
 async function validateExternalUrl(url: string) {
@@ -339,12 +394,49 @@ Rules:
   return validated
 }
 
-function replaceTokens(input: string, entity: { name: string; slug: string }) {
-  return input
-    .replaceAll("{CMS}", entity.name)
-    .replaceAll("{entity}", entity.name)
-    .replaceAll("{ENTITY}", entity.name)
-    .replaceAll("{cms}", entity.name)
+async function suggestSpecificityWithLlm(
+  entity: GeneratorEntity,
+  topic: string,
+): Promise<PartialEntitySpecificity | null> {
+  const prompt = `Suggest concrete language that makes this audience/entity more specific in expert SEO writing.
+
+Entity name: ${entity.name}
+Entity slug: ${entity.slug}
+Entity type: ${entity.type}
+Guide topic: ${topic}
+
+Return strict JSON only with this shape:
+{
+  "preferredLabel": "",
+  "specificNouns": ["", ""],
+  "avoidGenericNouns": ["", ""]
+}
+
+Rules:
+- preferredLabel must be concise and specific
+- specificNouns must be concrete role/audience nouns, 3-6 items
+- avoidGenericNouns should include overly broad labels to avoid
+- No markdown, no commentary`
+
+  try {
+    const response = await generateText(
+      [{ role: "user", content: prompt }],
+      { model: "haiku", temperature: 0.2 },
+    )
+    const parsedRaw = JSON.parse(parseJsonObject(response)) as {
+      preferredLabel?: unknown
+      specificNouns?: unknown
+      avoidGenericNouns?: unknown
+    }
+
+    return {
+      preferredLabel: normalizeString(parsedRaw.preferredLabel) || undefined,
+      specificNouns: normalizeStringArray(parsedRaw.specificNouns),
+      avoidGenericNouns: normalizeStringArray(parsedRaw.avoidGenericNouns),
+    }
+  } catch {
+    return null
+  }
 }
 
 function normalizeTemplateSections(template: TemplateWithSections): string[] {
@@ -415,7 +507,36 @@ function hasInformationGainMarker(content: string) {
   return /\b(non-obvious|tradeoff|common mistake|pitfall|in practice|counterintuitive)\b/i.test(content)
 }
 
-function needsQualityRetry(content: string) {
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function hasSpecificNounMention(content: string, specificity?: EntitySpecificityHints) {
+  const specificNouns = specificity?.specificNouns || []
+  if (specificNouns.length === 0) {
+    return true
+  }
+
+  const normalized = content.toLowerCase()
+  return specificNouns.some((noun) => normalized.includes(noun.toLowerCase()))
+}
+
+function hasGenericNounOveruse(content: string, specificity?: EntitySpecificityHints) {
+  const avoided = specificity?.avoidGenericNouns || []
+  if (avoided.length === 0) {
+    return false
+  }
+
+  let totalMatches = 0
+  for (const phrase of avoided) {
+    const regex = new RegExp(`\\b${escapeRegex(phrase)}\\b`, "gi")
+    totalMatches += content.match(regex)?.length || 0
+  }
+
+  return totalMatches >= 3
+}
+
+function needsQualityRetry(content: string, specificity?: EntitySpecificityHints) {
   const normalized = normalizeForComparison(content)
   if (!normalized) {
     return true
@@ -435,6 +556,14 @@ function needsQualityRetry(content: string) {
   }
 
   if (!hasInformationGainMarker(content)) {
+    return true
+  }
+
+  if (!hasSpecificNounMention(content, specificity)) {
+    return true
+  }
+
+  if (hasGenericNounOveruse(content, specificity) && !hasSpecificNounMention(content, specificity)) {
     return true
   }
 
@@ -553,12 +682,17 @@ async function summarizeWithRetry(paragraph: string) {
   return null
 }
 
-async function generateWithRetry(topic: string, sectionTitle: string, entity: { name: string; slug: string }) {
+async function generateWithRetry(
+  topic: string,
+  sectionTitle: string,
+  entity: PromptEntity,
+  specificity: EntitySpecificityHints,
+) {
   let lastError: Error | null = null
 
   for (let attempt = 1; attempt <= MAX_RETRIES_PER_SECTION; attempt += 1) {
     try {
-      return await generateSectionContent(topic, sectionTitle, entity)
+      return await generateSectionContent(topic, sectionTitle, entity, specificity)
     } catch (error) {
       lastError = error as Error
       if (attempt < MAX_RETRIES_PER_SECTION) {
@@ -572,20 +706,25 @@ async function generateWithRetry(topic: string, sectionTitle: string, entity: { 
   )
 }
 
-async function buildMdxForEntity(template: TemplateWithSections, entity: { name: string; slug: string }) {
+async function buildMdxForEntity(
+  template: TemplateWithSections,
+  entity: PromptEntity,
+  specificity: EntitySpecificityHints,
+) {
   const sections = normalizeTemplateSections(template)
   const blocks: string[] = []
+  const topic = generateTitle(template.name, entity)
 
   for (let index = 0; index < sections.length; index += 1) {
     const section = sections[index]
-    const resolvedSectionTitle = replaceTokens(section, entity)
+    const resolvedSectionTitle = generateTitle(section, entity)
     console.log(`Generating section: ${entity.slug} -> ${resolvedSectionTitle}`)
-    let sectionBody = await generateWithRetry(template.name, resolvedSectionTitle, entity)
+    let sectionBody = await generateWithRetry(topic, resolvedSectionTitle, entity, specificity)
     let trimmedBody = sectionBody.trim()
 
-    if (needsQualityRetry(trimmedBody)) {
+    if (needsQualityRetry(trimmedBody, specificity)) {
       console.log(`Retrying generic section once: ${entity.slug} -> ${resolvedSectionTitle}`)
-      sectionBody = await generateWithRetry(template.name, resolvedSectionTitle, entity)
+      sectionBody = await generateWithRetry(topic, resolvedSectionTitle, entity, specificity)
       trimmedBody = sectionBody.trim()
     }
 
@@ -732,6 +871,7 @@ async function resolveEntityTypeForTemplate(template: TemplateWithSections): Pro
 
 async function main() {
   const refreshCalloutsOnly = process.argv.includes("--refresh-callouts")
+  const regenerateExisting = process.argv.includes("--regenerate-existing")
   const slugFilter = getArgValue("--slug")
   const templateFilter = getArgValue("--template")
   const entityFilter = getArgValue("--entity")
@@ -754,6 +894,7 @@ async function main() {
   }
 
   let generatedCount = 0
+  let regeneratedCount = 0
   let skippedCount = 0
 
   for (const template of templates) {
@@ -774,55 +915,103 @@ async function main() {
 
     console.log(`Processing template: ${template.name} (${template.slugPattern}) with ${entityType} entities`)
 
-    for (const entity of entities) {
+    for (const entity of entities as GeneratorEntity[]) {
       const slug = generateSlug(template.slugPattern, entity.name, entity.slug)
       const existing = await prisma.generatedPage.findUnique({ where: { slug } })
-      if (existing) {
+      if (existing && !regenerateExisting) {
         skippedCount += 1
         console.log(`Skipping existing page: ${slug}`)
         continue
       }
 
-      const title = generateTitle(template.name, { name: entity.name, slug: entity.slug })
-      const rawContent = await buildMdxForEntity(template, { name: entity.name, slug: entity.slug })
+      const userSpecificity = getUserDefinedEntitySpecificity(entity.metadata)
+      const deterministicSpecificity = getDeterministicEntitySpecificity(entity)
+      const shouldUseLlmSpecificity =
+        !userSpecificity.preferredLabel ||
+        (userSpecificity.specificNouns?.length || 0) < 2 ||
+        (userSpecificity.avoidGenericNouns?.length || 0) === 0
+      const llmSpecificity = shouldUseLlmSpecificity
+        ? await suggestSpecificityWithLlm(entity, template.name)
+        : null
+      const specificity = mergeEntitySpecificityProfiles(userSpecificity, deterministicSpecificity, llmSpecificity)
+      const specificityMetadata = buildSpecificityMetadata(entity.metadata, specificity)
+
+      await prisma.entity.update({
+        where: { id: entity.id },
+        data: {
+          metadata: specificityMetadata as Prisma.InputJsonValue,
+        },
+      })
+
+      const promptEntity: PromptEntity = {
+        name: specificity.preferredLabel,
+        slug: entity.slug,
+        metadata: specificityMetadata,
+      }
+
+      const title = generateTitle(template.name, promptEntity)
+      const rawContent = await buildMdxForEntity(template, promptEntity, specificity)
       await registerInternalLinkTarget(slug, title, getArticleSummary(rawContent), prisma)
       const contentWithInternalInjection = await injectInternalLinks(rawContent, { excludeSlug: slug, maxLinks: 6 })
       const contentWithInternalMinimum = await ensureMinimumInternalLinks(contentWithInternalInjection, slug)
       const externalSources = await generateValidatedExternalSources(
         title,
         getArticleSummary(contentWithInternalMinimum),
-        entity.name,
+        specificity.preferredLabel,
         template.name,
       )
       const contentWithInlineExternal = injectInlineExternalLinks(contentWithInternalMinimum, externalSources, 3)
       const withSources = appendSourcesSection(contentWithInlineExternal, externalSources)
       const content = normalizeGuideTypography(withSources)
 
-      const page = await prisma.generatedPage.create({
-        data: {
-          slug,
-          title,
-          content,
-          status: "draft",
-          templateId: template.id,
-          entityId: entity.id,
-        },
-      })
+      if (existing) {
+        await prisma.pageVersion.create({
+          data: {
+            pageId: existing.id,
+            content: existing.content,
+          },
+        })
 
-      await prisma.pageVersion.create({
-        data: {
-          pageId: page.id,
-          content: page.content,
-        },
-      })
+        await prisma.generatedPage.update({
+          where: { id: existing.id },
+          data: {
+            title,
+            content,
+            status: existing.status,
+            templateId: template.id,
+            entityId: entity.id,
+          },
+        })
 
-      generatedCount += 1
-      console.log(`Generated draft page: ${slug}`)
+        regeneratedCount += 1
+        console.log(`Regenerated existing page: ${slug}`)
+      } else {
+        const page = await prisma.generatedPage.create({
+          data: {
+            slug,
+            title,
+            content,
+            status: "draft",
+            templateId: template.id,
+            entityId: entity.id,
+          },
+        })
+
+        await prisma.pageVersion.create({
+          data: {
+            pageId: page.id,
+            content: page.content,
+          },
+        })
+
+        generatedCount += 1
+        console.log(`Generated draft page: ${slug}`)
+      }
     }
   }
 
   console.log(
-    `Processed ${templates.length} templates. Generated ${generatedCount} draft pages and skipped ${skippedCount} existing pages.`,
+    `Processed ${templates.length} templates. Generated ${generatedCount} draft pages, regenerated ${regeneratedCount} existing pages, and skipped ${skippedCount} existing pages.`,
   )
 }
 

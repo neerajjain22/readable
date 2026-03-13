@@ -3,9 +3,31 @@ import { generateText } from "./services/llm.ts"
 type EntityInput = {
   name: string
   slug: string
+  metadata?: Record<string, unknown> | null
 }
 
-function buildPrompt(topic: string, sectionTitle: string, entity: EntityInput) {
+export type EntitySpecificityHints = {
+  preferredLabel: string
+  specificNouns: string[]
+  avoidGenericNouns: string[]
+}
+
+function buildPrompt(
+  topic: string,
+  sectionTitle: string,
+  entity: EntityInput,
+  specificityHints?: EntitySpecificityHints,
+) {
+  const specificNounLine =
+    specificityHints && specificityHints.specificNouns.length > 0
+      ? specificityHints.specificNouns.join(", ")
+      : "None provided"
+  const avoidGenericLine =
+    specificityHints && specificityHints.avoidGenericNouns.length > 0
+      ? specificityHints.avoidGenericNouns.join(", ")
+      : "None provided"
+  const preferredLabel = specificityHints?.preferredLabel || entity.name
+
   return `You are writing a long-form technical SEO guide in an expert-led voice.
 
 Topic:
@@ -16,6 +38,11 @@ ${sectionTitle}
 
 Entity:
 ${entity.name}
+
+Specificity guidance:
+- Preferred entity label: ${preferredLabel}
+- Specific nouns to use where relevant: ${specificNounLine}
+- Generic nouns to avoid when a specific alternative exists: ${avoidGenericLine}
 
 Requirements:
 
@@ -31,6 +58,8 @@ Requirements:
 • Include one concise "Expert tip:" sentence with a practical implementation nuance
 • Where relevant, include natural contextual references (for example: "Read more about...") rather than keyword-stuffed anchor phrasing
 • Mention the entity naturally
+• Use concrete, domain-specific nouns (for example, role or audience names) rather than vague labels like "clients" or "businesses"
+• Include at least one specific noun from the specificity guidance when relevant to the section
 • Mention ChatGPT and AI agents where relevant
 • Avoid marketing hype and broad filler statements
 • Avoid repetition across sections
@@ -43,8 +72,9 @@ Requirements:
 export async function generateSectionContent(
   topic: string,
   sectionTitle: string,
-  entity: EntityInput
+  entity: EntityInput,
+  specificityHints?: EntitySpecificityHints,
 ) {
-  const prompt = buildPrompt(topic, sectionTitle, entity)
+  const prompt = buildPrompt(topic, sectionTitle, entity, specificityHints)
   return generateText([{ role: "user", content: prompt }], { temperature: 0.6 })
 }

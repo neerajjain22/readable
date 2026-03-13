@@ -4,15 +4,25 @@ export type ProgrammaticEntity = {
   metadata?: Record<string, unknown> | null
 }
 
+function getPreferredLabel(entity: ProgrammaticEntity) {
+  const value = entity.metadata?.preferredLabel
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value.trim()
+  }
+
+  return entity.name
+}
+
 function replaceTokens(input: string, entity: ProgrammaticEntity): string {
   const metadata = entity.metadata ?? {}
+  const preferredLabel = getPreferredLabel(entity)
 
   return input
-    .replaceAll("{entity}", entity.name)
-    .replaceAll("{ENTITY}", entity.name)
-    .replaceAll("{cms}", entity.name)
-    .replaceAll("{CMS}", entity.name)
-    .replaceAll("{name}", entity.name)
+    .replaceAll("{entity}", preferredLabel)
+    .replaceAll("{ENTITY}", preferredLabel)
+    .replaceAll("{cms}", preferredLabel)
+    .replaceAll("{CMS}", preferredLabel)
+    .replaceAll("{name}", preferredLabel)
     .replaceAll("{slug}", entity.slug)
     .replace(/\{meta\.([a-zA-Z0-9_]+)\}/g, (_, key: string) => {
       const value = metadata[key]
