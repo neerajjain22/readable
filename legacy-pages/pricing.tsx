@@ -15,7 +15,7 @@ const plans = [
       "Community support",
     ],
     ctaLabel: "Start Free",
-    ctaHref: "/platform/ai-visibility",
+    ctaHref: "https://growth.tryreadable.ai/",
     note: "",
     featured: false,
   },
@@ -192,7 +192,7 @@ export default function PricingPage() {
             <div className={styles.ctaShell}>
               <h2 className={styles.sectionTitle}>Ready to Understand Your AI Presence?</h2>
               <div className={styles.ctaActions}>
-                <Link href="/platform/ai-visibility" className={`btn btn-secondary ${styles.secondaryButton}`}>
+                <Link href="https://growth.tryreadable.ai/" className={`btn btn-secondary ${styles.secondaryButton}`}>
                   Start Free
                 </Link>
                 <Link href="/book-demo" className={`btn btn-primary ${styles.primaryButton}`}>

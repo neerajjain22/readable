@@ -4,57 +4,111 @@
 }
 
 .section {
-  padding: 120px 0 80px;
+  padding: 120px 0 88px;
 }
 
 .container {
-  max-width: 960px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 32px;
 }
 
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 500px);
+  align-items: start;
+  gap: 42px;
+}
+
 .title {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  line-height: 1.1;
+  color: #0c2349;
+  font-size: clamp(2.5rem, 5.5vw, 5.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  margin: 14px 0 28px;
-  color: var(--color-text-body);
-  max-width: 65ch;
+  margin: 28px 0 0;
+  max-width: 24ch;
+  color: #334155;
+  font-size: clamp(1.5rem, 2.2vw, 2.8rem);
+  line-height: 1.32;
 }
 
 .card {
+  margin-top: 34px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 18px;
+  border-radius: 28px;
+  padding: 16px;
   background: var(--color-bg-default);
+  max-width: 640px;
 }
 
 .formRow {
-  display: flex;
+  display: grid;
   gap: 12px;
-  flex-wrap: wrap;
+}
+
+.inputWrap {
+  position: relative;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 29px;
+  opacity: 0.8;
 }
 
 .input {
-  flex: 1;
-  min-width: 280px;
+  width: 100%;
+  min-height: 106px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 11px 12px;
+  border-radius: 18px;
+  padding: 0 24px 0 76px;
+  font-size: clamp(1.2rem, 2.2vw, 2.6rem);
+  color: #111827;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
+}
+
+.input::placeholder {
+  color: #6b7280;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.2);
+}
+
+.actionButton {
+  min-height: 68px;
+  padding: 0 34px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.microcopy {
+  margin: 8px 8px 2px;
+  color: #6b7280;
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+  line-height: 1.4;
 }
 
 .error {
-  margin: 12px 0 0;
+  margin: 10px 8px 0;
   color: #b91c1c;
 }
 
 .progressCard {
-  margin-top: 18px;
+  margin-top: 16px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 16px;
   background: var(--color-bg-light);
   padding: 16px;
 }
@@ -122,6 +176,76 @@
   font-size: 0.9rem;
 }
 
+.heroVisualShell {
+  margin-top: 10px;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(circle at 30% 80%, rgba(99, 102, 241, 0.1), transparent 60%),
+    #f8fafc;
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.heroVisualPanel {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  box-shadow: var(--shadow-elevated);
+  background: #ffffff;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  transform: perspective(1000px) rotateY(-3deg) translateY(-2px);
+  transform-origin: center;
+}
+
+.heroVisualCard {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px;
+  min-width: 0;
+  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.45);
+}
+
+.visualLabel {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.visualText {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.visualScore {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.visualBarTrack {
+  margin-top: 10px;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.visualBarFill {
+  width: 74%;
+  height: 100%;
+  background: var(--color-accent);
+}
+
 @keyframes indeterminate-slide {
   0% {
     transform: translateX(-110%);
@@ -132,12 +256,46 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .subtitle {
+    max-width: 32ch;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 20px;
   }
 
   .section {
-    padding-top: 98px;
+    padding-top: 96px;
+  }
+
+  .card {
+    border-radius: 24px;
+  }
+
+  .input {
+    min-height: 72px;
+    border-radius: 14px;
+    padding-left: 56px;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  }
+
+  .inputIcon {
+    left: 16px;
+    font-size: 18px;
+  }
+
+  .actionButton {
+    width: 100%;
+  }
+
+  .heroVisualPanel {
+    transform: none;
   }
 }

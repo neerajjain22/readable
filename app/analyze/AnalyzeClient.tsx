@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { pushDataLayerEvent } from "../../components/analytics/GlobalGtmClickTracker"
 import styles from "./page.module.css"
+import pageStyles from "../../styles/Page.module.css"
 
 type GenerateResponse = {
   success: boolean
@@ -138,25 +139,47 @@ export default function AnalyzeClient({
   }, [initialDomain, forceRefresh])
 
   return (
-    <div className={styles.card}>
-      <div className={styles.formRow}>
-        <input
-          type="url"
-          value={domain}
-          onChange={(event) => setDomain(event.target.value)}
-          placeholder="Enter your website URL"
-          className={styles.input}
-          aria-label="Website URL"
-          disabled={running}
-        />
+    <div
+      style={{
+        marginTop: "32px",
+        border: "1px solid var(--color-border)",
+        borderRadius: "var(--radius-lg)",
+        padding: "12px",
+        background: "var(--color-bg-default)",
+        maxWidth: "640px",
+      }}
+    >
+      <div className={pageStyles.heroAnalyzeStack}>
+        <div className={pageStyles.analyzeInputWrap}>
+          <span className={pageStyles.analyzeInputIcon} aria-hidden="true">
+            🌐
+          </span>
+          <input
+            type="url"
+            value={domain}
+            onChange={(event) => setDomain(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault()
+                void startAnalysis(domain, forceRefresh)
+              }
+            }}
+            placeholder="Type your website URL here (e.g. hubspot.com)"
+            aria-label="Website URL"
+            className={`${pageStyles.searchInput} ${pageStyles.analyzeInput}`}
+            disabled={running}
+            autoFocus
+          />
+        </div>
         <button
           type="button"
-          className="btn btn-primary"
+          className={`btn btn-primary ${pageStyles.analyzeButton}`}
           onClick={() => void startAnalysis(domain, forceRefresh)}
           disabled={running}
         >
-          {running ? "Analyzing..." : "Generate Report"}
+          {running ? "Analyzing..." : "Get My Free Report"}
         </button>
+        <p className={pageStyles.heroMicrocopy}>Most brands are surprised by what AI says about them.</p>
       </div>
 
       {error ? <p className={styles.error}>{error}</p> : null}

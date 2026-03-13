@@ -121,8 +121,8 @@ export default function Header() {
             <Link href="https://growth.tryreadable.ai/" className="btn btn-secondary">
               Sign up
             </Link>
-            <Link href="/book-demo" className="btn btn-primary">
-              Book a Demo
+            <Link href="/analyze" className="btn btn-primary">
+              Free AI Audit
             </Link>
           </div>
 
@@ -168,8 +168,8 @@ export default function Header() {
               ) : null}
             </div>
           ))}
-          <Link href="/book-demo" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
-            Book a Demo
+          <Link href="/analyze" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
+            Free AI Audit
           </Link>
         </nav>
       </div>
