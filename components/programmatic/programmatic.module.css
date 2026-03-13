@@ -190,8 +190,66 @@
   color: var(--color-text-body);
 }
 
+.authorBlock {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #fbfcff;
+}
+
+.authorBlockTitle {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.authorGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.authorCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  background: #ffffff;
+}
+
+.authorRole {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.authorName {
+  margin: 6px 0 6px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.authorBio {
+  margin: 0 0 8px;
+  color: var(--color-text-body);
+}
+
+.authorLink {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.authorLink:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 1024px) {
   .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .authorGrid {
     grid-template-columns: 1fr;
   }
 }

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import MdxRenderer from "../../../../components/programmatic/MdxRenderer"
 import styles from "../../../../components/programmatic/programmatic.module.css"
 import { PAGE_STATUS } from "../../../../lib/programmatic/constants"
+import { getCollectionSlug } from "../../../../lib/programmatic/collections"
 import {
   getGeneratedPageById,
   saveGeneratedPageContent,
@@ -37,9 +38,11 @@ async function saveContentAction(formData: FormData) {
     return
   }
 
-  await saveGeneratedPageContent(pageId, content, PAGE_STATUS.REVIEW)
+  const page = await saveGeneratedPageContent(pageId, content, PAGE_STATUS.REVIEW)
   revalidatePath(`/admin/programmatic/${pageId}`)
   revalidatePath("/admin/programmatic")
+  revalidatePath(`/guides/${page.slug}`)
+  revalidatePath("/guides")
 }
 
 async function transitionStatusAction(formData: FormData) {
@@ -57,9 +60,21 @@ async function transitionStatusAction(formData: FormData) {
     return
   }
 
+  const existingPage = await getGeneratedPageById(pageId)
+  if (!existingPage) {
+    return
+  }
+
   await updateGeneratedPageStatus(pageId, status as PageStatus)
   revalidatePath(`/admin/programmatic/${pageId}`)
   revalidatePath("/admin/programmatic")
+  revalidatePath(`/guides/${existingPage.slug}`)
+  revalidatePath("/guides")
+
+  const collectionSlug = getCollectionSlug(existingPage.template, {
+    platformToken: existingPage.entity.type || "platform",
+  })
+  revalidatePath(`/guides/${collectionSlug}`)
 }
 
 export default async function ProgrammaticPreviewPage({ params }: RouteParams) {

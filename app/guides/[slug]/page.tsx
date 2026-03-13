@@ -21,6 +21,7 @@ import {
 import { getCollectionIntro, getCollectionSlug, getCollectionSlugFromPattern, getCollectionTitle } from "../../../lib/programmatic/collections"
 import { PAGE_STATUS } from "../../../lib/programmatic/constants"
 import { getGuideBySlug } from "../../../lib/guides"
+import { getAuthorPairForGuideSlug } from "../../../lib/programmatic/authors"
 import { renderMdx } from "../../../lib/mdx/renderMdx"
 import { prisma } from "../../../lib/prisma"
 import pageStyles from "../../../components/programmatic/programmatic.module.css"
@@ -32,7 +33,7 @@ import {
 } from "../../../lib/programmatic/repository"
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.tryreadable.ai"
-export const dynamic = "force-dynamic"
+export const revalidate = 86400
 
 type RouteParams = {
   params: { slug: string }
@@ -208,6 +209,7 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
     const headings = extractLevelTwoHeadings(page.content)
     const summaryHeadings = getSummaryPoints(headings, 4)
     const sections = splitGuideSections(page.content)
+    const authorProfiles = getAuthorPairForGuideSlug(page.slug)
     const formattedDate = new Date(page.updatedAt).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -219,6 +221,7 @@ export default async function ProgrammaticGuidePage({ params }: RouteParams) {
         title={getDisplayGuideTitle(page.title, page.entity.name)}
         author="Readable Team"
         lastUpdated={formattedDate}
+        authorProfiles={authorProfiles}
       >
         <GuideSummary headings={summaryHeadings} />
         <div className={pageStyles.contentGrid}>
