@@ -99,4 +99,5 @@ model AiVisibilityReport {
   lastAnalyzedAt      DateTime
 
   @@index([companySlug])
+  @@index([status, updatedAt])
 }
