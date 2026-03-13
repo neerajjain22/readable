@@ -6,7 +6,7 @@ import { prisma } from "../lib/prisma"
 import { PAGE_STATUS, CONTENT_TYPE } from "../lib/programmatic/constants"
 
 const BASE_URL = "https://www.tryreadable.ai"
-export const dynamic = "force-dynamic"
+export const revalidate = 86400
 
 const staticRoutes = [
   "",

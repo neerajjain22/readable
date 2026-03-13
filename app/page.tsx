@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import HomePage from "../legacy-pages/index"
 import { getRecentCompletedReports } from "../lib/ai-visibility/repository"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 export const metadata: Metadata = {
   title: "Readable | AI Influence & Agent Analytics Platform",
