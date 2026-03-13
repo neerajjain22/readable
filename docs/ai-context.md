@@ -72,6 +72,7 @@ DB helper:
   - `lib/ai-visibility/repository.ts`
   - `lib/ai/prompts/*`
   - `lib/ai-visibility/llm.ts` (thin wrapper over shared `lib/services/llm.ts` using Anthropic SDK)
+  - `lib/services/llm.ts` adds centralized timeout/retry/jitter behavior for LLM requests
 
 Legacy removed APIs:
 - `app/api/request-case-study/route.ts`
@@ -116,6 +117,8 @@ AI visibility:
   - heartbeat updates to keep active processing fresh
   - recoverability through `/api/ai-visibility/process`
   - periodic processing via Vercel cron (`vercel.json`)
+  - `AiVisibilityReport` supports queue-friendly lookup via `(status, updatedAt)` index
+  - ai-search metadata uses lightweight query text lookup by `querySlug` to avoid duplicate heavy fetches
 
 ## Programmatic + Internal Linking Workflows
 - Generator creates draft pages section-by-section with LLM.
@@ -135,6 +138,12 @@ AI visibility:
   - `ADMIN_BASIC_AUTH_USER`
   - `ADMIN_BASIC_AUTH_PASS`
 - Programmatic/admin pages should remain noindex unless published.
+
+## Caching Notes
+- ISR windows:
+  - `/` revalidate: 300 seconds
+  - `/guides` revalidate: 3600 seconds
+  - `/sitemap.xml` revalidate: 86400 seconds
 
 ## Coding Rules For Future AI Sessions
 - Respect existing architecture and route map.

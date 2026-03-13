@@ -96,6 +96,7 @@ Case studies:
 - `InternalLinkTarget`
 - `InternalLinkKeyword`
 - `AiVisibilityReport`
+  - includes indexes on `companySlug` and `(status, updatedAt)` for report queue claim efficiency
 
 ## AI Visibility System
 - Analyze entry point: `/analyze`
@@ -120,6 +121,7 @@ UX + durability behavior:
 - Active generation rows are heartbeat-updated to avoid stale false-failures.
 - Background processor endpoint (`/api/ai-visibility/process`) can recover stale/incomplete work.
 - Vercel cron (`vercel.json`) triggers processor endpoint periodically.
+- Shared LLM client (`lib/services/llm.ts`) applies centralized request timeout + bounded retries with jitter.
 
 ## Programmatic SEO Pipeline
 1. Load templates + entities
@@ -134,6 +136,10 @@ UX + durability behavior:
 - Published programmatic pages are indexable
 - TOC and guide summary are derived from headings
 - Internal links are expected to be persisted in stored MDX (not runtime-injected)
+- ISR windows:
+  - `/` revalidates every 300 seconds
+  - `/guides` revalidates every 3600 seconds
+  - `/sitemap.xml` revalidates every 86400 seconds
 
 ## Security
 - `middleware.ts` protects:

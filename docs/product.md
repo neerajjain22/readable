@@ -40,6 +40,10 @@ The platform analyzes AI-generated responses about brands and turns that into vi
 - AI visibility evidence pipeline (category, competitors, buyer/comparison queries, response evidence)
 - AI visibility processing/status APIs with async generation lifecycle
 - AI visibility background processor endpoint + cron-driven recovery
+- AI visibility queue scalability index on report processing fields (`status`, `updatedAt`)
+- Shared LLM reliability guardrails (timeout + bounded retries + jitter)
+- AI search query page metadata path optimized for lightweight DB reads
+- ISR-based caching for high-traffic routes (`/`, `/guides`, `/sitemap.xml`) to reduce repeated DB load
 
 ## Current Development Focus
 Programmatic SEO + AI visibility intelligence:

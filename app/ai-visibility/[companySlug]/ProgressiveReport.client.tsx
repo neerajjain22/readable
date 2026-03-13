@@ -460,7 +460,7 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
             {hasValidLastAnalyzedDate ? ` · Last analyzed: ${formatDate(report.lastAnalyzedAt)}` : ""}
           </p>
           <div className={styles.heroCtas}>
-            <ReportActions />
+            <ReportActions reportId={report.id} reportStatus={status} companySlug={report.companySlug} />
             <Link href="/book-demo" className="btn btn-primary">
               Book AI visibility audit
             </Link>

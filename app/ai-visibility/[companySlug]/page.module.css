@@ -97,13 +97,32 @@
 
 .copyWrap {
   display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.actionRow {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actionDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .copyFeedback {
   font-size: 0.9rem;
   color: #166534;
+  font-weight: 600;
+}
+
+.copyFeedbackError {
+  font-size: 0.9rem;
+  color: #991b1b;
   font-weight: 600;
 }
 

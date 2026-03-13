@@ -8,6 +8,8 @@ Key env vars:
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_URL`
 - `ANTHROPIC_API_KEY`
+- `LLM_REQUEST_TIMEOUT_MS` (optional, default `15000`)
+- `LLM_MAX_RETRIES` (optional, default `1`, max `3`)
 - `AI_VISIBILITY_PROCESS_SECRET` (or `CRON_SECRET`)
 - `AI_VISIBILITY_HEARTBEAT_MS` (optional override)
 - `AI_VISIBILITY_PROCESSING_STALE_SECONDS` (optional override)
@@ -84,3 +86,8 @@ npm run ai-visibility:backfill
   - `/api/ai-visibility/process` is intended for background recovery/processing.
   - In production, Vercel cron should call `/api/ai-visibility/process?limit=1`.
   - AI visibility LLM uses Claude Sonnet via Anthropic SDK.
+- Rendering/cache:
+  - `/` uses ISR (`revalidate = 300`)
+  - `/guides` uses ISR (`revalidate = 3600`)
+  - `/sitemap.xml` uses ISR (`revalidate = 86400`)
+  - Because these pages are prerendered/revalidated, `npm run build` needs DB connectivity for DB-backed routes during prerender.
