@@ -392,6 +392,39 @@ type AiSearchSlugRow = {
   querySlug: string
 }
 
+type AiSearchQueryTextRow = {
+  queryText: string
+}
+
+export async function getAiSearchQueryTextBySlug(querySlug: string): Promise<string | null> {
+  const slug = querySlug.trim()
+  if (!slug) {
+    return null
+  }
+
+  const rows = await prisma.$queryRaw<AiSearchQueryTextRow[]>`
+    SELECT elem->>'query' AS "queryText"
+    FROM "AiVisibilityReport" r,
+      LATERAL jsonb_array_elements(COALESCE(r."buyerQueries"::jsonb, '[]'::jsonb)) elem
+    WHERE r.status = ${AI_VISIBILITY_STATUS.COMPLETED}
+      AND elem->>'querySlug' = ${slug}
+      AND elem ? 'query'
+      AND length(elem->>'query') > 0
+    UNION ALL
+    SELECT elem->>'query' AS "queryText"
+    FROM "AiVisibilityReport" r,
+      LATERAL jsonb_array_elements(COALESCE(r."comparisonQueries"::jsonb, '[]'::jsonb)) elem
+    WHERE r.status = ${AI_VISIBILITY_STATUS.COMPLETED}
+      AND elem->>'querySlug' = ${slug}
+      AND elem ? 'query'
+      AND length(elem->>'query') > 0
+    LIMIT 1
+  `
+
+  const queryText = rows[0]?.queryText?.trim()
+  return queryText ? queryText : null
+}
+
 export async function getCompletedAiSearchQuerySlugs(limit = 5000) {
   const rows = await prisma.$queryRaw<AiSearchSlugRow[]>`
     SELECT DISTINCT elem->>'querySlug' AS "querySlug"

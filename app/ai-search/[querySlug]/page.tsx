@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getAiSearchPageDataByQuerySlug } from "../../../lib/ai-visibility/repository"
+import { getAiSearchPageDataByQuerySlug, getAiSearchQueryTextBySlug } from "../../../lib/ai-visibility/repository"
 import { aggregateAttributeMentions, aggregateBrandVisibility, normalizeQueryRecords, toPercent } from "../../../lib/ai-visibility/view-model"
 import styles from "./page.module.css"
 
@@ -12,15 +12,13 @@ type PageProps = {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const pageData = await getAiSearchPageDataByQuerySlug(params.querySlug)
-  if (!pageData) {
+  const query = await getAiSearchQueryTextBySlug(params.querySlug)
+  if (!query) {
     return {
       title: "AI Search Query",
       description: "AI visibility query page is not available.",
     }
   }
-
-  const query = pageData.queryText
 
   return {
     title: `How AI Answers: ${query}`,
