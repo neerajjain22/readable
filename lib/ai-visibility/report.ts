@@ -700,14 +700,52 @@ function toAssociationLabel(percent: number): "high" | "medium" | "low" {
   return "low"
 }
 
+function cleanResponseTextForDisplay(input: string) {
+  return input
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$1")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function truncateExcerpt(text: string, maxChars = 240) {
+  if (text.length <= maxChars) {
+    return text
+  }
+
+  const candidate = text.slice(0, maxChars + 1)
+  const sentenceBoundary = Math.max(candidate.lastIndexOf(". "), candidate.lastIndexOf("! "), candidate.lastIndexOf("? "))
+  if (sentenceBoundary >= Math.floor(maxChars * 0.6)) {
+    return `${candidate.slice(0, sentenceBoundary + 1).trim()}`
+  }
+
+  const wordBoundary = candidate.lastIndexOf(" ")
+  if (wordBoundary >= Math.floor(maxChars * 0.6)) {
+    return `${candidate.slice(0, wordBoundary).trim()}…`
+  }
+
+  return `${candidate.slice(0, maxChars).trim()}…`
+}
+
 function extractExcerpt(response: string, brand: string) {
+  const cleaned = cleanResponseTextForDisplay(response)
+  if (!cleaned) {
+    return ""
+  }
+
   const normalizedBrand = normalizeForMatch(brand)
-  const sentences = response.split(/(?<=[.!?])\s+/).filter(Boolean)
+  const sentences = cleaned.split(/(?<=[.!?])\s+/).filter(Boolean)
 
   const best =
-    sentences.find((sentence) => normalizeForMatch(sentence).includes(normalizedBrand)) || sentences[0] || response
+    sentences.find((sentence) => normalizeForMatch(sentence).includes(normalizedBrand)) || sentences[0] || cleaned
 
-  return best.slice(0, 220)
+  return truncateExcerpt(best)
 }
 
 function detectAttributeMentions(response: string, attributes: string[]) {
@@ -1305,8 +1343,10 @@ async function runPipeline(
     companyName,
     category: categoryResult.category,
   })
-  const initialCompetitors = await discoverCompetitors(categoryResult.category, companyName, companyContext)
-  const initialAttributes = await extractAttributes(categoryResult.category)
+  const [initialCompetitors, initialAttributes] = await Promise.all([
+    discoverCompetitors(categoryResult.category, companyName, companyContext),
+    extractAttributes(categoryResult.category),
+  ])
   logStep("runPipeline", `category=${categoryResult.category}, initialCompetitors=${initialCompetitors.length}, initialAttributes=${initialAttributes.length}`)
 
   const buyerQueries = await generateBuyerQueries(categoryResult.category, companyContext)
@@ -1317,20 +1357,22 @@ async function runPipeline(
     comparisonQueries: buildInitialQueryRows(comparisonQueries),
   })
 
-  const buyerEvidence = await collectAiResponses(
-    categoryResult.category,
-    companyName,
-    initialCompetitors,
-    initialAttributes,
-    buyerQueries,
-  )
-  const comparisonEvidence = await collectAiResponses(
-    categoryResult.category,
-    companyName,
-    initialCompetitors,
-    initialAttributes,
-    comparisonQueries,
-  )
+  const [buyerEvidence, comparisonEvidence] = await Promise.all([
+    collectAiResponses(
+      categoryResult.category,
+      companyName,
+      initialCompetitors,
+      initialAttributes,
+      buyerQueries,
+    ),
+    collectAiResponses(
+      categoryResult.category,
+      companyName,
+      initialCompetitors,
+      initialAttributes,
+      comparisonQueries,
+    ),
+  ])
   logStep("runPipeline", `responses collected buyer=${buyerEvidence.length}, comparison=${comparisonEvidence.length}`)
   await persistStage("responses", {
     buyerQueries: buyerEvidence.map((item) => ({
@@ -1367,7 +1409,7 @@ async function runPipeline(
 
   const fallbackSample = {
     query: buyerEvidence[0]?.query || "",
-    excerpt: buyerEvidence[0]?.response?.slice(0, 220) || "",
+    excerpt: extractExcerpt(buyerEvidence[0]?.response || "", companyName),
   }
 
   while (aiResponseSamples.length < 3 && fallbackSample.query) {
@@ -1433,11 +1475,13 @@ async function runPipeline(
   const targetComparisonMentions = comparisonEvidence.filter((item) => item.targetMentioned).length
 
   const targetAttributes = await detectAttributeAssociations("__target__", attributes, allEvidence)
-  const competitorAttributes = await Promise.all(
-    finalizedCompetitors.map(async (brand) => ({
+  const competitorAttributes = await mapWithConcurrency(
+    finalizedCompetitors,
+    SAFE_ATTRIBUTE_ASSOCIATION_CONCURRENCY,
+    async (brand) => ({
       brand,
       attributes: await detectAttributeAssociations(brand, attributes, allEvidence),
-    })),
+    }),
   )
 
   const competitorVisibility: CompetitorVisibilityItem[] = [companyName, ...finalizedCompetitors].map((brand) => {
@@ -1498,24 +1542,15 @@ async function runPipeline(
     visibilityScore,
   })
 
-  let insightsResponse: { insights?: string[] } | string[] = []
-  let opportunitiesResponse: { opportunities?: string[] } | string[] = []
-  let recommendationsResponse: { recommendations?: string[] } | string[] = []
-
-  try {
-    insightsResponse = await generateJson<{ insights?: string[] } | string[]>([
+  const [insightsResult, opportunitiesResult, recommendationsResult] = await Promise.allSettled([
+    generateJson<{ insights?: string[] } | string[]>([
       { role: "system", content: INSIGHT_GENERATION_SYSTEM_PROMPT },
       {
         role: "user",
         content: buildInsightGenerationUserPrompt(companyName, finalizedCompetitors, buyerEvidence, comparisonEvidence),
       },
-    ])
-  } catch (error) {
-    logStep("insightGeneration", "fallback insights applied", error)
-  }
-
-  try {
-    opportunitiesResponse = await generateJson<{ opportunities?: string[] } | string[]>([
+    ]),
+    generateJson<{ opportunities?: string[] } | string[]>([
       { role: "system", content: OPPORTUNITY_GENERATION_SYSTEM_PROMPT },
       {
         role: "user",
@@ -1525,13 +1560,8 @@ async function runPipeline(
           comparisonEvidence,
         }),
       },
-    ])
-  } catch (error) {
-    logStep("opportunityGeneration", "fallback opportunities applied", error)
-  }
-
-  try {
-    recommendationsResponse = await generateJson<{ recommendations?: string[] } | string[]>([
+    ]),
+    generateJson<{ recommendations?: string[] } | string[]>([
       { role: "system", content: RECOMMENDATION_GENERATION_SYSTEM_PROMPT },
       {
         role: "user",
@@ -1541,9 +1571,26 @@ async function runPipeline(
           targetAttributes,
         }),
       },
-    ])
-  } catch (error) {
-    logStep("recommendationGeneration", "fallback recommendations applied", error)
+    ]),
+  ])
+
+  const insightsResponse: { insights?: string[] } | string[] =
+    insightsResult.status === "fulfilled" ? insightsResult.value : []
+  const opportunitiesResponse: { opportunities?: string[] } | string[] =
+    opportunitiesResult.status === "fulfilled" ? opportunitiesResult.value : []
+  const recommendationsResponse: { recommendations?: string[] } | string[] =
+    recommendationsResult.status === "fulfilled" ? recommendationsResult.value : []
+
+  if (insightsResult.status === "rejected") {
+    logStep("insightGeneration", "fallback insights applied", insightsResult.reason)
+  }
+
+  if (opportunitiesResult.status === "rejected") {
+    logStep("opportunityGeneration", "fallback opportunities applied", opportunitiesResult.reason)
+  }
+
+  if (recommendationsResult.status === "rejected") {
+    logStep("recommendationGeneration", "fallback recommendations applied", recommendationsResult.reason)
   }
 
   const insights = parseListFromObjectOrArray(insightsResponse, "insights", 3)
@@ -1583,6 +1630,7 @@ async function runPipeline(
   })
 
   const relatedGuides = buildRelatedGuides(categoryResult.category)
+  const allQueryEvidence = allEvidence
   const buildRelatedQueryLinks = (all: QueryEvidence[], currentSlug: string) =>
     all
       .filter((item) => item.querySlug !== currentSlug)
@@ -1603,7 +1651,7 @@ async function runPipeline(
       responseExcerpt: item.responseExcerpt,
       brandVisibility: buildQueryVisibilitySnapshot(item, companyName, finalizedCompetitors),
       attributeMentions: buildQueryAttributeSnapshot(item, attributes),
-      relatedQueries: buildRelatedQueryLinks([...buyerEvidence, ...comparisonEvidence], item.querySlug),
+      relatedQueries: buildRelatedQueryLinks(allQueryEvidence, item.querySlug),
       relatedGuides,
     })),
     comparisonQueries: comparisonEvidence.map((item) => ({
@@ -1613,7 +1661,7 @@ async function runPipeline(
       responseExcerpt: item.responseExcerpt,
       brandVisibility: buildQueryVisibilitySnapshot(item, companyName, finalizedCompetitors),
       attributeMentions: buildQueryAttributeSnapshot(item, attributes),
-      relatedQueries: buildRelatedQueryLinks([...buyerEvidence, ...comparisonEvidence], item.querySlug),
+      relatedQueries: buildRelatedQueryLinks(allQueryEvidence, item.querySlug),
       relatedGuides,
     })),
     perceptionEvidence: {

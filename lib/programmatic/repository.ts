@@ -132,9 +132,18 @@ export async function getPublishedPagesWithTemplateAndEntity() {
     where: {
       status: PAGE_STATUS.PUBLISHED,
     },
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      createdAt: true,
+      templateId: true,
       template: true,
-      entity: true,
+      entity: {
+        select: {
+          type: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

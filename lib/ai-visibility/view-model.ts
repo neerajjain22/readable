@@ -31,6 +31,48 @@ export type QueryRecord = {
   relatedGuides: Array<{ title: string; href: string }>
 }
 
+function cleanResponseTextForDisplay(input: string) {
+  return input
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "$1")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function truncateExcerpt(text: string, maxChars = 240) {
+  if (text.length <= maxChars) {
+    return text
+  }
+
+  const candidate = text.slice(0, maxChars + 1)
+  const sentenceBoundary = Math.max(candidate.lastIndexOf(". "), candidate.lastIndexOf("! "), candidate.lastIndexOf("? "))
+  if (sentenceBoundary >= Math.floor(maxChars * 0.6)) {
+    return `${candidate.slice(0, sentenceBoundary + 1).trim()}`
+  }
+
+  const wordBoundary = candidate.lastIndexOf(" ")
+  if (wordBoundary >= Math.floor(maxChars * 0.6)) {
+    return `${candidate.slice(0, wordBoundary).trim()}…`
+  }
+
+  return `${candidate.slice(0, maxChars).trim()}…`
+}
+
+function sanitizeResponseExcerpt(input: string) {
+  const cleaned = cleanResponseTextForDisplay(input)
+  if (!cleaned) {
+    return ""
+  }
+
+  return truncateExcerpt(cleaned)
+}
+
 export function toPercent(value: number) {
   return `${Math.max(0, Math.min(100, Math.round(value)))}%`
 }
@@ -67,7 +109,7 @@ export function parseResponseSamples(raw: unknown): ResponseSample[] {
       if (!item || typeof item !== "object") return null
       const row = item as { query?: unknown; excerpt?: unknown }
       if (typeof row.query !== "string" || typeof row.excerpt !== "string") return null
-      return { query: row.query, excerpt: row.excerpt }
+      return { query: row.query, excerpt: sanitizeResponseExcerpt(row.excerpt) }
     })
     .filter((item): item is ResponseSample => Boolean(item))
 }
@@ -233,7 +275,7 @@ export function normalizeQueryRecords(raw: unknown): QueryRecord[] {
       return {
         query: row.query,
         querySlug,
-        responseExcerpt: typeof row.responseExcerpt === "string" ? row.responseExcerpt : "",
+        responseExcerpt: typeof row.responseExcerpt === "string" ? sanitizeResponseExcerpt(row.responseExcerpt) : "",
         brandVisibility,
         attributeMentions,
         relatedQueries,

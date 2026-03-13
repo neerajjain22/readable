@@ -1,4 +1,5 @@
 import { prisma } from "../prisma"
+import type { Prisma } from "@prisma/client"
 
 export const AI_VISIBILITY_STATUS = {
   PROCESSING: "processing",
@@ -291,4 +292,123 @@ export async function getCompletedReportSlugs(limit = 1000) {
   })
 
   return rows.map((row) => row.companySlug)
+}
+
+export type AiSearchQueryRecord = {
+  query: string
+  querySlug: string
+  responseExcerpt: string
+  brandVisibility: Prisma.JsonValue
+  attributeMentions: Prisma.JsonValue
+  relatedQueries: Prisma.JsonValue
+  relatedGuides: Prisma.JsonValue
+}
+
+export type AiSearchPageData = {
+  queryText: string
+  records: AiSearchQueryRecord[]
+  reportCategories: string[]
+  availableReportSlugs: string[]
+}
+
+type AiSearchQueryRow = {
+  companySlug: string
+  category: string | null
+  row: Prisma.JsonValue
+}
+
+export async function getAiSearchPageDataByQuerySlug(querySlug: string): Promise<AiSearchPageData | null> {
+  const slug = querySlug.trim()
+  if (!slug) {
+    return null
+  }
+
+  const rows = await prisma.$queryRaw<AiSearchQueryRow[]>`
+    SELECT
+      r."companySlug" AS "companySlug",
+      r.category AS category,
+      q.row AS row
+    FROM "AiVisibilityReport" r
+    CROSS JOIN LATERAL (
+      SELECT elem AS row
+      FROM jsonb_array_elements(COALESCE(r."buyerQueries"::jsonb, '[]'::jsonb)) elem
+      WHERE elem->>'querySlug' = ${slug}
+      UNION ALL
+      SELECT elem AS row
+      FROM jsonb_array_elements(COALESCE(r."comparisonQueries"::jsonb, '[]'::jsonb)) elem
+      WHERE elem->>'querySlug' = ${slug}
+    ) q
+    WHERE r.status = ${AI_VISIBILITY_STATUS.COMPLETED}
+  `
+
+  if (rows.length === 0) {
+    return null
+  }
+
+  const records = rows.reduce<AiSearchQueryRecord[]>((acc, item) => {
+    const row = item.row as Record<string, unknown>
+    const query = typeof row.query === "string" ? row.query : ""
+    const rowQuerySlug = typeof row.querySlug === "string" ? row.querySlug : ""
+
+    if (!query || !rowQuerySlug) {
+      return acc
+    }
+
+    acc.push({
+      query,
+      querySlug: rowQuerySlug,
+      responseExcerpt: typeof row.responseExcerpt === "string" ? row.responseExcerpt : "",
+      brandVisibility: (row.brandVisibility as Prisma.JsonValue) ?? [],
+      attributeMentions: (row.attributeMentions as Prisma.JsonValue) ?? [],
+      relatedQueries: (row.relatedQueries as Prisma.JsonValue) ?? [],
+      relatedGuides: (row.relatedGuides as Prisma.JsonValue) ?? [],
+    })
+
+    return acc
+  }, [])
+
+  if (records.length === 0) {
+    return null
+  }
+
+  const availableReportSlugs = Array.from(new Set(rows.map((item) => item.companySlug).filter(Boolean)))
+  const reportCategories = Array.from(
+    new Set(
+      rows
+        .map((item) => (item.category || "").trim())
+        .filter(Boolean),
+    ),
+  )
+
+  return {
+    queryText: records[0].query,
+    records,
+    reportCategories,
+    availableReportSlugs,
+  }
+}
+
+type AiSearchSlugRow = {
+  querySlug: string
+}
+
+export async function getCompletedAiSearchQuerySlugs(limit = 5000) {
+  const rows = await prisma.$queryRaw<AiSearchSlugRow[]>`
+    SELECT DISTINCT elem->>'querySlug' AS "querySlug"
+    FROM "AiVisibilityReport" r,
+      LATERAL jsonb_array_elements(COALESCE(r."buyerQueries"::jsonb, '[]'::jsonb)) elem
+    WHERE r.status = ${AI_VISIBILITY_STATUS.COMPLETED}
+      AND elem ? 'querySlug'
+      AND length(elem->>'querySlug') > 0
+    UNION
+    SELECT DISTINCT elem->>'querySlug' AS "querySlug"
+    FROM "AiVisibilityReport" r,
+      LATERAL jsonb_array_elements(COALESCE(r."comparisonQueries"::jsonb, '[]'::jsonb)) elem
+    WHERE r.status = ${AI_VISIBILITY_STATUS.COMPLETED}
+      AND elem ? 'querySlug'
+      AND length(elem->>'querySlug') > 0
+    LIMIT ${Math.max(1, Math.floor(limit))}
+  `
+
+  return rows.map((item) => item.querySlug).filter(Boolean)
 }

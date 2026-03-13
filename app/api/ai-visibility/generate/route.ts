@@ -35,9 +35,17 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to generate report right now."
     const lower = message.toLowerCase()
-    const statusCode = lower.includes("invalid domain") || lower.includes("required") ? 400 : 500
+    const missingAiConfig =
+      lower.includes("missing anthropic_api_key") ||
+      lower.includes("ai configuration error")
+    const statusCode =
+      lower.includes("invalid domain") || lower.includes("required") || missingAiConfig ? 400 : 500
     console.error(`[ai-visibility][${requestId}] generate route failed`, error)
 
-    return NextResponse.json({ success: false, error: message, requestId }, { status: statusCode })
+    const safeMessage = missingAiConfig
+      ? "AI provider is not configured. Please set ANTHROPIC_API_KEY in environment variables and restart the server."
+      : message
+
+    return NextResponse.json({ success: false, error: safeMessage, requestId }, { status: statusCode })
   }
 }

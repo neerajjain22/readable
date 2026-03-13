@@ -18,7 +18,25 @@ export const MODELS: Record<ModelName, string> = {
   haiku: "claude-haiku-4-5-20251001",
 }
 
-const client = new Anthropic()
+let cachedClient: Anthropic | null = null
+let cachedApiKey = ""
+
+function getAnthropicClient() {
+  const apiKey = (process.env.ANTHROPIC_API_KEY || "").trim()
+  if (!apiKey) {
+    throw new Error(
+      "AI configuration error: Missing ANTHROPIC_API_KEY. Add it to your environment variables and restart the server.",
+    )
+  }
+
+  if (cachedClient && cachedApiKey === apiKey) {
+    return cachedClient
+  }
+
+  cachedApiKey = apiKey
+  cachedClient = new Anthropic({ apiKey })
+  return cachedClient
+}
 
 export async function generateText(
   messages: ChatMessage[],
@@ -30,6 +48,7 @@ export async function generateText(
   const nonSystemMessages = messages.filter((m) => m.role !== "system")
   const systemText = systemMessages.map((m) => m.content).join("\n\n") || undefined
 
+  const client = getAnthropicClient()
   const response = await client.messages.create({
     model: MODELS[model],
     max_tokens: maxTokens,

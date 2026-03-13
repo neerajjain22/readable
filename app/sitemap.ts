@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getAllPosts } from "../lib/posts"
-import { getCompletedReportsWithQueryData, getRecentCompletedReports } from "../lib/ai-visibility/repository"
+import { getCompletedAiSearchQuerySlugs, getRecentCompletedReports } from "../lib/ai-visibility/repository"
 import { getPublishedProgrammaticPages } from "../lib/programmatic/repository"
 import { prisma } from "../lib/prisma"
 import { PAGE_STATUS, CONTENT_TYPE } from "../lib/programmatic/constants"
@@ -70,17 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   )
 
-  const queryPagesSource = await getCompletedReportsWithQueryData(600)
-  const querySlugs = Array.from(
-    new Set(
-      queryPagesSource.flatMap((report) => {
-        const rows = [...(Array.isArray(report.buyerQueries) ? report.buyerQueries : []), ...(Array.isArray(report.comparisonQueries) ? report.comparisonQueries : [])]
-        return rows
-          .map((row) => (row && typeof row === "object" ? (row as { querySlug?: unknown }).querySlug : ""))
-          .filter((slug): slug is string => typeof slug === "string" && slug.length > 0)
-      }),
-    ),
-  )
+  const querySlugs = await getCompletedAiSearchQuerySlugs(5000)
 
   const aiSearchEntries: MetadataRoute.Sitemap = querySlugs.map((querySlug) => ({
     url: `${BASE_URL}/ai-search/${querySlug}`,

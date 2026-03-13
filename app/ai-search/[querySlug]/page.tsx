@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getCompletedReportsWithQueryData } from "../../../lib/ai-visibility/repository"
+import { getAiSearchPageDataByQuerySlug } from "../../../lib/ai-visibility/repository"
 import { aggregateAttributeMentions, aggregateBrandVisibility, normalizeQueryRecords, toPercent } from "../../../lib/ai-visibility/view-model"
 import styles from "./page.module.css"
 
@@ -12,21 +12,15 @@ type PageProps = {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const reports = await getCompletedReportsWithQueryData(600)
-  const all = reports.flatMap((report) => [
-    ...normalizeQueryRecords(report.buyerQueries),
-    ...normalizeQueryRecords(report.comparisonQueries),
-  ])
-  const matches = all.filter((item) => item.querySlug === params.querySlug)
-
-  if (matches.length === 0) {
+  const pageData = await getAiSearchPageDataByQuerySlug(params.querySlug)
+  if (!pageData) {
     return {
       title: "AI Search Query",
       description: "AI visibility query page is not available.",
     }
   }
 
-  const query = matches[0].query
+  const query = pageData.queryText
 
   return {
     title: `How AI Answers: ${query}`,
@@ -36,28 +30,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function AiSearchQueryPage({ params }: PageProps) {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://tryreadable.ai").replace(/\/+$/, "")
-  const reports = await getCompletedReportsWithQueryData(600)
-  const availableReportSlugs = new Set(reports.map((report) => report.companySlug))
+  const pageData = await getAiSearchPageDataByQuerySlug(params.querySlug)
+  if (!pageData) {
+    notFound()
+  }
 
-  const allRecords = reports.flatMap((report) => [
-    ...normalizeQueryRecords(report.buyerQueries),
-    ...normalizeQueryRecords(report.comparisonQueries),
-  ])
-
-  const queryRecords = allRecords.filter((item) => item.querySlug === params.querySlug)
-
+  const queryRecords = normalizeQueryRecords(pageData.records)
   if (queryRecords.length === 0) {
     notFound()
   }
 
   const queryText = queryRecords[0].query
-  const relatedReportCategories = reports
-    .filter((report) => {
-      const records = [...normalizeQueryRecords(report.buyerQueries), ...normalizeQueryRecords(report.comparisonQueries)]
-      return records.some((item) => item.querySlug === params.querySlug)
-    })
-    .map((report) => report.category || "")
-    .filter(Boolean)
+  const relatedReportCategories = pageData.reportCategories
+  const availableReportSlugs = new Set(pageData.availableReportSlugs)
 
   const category = relatedReportCategories[0] || "software"
 
