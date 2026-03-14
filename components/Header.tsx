@@ -143,6 +143,9 @@ export default function Header() {
 
       <div id="mobile-menu" className={`${styles.mobilePanel} ${mobileOpen ? styles.mobilePanelOpen : ""}`}>
         <nav className={styles.mobileNav} aria-label="Mobile">
+          <Link href="/analyze" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
+            Free AI Audit
+          </Link>
           {navLinks.map((link) => (
             <div key={link.href} className={styles.mobileGroup}>
               <Link
@@ -152,25 +155,8 @@ export default function Header() {
               >
                 {link.label}
               </Link>
-              {link.items?.length ? (
-                <div className={styles.mobileSubNav}>
-                  {link.items.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`${styles.mobileSubLink} ${isActive(item.href) ? styles.navLinkActive : ""}`}
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
             </div>
           ))}
-          <Link href="/analyze" className="btn btn-primary" onClick={() => setMobileOpen(false)}>
-            Free AI Audit
-          </Link>
         </nav>
       </div>
     </header>
