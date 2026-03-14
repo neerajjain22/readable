@@ -570,6 +570,42 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
       <section className={styles.section}>
         <div className={styles.container}>
           <SectionState
+            title="AI Comparison Positioning"
+            complete={insights.length > 0}
+            failed={isFailed}
+            processingText="Generating positioning insights..."
+            skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
+          >
+            <ul className={styles.list}>
+              {insights.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
+            </ul>
+          </SectionState>
+        </div>
+      </section>
+
+      <section className={styles.sectionAlt}>
+        <div className={styles.container}>
+          <SectionState
+            title="Visibility Opportunities"
+            complete={opportunities.length > 0}
+            failed={isFailed}
+            processingText="Comparing missed recommendation conversations..."
+            skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
+          >
+            <ul className={styles.list}>
+              {opportunities.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
+            </ul>
+          </SectionState>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <SectionState
             title="Buyer Query Evidence"
             complete={buyerQueries.length > 0}
             failed={isFailed}
@@ -655,42 +691,6 @@ export default function ProgressiveReport({ initialReport }: { initialReport: Re
                 </tbody>
               </table>
             </div>
-          </SectionState>
-        </div>
-      </section>
-
-      <section className={styles.sectionAlt}>
-        <div className={styles.container}>
-          <SectionState
-            title="AI Comparison Positioning"
-            complete={insights.length > 0}
-            failed={isFailed}
-            processingText="Generating positioning insights..."
-            skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
-          >
-            <ul className={styles.list}>
-              {insights.map((item, index) => (
-                <li key={`${item}-${index}`}>{item}</li>
-              ))}
-            </ul>
-          </SectionState>
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <div className={styles.container}>
-          <SectionState
-            title="Visibility Opportunities"
-            complete={opportunities.length > 0}
-            failed={isFailed}
-            processingText="Comparing missed recommendation conversations..."
-            skeleton={<div className={`${styles.skeletonBlock} ${styles.skeletonText}`} />}
-          >
-            <ul className={styles.list}>
-              {opportunities.map((item, index) => (
-                <li key={`${item}-${index}`}>{item}</li>
-              ))}
-            </ul>
           </SectionState>
         </div>
       </section>
