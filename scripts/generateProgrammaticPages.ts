@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client"
 import { generateSectionContent, type EntitySpecificityHints } from "../lib/llm.ts"
 import { generateText } from "../lib/services/llm.ts"
+import { TOP_AI_QUESTIONS_SYSTEM_PROMPT, buildTopAiQuestionsUserPrompt } from "../lib/ai/prompts/topAiQuestions.ts"
 import { generateSlug } from "../lib/programmatic/generateSlug.ts"
 import { generateTitle } from "../lib/programmatic/generateContent.ts"
 import {
@@ -142,6 +143,74 @@ function normalizeStringArray(value: unknown) {
   }
 
   return result
+}
+
+function buildFallbackTopAiQuestions(entityName: string) {
+  return [
+    `What is the best ${entityName} platform?`,
+    `How do ${entityName} platforms work?`,
+    `${entityName} vs alternatives: what should buyers compare?`,
+    `What APIs do ${entityName} platforms provide?`,
+    `Which ${entityName} platforms support fintech integrations?`,
+  ]
+}
+
+function normalizeTopAiQuestions(raw: unknown, entityName: string) {
+  let candidateQuestions: unknown = []
+
+  if (Array.isArray(raw)) {
+    candidateQuestions = raw
+  } else if (raw && typeof raw === "object" && "questions" in raw) {
+    candidateQuestions = (raw as { questions?: unknown }).questions
+  }
+
+  const normalized = normalizeStringArray(candidateQuestions).map((question) => {
+    return question.replace(/\s+/g, " ").trim()
+  })
+
+  const merged = [...normalized]
+  for (const fallback of buildFallbackTopAiQuestions(entityName)) {
+    if (merged.length >= 5) {
+      break
+    }
+
+    if (!merged.some((item) => item.toLowerCase() === fallback.toLowerCase())) {
+      merged.push(fallback)
+    }
+  }
+
+  return merged.slice(0, 5)
+}
+
+async function generateTopAiQuestions(
+  entityName: string,
+  guideTopic: string,
+  specificity: EntitySpecificityHints,
+) {
+  try {
+    const response = await generateText(
+      [
+        {
+          role: "system",
+          content: TOP_AI_QUESTIONS_SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: buildTopAiQuestionsUserPrompt({
+            entityName,
+            guideTopic,
+            specificNouns: specificity.specificNouns,
+          }),
+        },
+      ],
+      { model: "haiku", temperature: 0.2, maxTokens: 900 },
+    )
+
+    const parsed = JSON.parse(parseJsonObject(response)) as unknown
+    return normalizeTopAiQuestions(parsed, entityName)
+  } catch {
+    return buildFallbackTopAiQuestions(entityName)
+  }
 }
 
 async function validateExternalUrl(url: string) {
@@ -622,6 +691,72 @@ function escapeMdxAttributeValue(input: string) {
     .replaceAll(">", "&gt;")
 }
 
+function serializeQuestionsForMdx(questions: string[]) {
+  return `[${questions.map((question) => JSON.stringify(question)).join(", ")}]`
+}
+
+function buildAiQuestionWidgetTag(entityName: string, questions: string[]) {
+  return `<AiQuestionRevealWidget entityName="${escapeMdxAttributeValue(entityName)}" questions={${serializeQuestionsForMdx(questions)}} />`
+}
+
+function insertWidgetAfterParagraph(sectionBody: string, widgetTag: string, afterParagraphCount: number) {
+  const paragraphs = splitParagraphs(sectionBody)
+  if (paragraphs.length === 0) {
+    return `${sectionBody.trim()}\n\n${widgetTag}`.trim()
+  }
+
+  const insertionPoint = Math.min(Math.max(1, afterParagraphCount), paragraphs.length)
+  const rebuilt: string[] = []
+
+  for (let index = 0; index < paragraphs.length; index += 1) {
+    rebuilt.push(paragraphs[index])
+    if (index === insertionPoint - 1) {
+      rebuilt.push(widgetTag)
+    }
+  }
+
+  return rebuilt.join("\n\n").trim()
+}
+
+function injectAiQuestionWidgets(content: string, entityName: string, questions: string[]) {
+  if (questions.length === 0) {
+    return content
+  }
+
+  const sections = splitGuideSections(content)
+  if (sections.length === 0) {
+    return content
+  }
+
+  const widgetTag = buildAiQuestionWidgetTag(entityName, questions)
+  const firstSectionIndex = 0
+  const midwaySectionIndex = Math.floor(sections.length / 2)
+
+  if (firstSectionIndex === midwaySectionIndex) {
+    const firstPass = insertWidgetAfterParagraph(sections[0].body, widgetTag, 2)
+    const paragraphCountAfterFirstInsert = splitParagraphs(firstPass).length
+    const secondInsertionPoint = Math.max(3, Math.ceil(paragraphCountAfterFirstInsert / 2))
+    sections[0] = {
+      ...sections[0],
+      body: insertWidgetAfterParagraph(firstPass, widgetTag, secondInsertionPoint),
+    }
+  } else {
+    sections[firstSectionIndex] = {
+      ...sections[firstSectionIndex],
+      body: insertWidgetAfterParagraph(sections[firstSectionIndex].body, widgetTag, 2),
+    }
+    sections[midwaySectionIndex] = {
+      ...sections[midwaySectionIndex],
+      body: insertWidgetAfterParagraph(sections[midwaySectionIndex].body, widgetTag, 1),
+    }
+  }
+
+  return sections
+    .map((section) => `## ${section.heading}\n\n${section.body.trim()}`)
+    .join("\n\n")
+    .trim()
+}
+
 function insertCallout(sectionContent: string, paragraphToAnchor: string, summary: string, cta: CalloutCta) {
   if (!paragraphToAnchor) {
     return sectionContent.trim()
@@ -832,6 +967,11 @@ async function refreshExistingCallouts(slugFilter?: string) {
   console.log(`Callout refresh completed. Updated ${updatedCount} pages, skipped ${skippedCount} pages.`)
 }
 
+function isAeoTemplate(template: TemplateWithSections) {
+  const aggregate = `${template.slugPattern} ${template.name}`.toLowerCase()
+  return aggregate.includes("aeo for") || aggregate.includes("aeo-for")
+}
+
 function inferEntityTypeFromTemplate(template: TemplateWithSections): EntityType {
   const aggregate = `${template.slugPattern} ${template.name} ${template.contentTemplate}`.toLowerCase()
 
@@ -961,7 +1101,15 @@ async function main() {
         template.name,
       )
       const contentWithInlineExternal = injectInlineExternalLinks(contentWithInternalMinimum, externalSources, 3)
-      const withSources = appendSourcesSection(contentWithInlineExternal, externalSources)
+      const shouldInjectAiQuestions = isAeoTemplate(template)
+      const topAiQuestions = shouldInjectAiQuestions
+        ? await generateTopAiQuestions(specificity.preferredLabel, title, specificity)
+        : []
+      const contentWithWidgets =
+        shouldInjectAiQuestions && topAiQuestions.length > 0
+          ? injectAiQuestionWidgets(contentWithInlineExternal, specificity.preferredLabel, topAiQuestions)
+          : contentWithInlineExternal
+      const withSources = appendSourcesSection(contentWithWidgets, externalSources)
       const content = normalizeGuideTypography(withSources)
 
       if (existing) {

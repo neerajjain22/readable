@@ -2,6 +2,7 @@ import { renderMdx } from "../../lib/mdx/renderMdx"
 import { headingToAnchor } from "../../lib/internalLinks"
 import { sanitizeProgrammaticMdx } from "../../lib/mdx/sanitizeProgrammaticMdx"
 import CalloutBox from "../guides/CalloutBox"
+import AiQuestionRevealWidget from "./AiQuestionRevealWidget"
 
 type MdxRendererProps = {
   source: string
@@ -15,6 +16,7 @@ export default function MdxRenderer({ source }: MdxRendererProps) {
     <>
       {renderMdx(safeSource, {
         CalloutBox,
+        AiQuestionRevealWidget,
         a: ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
           const isExternal = href && (href.startsWith("http://") || href.startsWith("https://"))
           const { rel: _rel, target: _target, ...rest } = props
