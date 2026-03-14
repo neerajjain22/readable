@@ -691,12 +691,9 @@ function escapeMdxAttributeValue(input: string) {
     .replaceAll(">", "&gt;")
 }
 
-function serializeQuestionsForMdx(questions: string[]) {
-  return `[${questions.map((question) => JSON.stringify(question)).join(", ")}]`
-}
-
 function buildAiQuestionWidgetTag(entityName: string, questions: string[]) {
-  return `<AiQuestionRevealWidget entityName="${escapeMdxAttributeValue(entityName)}" questions={${serializeQuestionsForMdx(questions)}} />`
+  const questionsJson = JSON.stringify(questions)
+  return `<AiQuestionRevealWidget entityName="${escapeMdxAttributeValue(entityName)}" questionsJson="${escapeMdxAttributeValue(questionsJson)}" />`
 }
 
 function insertWidgetAfterParagraph(sectionBody: string, widgetTag: string, afterParagraphCount: number) {

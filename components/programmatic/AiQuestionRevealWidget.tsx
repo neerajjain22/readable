@@ -5,28 +5,32 @@ import styles from "./ai-question-reveal-widget.module.css"
 
 type AiQuestionRevealWidgetProps = {
   questions?: string[] | string | null
+  questionsJson?: string | null
   entityName?: string
 }
 
-export default function AiQuestionRevealWidget({ questions, entityName }: AiQuestionRevealWidgetProps) {
+function parseQuestions(value: unknown) {
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value) as unknown
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+
+  return []
+}
+
+export default function AiQuestionRevealWidget({ questions, questionsJson, entityName }: AiQuestionRevealWidgetProps) {
   const [open, setOpen] = useState(false)
   const regionId = useId()
-  const normalizedQuestions = (() => {
-    if (Array.isArray(questions)) {
-      return questions
-    }
-
-    if (typeof questions === "string") {
-      try {
-        const parsed = JSON.parse(questions) as unknown
-        return Array.isArray(parsed) ? parsed : []
-      } catch {
-        return []
-      }
-    }
-
-    return []
-  })()
+  const parsedQuestionsJson = parseQuestions(questionsJson)
+  const normalizedQuestions = parsedQuestionsJson.length > 0 ? parsedQuestionsJson : parseQuestions(questions)
 
   const cleanQuestions = normalizedQuestions.filter(
     (question): question is string => typeof question === "string" && question.trim().length > 0,
