@@ -53,6 +53,18 @@ type PromptEntity = {
   metadata?: Record<string, unknown> | null
 }
 
+type WidgetId =
+  | "AiCitationDistributionWidget"
+  | "AiQueryDistributionWidget"
+  | "AiContentPreferenceWidget"
+  | "AiBuyerJourneyWidget"
+  | "AiQuestionFrequencyWidget"
+  | "AiQuestionRevealWidget"
+
+type WidgetSelection = {
+  selectedWidgets: WidgetId[]
+}
+
 type ResumeOptions = {
   enabled: boolean
   slug: string
@@ -67,6 +79,15 @@ type SectionCheckpoint = {
   blocks: string[]
   updatedAt: string
 }
+
+const AEO_WIDGET_POOL: WidgetId[] = [
+  "AiCitationDistributionWidget",
+  "AiQueryDistributionWidget",
+  "AiContentPreferenceWidget",
+  "AiBuyerJourneyWidget",
+  "AiQuestionFrequencyWidget",
+  "AiQuestionRevealWidget",
+]
 
 function getArgValue(flag: string) {
   const arg = process.argv.find((entry) => entry.startsWith(`${flag}=`))
@@ -258,6 +279,54 @@ function normalizeStringArray(value: unknown) {
   return result
 }
 
+function createSeededRandom(seed: string) {
+  let state = 0
+  for (let index = 0; index < seed.length; index += 1) {
+    state = (state * 31 + seed.charCodeAt(index)) >>> 0
+  }
+
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0
+    return state / 4294967296
+  }
+}
+
+function pickWidgetCount(poolSize: number, random: () => number) {
+  const target = random() < 0.5 ? 2 : 3
+  return Math.max(1, Math.min(poolSize, target))
+}
+
+function pickWidgetsFromPool(pool: WidgetId[], random: () => number) {
+  if (pool.length === 0) {
+    return [] as WidgetId[]
+  }
+
+  const shuffled = [...pool]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1))
+    ;[shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]]
+  }
+
+  return shuffled.slice(0, pickWidgetCount(pool.length, random))
+}
+
+function normalizeDistribution(values: number[]) {
+  const positive = values.map((value) => Math.max(1, Math.round(value)))
+  const total = positive.reduce((sum, value) => sum + value, 0) || 1
+  const scaled = positive.map((value) => Math.round((value / total) * 100))
+  const scaledTotal = scaled.reduce((sum, value) => sum + value, 0)
+  const delta = 100 - scaledTotal
+  if (delta !== 0 && scaled.length > 0) {
+    scaled[0] += delta
+  }
+  return scaled
+}
+
+function buildDistribution(count: number, random: () => number) {
+  const raw = Array.from({ length: count }, () => 20 + random() * 80)
+  return normalizeDistribution(raw)
+}
+
 function buildFallbackTopAiQuestions(entityName: string) {
   return [
     `What is the best ${entityName} platform?`,
@@ -385,6 +454,14 @@ function appendSourcesSection(content: string, sources: Array<{ title: string; u
 function normalizeGuideTypography(content: string) {
   // Hard guard: never keep em dashes in generated guides.
   return content.replace(/—/g, ", ")
+}
+
+function getWidgetPoolForTemplate(template: TemplateWithSections) {
+  if (isAeoTemplate(template)) {
+    return AEO_WIDGET_POOL
+  }
+
+  return [] as WidgetId[]
 }
 
 function injectInlineExternalLinks(
@@ -804,9 +881,80 @@ function escapeMdxAttributeValue(input: string) {
     .replaceAll(">", "&gt;")
 }
 
-function buildAiQuestionWidgetTag(entityName: string, questions: string[]) {
-  const questionsJson = JSON.stringify(questions)
-  return `<AiQuestionRevealWidget entityName="${escapeMdxAttributeValue(entityName)}" questionsJson="${escapeMdxAttributeValue(questionsJson)}" />`
+function decodeMdxAttributeValue(input: string) {
+  return input
+    .replaceAll("&quot;", '"')
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&")
+}
+
+function buildWidgetSelectionMetadataComment(selection: WidgetSelection) {
+  return `{/* readable-widget-pool:${JSON.stringify(selection)} */}`
+}
+
+function buildAiCitationDistributionData(seedKey: string) {
+  const random = createSeededRandom(`${seedKey}:citation`)
+  const [documentation, comparison, blog, product, forums] = buildDistribution(5, random)
+  return { documentation, comparison, blog, product, forums }
+}
+
+function buildAiQueryDistributionData(seedKey: string) {
+  const random = createSeededRandom(`${seedKey}:query`)
+  const [bestPlatform, comparisons, integrations, howItWorks, pricing] = buildDistribution(5, random)
+  return { bestPlatform, comparisons, integrations, howItWorks, pricing }
+}
+
+function buildAiContentPreferenceData(seedKey: string) {
+  const random = createSeededRandom(`${seedKey}:content`)
+  const [documentation, comparisonPages, faqSections, blogPosts, landingPages] = buildDistribution(5, random)
+  return { documentation, comparisonPages, faqSections, blogPosts, landingPages }
+}
+
+function buildAiBuyerJourneyData(seedKey: string) {
+  const random = createSeededRandom(`${seedKey}:journey`)
+  const overview = 88 + Math.round(random() * 12)
+  const compare = Math.max(45, overview - (8 + Math.round(random() * 16)))
+  const integrations = Math.max(30, compare - (8 + Math.round(random() * 14)))
+  const shortlist = Math.max(20, integrations - (6 + Math.round(random() * 12)))
+  return { overview, compare, integrations, shortlist }
+}
+
+function buildAiQuestionFrequencyData(seedKey: string, questionCount: number) {
+  const random = createSeededRandom(`${seedKey}:frequency`)
+  const values = buildDistribution(Math.max(1, questionCount), random)
+  return values.slice(0, questionCount).sort((a, b) => b - a)
+}
+
+function buildWidgetTag(widgetId: WidgetId, entityName: string, topAiQuestions: string[], seedKey: string) {
+  if (widgetId === "AiQuestionRevealWidget") {
+    const questionsJson = JSON.stringify(topAiQuestions)
+    return `<AiQuestionRevealWidget entityName="${escapeMdxAttributeValue(entityName)}" questionsJson="${escapeMdxAttributeValue(questionsJson)}" />`
+  }
+
+  if (widgetId === "AiCitationDistributionWidget") {
+    const dataJson = JSON.stringify(buildAiCitationDistributionData(seedKey))
+    return `<AiCitationDistributionWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
+  }
+
+  if (widgetId === "AiQueryDistributionWidget") {
+    const dataJson = JSON.stringify(buildAiQueryDistributionData(seedKey))
+    return `<AiQueryDistributionWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
+  }
+
+  if (widgetId === "AiContentPreferenceWidget") {
+    const dataJson = JSON.stringify(buildAiContentPreferenceData(seedKey))
+    return `<AiContentPreferenceWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
+  }
+
+  if (widgetId === "AiBuyerJourneyWidget") {
+    const dataJson = JSON.stringify(buildAiBuyerJourneyData(seedKey))
+    return `<AiBuyerJourneyWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
+  }
+
+  const questionsJson = JSON.stringify(topAiQuestions)
+  const frequenciesJson = JSON.stringify(buildAiQuestionFrequencyData(seedKey, topAiQuestions.length))
+  return `<AiQuestionFrequencyWidget questionsJson="${escapeMdxAttributeValue(questionsJson)}" frequenciesJson="${escapeMdxAttributeValue(frequenciesJson)}" />`
 }
 
 function insertWidgetAfterParagraph(sectionBody: string, widgetTag: string, afterParagraphCount: number) {
@@ -828,8 +976,48 @@ function insertWidgetAfterParagraph(sectionBody: string, widgetTag: string, afte
   return rebuilt.join("\n\n").trim()
 }
 
-function injectAiQuestionWidgets(content: string, entityName: string, questions: string[]) {
-  if (questions.length === 0) {
+function stripExistingWidgetPoolTags(content: string) {
+  return content
+    .replace(/<!--\s*readable-widget-pool:[\s\S]*?-->\s*/g, "")
+    .replace(/\{\/\*\s*readable-widget-pool:[\s\S]*?\*\/\}\s*/g, "")
+    .replace(
+      /<(AiCitationDistributionWidget|AiQueryDistributionWidget|AiContentPreferenceWidget|AiBuyerJourneyWidget|AiQuestionFrequencyWidget|AiQuestionRevealWidget)\b[\s\S]*?\/>\s*/g,
+      "",
+    )
+    .trim()
+}
+
+function extractTopQuestionsFromContent(content: string) {
+  const match = content.match(/questionsJson=\"([^\"]+)\"/)
+  if (!match?.[1]) {
+    return []
+  }
+
+  try {
+    const decoded = decodeMdxAttributeValue(match[1])
+    const parsed = JSON.parse(decoded) as unknown
+    if (Array.isArray(parsed)) {
+      return normalizeStringArray(parsed).slice(0, 5)
+    }
+
+    if (parsed && typeof parsed === "object" && "questions" in parsed) {
+      return normalizeStringArray((parsed as { questions?: unknown }).questions).slice(0, 5)
+    }
+
+    return []
+  } catch {
+    return []
+  }
+}
+
+function injectWidgetPool(
+  content: string,
+  entityName: string,
+  topAiQuestions: string[],
+  selectedWidgets: WidgetId[],
+  seedKey: string,
+) {
+  if (selectedWidgets.length === 0) {
     return content
   }
 
@@ -838,33 +1026,40 @@ function injectAiQuestionWidgets(content: string, entityName: string, questions:
     return content
   }
 
-  const widgetTag = buildAiQuestionWidgetTag(entityName, questions)
+  const widgetTags = selectedWidgets.map((widgetId) => buildWidgetTag(widgetId, entityName, topAiQuestions, seedKey))
   const firstSectionIndex = 0
   const midwaySectionIndex = Math.floor(sections.length / 2)
+  const beforeFinalSectionIndex = Math.max(0, sections.length - 2)
 
-  if (firstSectionIndex === midwaySectionIndex) {
-    const firstPass = insertWidgetAfterParagraph(sections[0].body, widgetTag, 2)
-    const paragraphCountAfterFirstInsert = splitParagraphs(firstPass).length
-    const secondInsertionPoint = Math.max(3, Math.ceil(paragraphCountAfterFirstInsert / 2))
-    sections[0] = {
-      ...sections[0],
-      body: insertWidgetAfterParagraph(firstPass, widgetTag, secondInsertionPoint),
-    }
-  } else {
+  if (widgetTags[0]) {
     sections[firstSectionIndex] = {
       ...sections[firstSectionIndex],
-      body: insertWidgetAfterParagraph(sections[firstSectionIndex].body, widgetTag, 2),
-    }
-    sections[midwaySectionIndex] = {
-      ...sections[midwaySectionIndex],
-      body: insertWidgetAfterParagraph(sections[midwaySectionIndex].body, widgetTag, 1),
+      body: insertWidgetAfterParagraph(sections[firstSectionIndex].body, widgetTags[0], 2),
     }
   }
 
-  return sections
+  if (widgetTags[1]) {
+    sections[midwaySectionIndex] = {
+      ...sections[midwaySectionIndex],
+      body: insertWidgetAfterParagraph(sections[midwaySectionIndex].body, widgetTags[1], 1),
+    }
+  }
+
+  if (widgetTags[2]) {
+    const paragraphCount = splitParagraphs(sections[beforeFinalSectionIndex].body).length
+    sections[beforeFinalSectionIndex] = {
+      ...sections[beforeFinalSectionIndex],
+      body: insertWidgetAfterParagraph(sections[beforeFinalSectionIndex].body, widgetTags[2], Math.max(1, paragraphCount)),
+    }
+  }
+
+  const sectionContent = sections
     .map((section) => `## ${section.heading}\n\n${section.body.trim()}`)
     .join("\n\n")
     .trim()
+
+  const metadataComment = buildWidgetSelectionMetadataComment({ selectedWidgets })
+  return `${metadataComment}\n\n${sectionContent}`.trim()
 }
 
 function insertCallout(sectionContent: string, paragraphToAnchor: string, summary: string, cta: CalloutCta) {
@@ -1092,6 +1287,39 @@ function isAeoTemplate(template: TemplateWithSections) {
   return aggregate.includes("aeo for") || aggregate.includes("aeo-for")
 }
 
+function selectWidgetsForGuide(
+  template: TemplateWithSections,
+  slug: string,
+  entityName: string,
+  topAiQuestions: string[],
+) {
+  const pool = getWidgetPoolForTemplate(template)
+  if (pool.length === 0) {
+    return [] as WidgetId[]
+  }
+
+  const seedKey = `${template.id}:${slug}:${entityName}:${topAiQuestions.join("|")}`
+  const random = createSeededRandom(seedKey)
+  return pickWidgetsFromPool(pool, random)
+}
+
+function applyWidgetPoolToContent(
+  content: string,
+  template: TemplateWithSections,
+  slug: string,
+  entityName: string,
+  topAiQuestions: string[],
+) {
+  const selectedWidgets = selectWidgetsForGuide(template, slug, entityName, topAiQuestions)
+  if (selectedWidgets.length === 0) {
+    return content
+  }
+
+  const cleanContent = stripExistingWidgetPoolTags(content)
+  const seedKey = `${template.id}:${slug}:${entityName}`
+  return injectWidgetPool(cleanContent, entityName, topAiQuestions, selectedWidgets, seedKey)
+}
+
 function inferEntityTypeFromTemplate(template: TemplateWithSections): EntityType {
   const aggregate = `${template.slugPattern} ${template.name} ${template.contentTemplate}`.toLowerCase()
 
@@ -1129,8 +1357,95 @@ async function resolveEntityTypeForTemplate(template: TemplateWithSections): Pro
   return inferEntityTypeFromTemplate(template)
 }
 
+async function backfillWidgetPool(
+  templateFilter?: string,
+  slugFilter?: string,
+  entityFilter?: string,
+) {
+  const pages = await prisma.generatedPage.findMany({
+    where: {
+      ...(slugFilter ? { slug: slugFilter } : {}),
+      ...(entityFilter
+        ? {
+            entity: {
+              OR: [{ slug: entityFilter }, { name: entityFilter }],
+            },
+          }
+        : {}),
+    },
+    include: {
+      template: true,
+      entity: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  })
+
+  let updatedCount = 0
+  let skippedCount = 0
+
+  for (const page of pages) {
+    const template = page.template as TemplateWithSections
+    if (!isAeoTemplate(template)) {
+      skippedCount += 1
+      continue
+    }
+
+    if (templateFilter && template.slugPattern !== templateFilter && template.name !== templateFilter) {
+      skippedCount += 1
+      continue
+    }
+
+    const entity = page.entity as GeneratorEntity
+    const userSpecificity = getUserDefinedEntitySpecificity(entity.metadata)
+    const deterministicSpecificity = getDeterministicEntitySpecificity(entity)
+    const specificity = mergeEntitySpecificityProfiles(userSpecificity, deterministicSpecificity)
+
+    const topAiQuestionsFromContent = extractTopQuestionsFromContent(page.content)
+    const topAiQuestions =
+      topAiQuestionsFromContent.length > 0
+        ? topAiQuestionsFromContent.slice(0, 5)
+        : await generateTopAiQuestions(specificity.preferredLabel, page.title, specificity)
+
+    const contentWithWidgets = applyWidgetPoolToContent(
+      page.content,
+      template,
+      page.slug,
+      specificity.preferredLabel,
+      topAiQuestions,
+    )
+    const nextContent = normalizeGuideTypography(contentWithWidgets)
+
+    if (!nextContent || nextContent.trim() === page.content.trim()) {
+      skippedCount += 1
+      continue
+    }
+
+    await prisma.pageVersion.create({
+      data: {
+        pageId: page.id,
+        content: page.content,
+      },
+    })
+
+    await prisma.generatedPage.update({
+      where: { id: page.id },
+      data: {
+        content: nextContent,
+      },
+    })
+
+    updatedCount += 1
+    console.log(`Backfilled widget pool for page: ${page.slug}`)
+  }
+
+  console.log(`Widget pool backfill completed. Updated ${updatedCount} pages, skipped ${skippedCount} pages.`)
+}
+
 async function main() {
   const refreshCalloutsOnly = process.argv.includes("--refresh-callouts")
+  const backfillWidgetPoolOnly = process.argv.includes("--backfill-widget-pool")
   const regenerateExisting = process.argv.includes("--regenerate-existing")
   const resumeGeneration = process.argv.includes("--resume")
   const slugFilter = getArgValue("--slug")
@@ -1139,6 +1454,11 @@ async function main() {
 
   if (refreshCalloutsOnly) {
     await refreshExistingCallouts(slugFilter)
+    return
+  }
+
+  if (backfillWidgetPoolOnly) {
+    await backfillWidgetPool(templateFilter, slugFilter, entityFilter)
     return
   }
 
@@ -1232,7 +1552,13 @@ async function main() {
         : []
       const contentWithWidgets =
         shouldInjectAiQuestions && topAiQuestions.length > 0
-          ? injectAiQuestionWidgets(contentWithInlineExternal, specificity.preferredLabel, topAiQuestions)
+          ? applyWidgetPoolToContent(
+              contentWithInlineExternal,
+              template,
+              slug,
+              specificity.preferredLabel,
+              topAiQuestions,
+            )
           : contentWithInlineExternal
       const withSources = appendSourcesSection(contentWithWidgets, externalSources)
       const content = normalizeGuideTypography(withSources)
