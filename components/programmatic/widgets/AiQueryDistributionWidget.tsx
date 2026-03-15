@@ -1,3 +1,5 @@
+import Image from "next/image"
+import Link from "next/link"
 import styles from "./widget-pool.module.css"
 
 type QueryDistribution = {
@@ -77,6 +79,10 @@ export default function AiQueryDistributionWidget({ dataJson }: AiQueryDistribut
 
   return (
     <aside className={styles.widgetBox}>
+      <div className={styles.brandRow}>
+        <Image src="/images/readable-icon.png" alt="Readable" width={112} height={24} className={styles.brandLogo} />
+        <span className={styles.brandLabs}>Labs</span>
+      </div>
       <p className={styles.title}>What buyers ask AI assistants most</p>
       <p className={styles.subtitle}>
         {data.entityName?.trim() ? `Estimated query mix for ${data.entityName.trim()}` : "Estimated query mix in this category"}
@@ -97,6 +103,12 @@ export default function AiQueryDistributionWidget({ dataJson }: AiQueryDistribut
           )
         })}
       </ul>
+      <div className={styles.footer}>
+        <p className={styles.source}>Source: Readable Research</p>
+        <p className={styles.contactLine}>
+          To get Readable Research data, <Link href="/contact" className={styles.contactLink}>contact us</Link>.
+        </p>
+      </div>
     </aside>
   )
 }

@@ -1,3 +1,5 @@
+import Image from "next/image"
+import Link from "next/link"
 import styles from "./widget-pool.module.css"
 
 type ContentPreference = {
@@ -83,6 +85,10 @@ export default function AiContentPreferenceWidget({ dataJson }: AiContentPrefere
 
   return (
     <aside className={styles.widgetBox}>
+      <div className={styles.brandRow}>
+        <Image src="/images/readable-icon.png" alt="Readable" width={112} height={24} className={styles.brandLogo} />
+        <span className={styles.brandLabs}>Labs</span>
+      </div>
       <p className={styles.title}>Content formats AI cites most in this market</p>
       <p className={styles.subtitle}>Ranked by estimated citation preference</p>
       <ol className={styles.rankList}>
@@ -108,6 +114,12 @@ export default function AiContentPreferenceWidget({ dataJson }: AiContentPrefere
           )
         })}
       </ul>
+      <div className={styles.footer}>
+        <p className={styles.source}>Source: Readable Research</p>
+        <p className={styles.contactLine}>
+          To get Readable Research data, <Link href="/contact" className={styles.contactLink}>contact us</Link>.
+        </p>
+      </div>
     </aside>
   )
 }

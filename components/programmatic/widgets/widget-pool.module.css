@@ -7,6 +7,25 @@
   box-shadow: 0 10px 24px -16px rgba(15, 23, 42, 0.35);
 }
 
+.brandRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.brandLogo {
+  width: auto;
+  height: 24px;
+}
+
+.brandLabs {
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+}
+
 .title {
   margin: 0;
   font-size: 1rem;
@@ -120,6 +139,30 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.footer {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(99, 102, 241, 0.22);
+}
+
+.source {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.contactLine {
+  margin: 6px 0 0;
+  color: var(--color-text-body);
+  font-size: 0.9rem;
+}
+
+.contactLink {
   color: var(--color-primary);
   font-weight: 600;
 }

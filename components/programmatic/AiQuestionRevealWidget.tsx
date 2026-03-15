@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image"
+import Link from "next/link"
 import { useId, useState } from "react"
 import styles from "./ai-question-reveal-widget.module.css"
 
@@ -50,6 +52,10 @@ export default function AiQuestionRevealWidget({ questions, questionsJson, entit
 
   return (
     <aside className={styles.box}>
+      <div className={styles.brandRow}>
+        <Image src="/images/readable-icon.png" alt="Readable" width={112} height={24} className={styles.brandLogo} />
+        <span className={styles.brandLabs}>Labs</span>
+      </div>
       <p className={styles.title}>{heading}</p>
       <button
         type="button"
@@ -75,6 +81,12 @@ export default function AiQuestionRevealWidget({ questions, questionsJson, entit
             </li>
           ))}
         </ol>
+      </div>
+      <div className={styles.footer}>
+        <p className={styles.source}>Source: Readable Research</p>
+        <p className={styles.contactLine}>
+          To get Readable Research data, <Link href="/contact">contact us</Link>.
+        </p>
       </div>
     </aside>
   )

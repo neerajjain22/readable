@@ -1,3 +1,5 @@
+import Image from "next/image"
+import Link from "next/link"
 import styles from "./widget-pool.module.css"
 
 type AiQuestionFrequencyWidgetProps = {
@@ -71,6 +73,10 @@ export default function AiQuestionFrequencyWidget({ questionsJson, frequenciesJs
 
   return (
     <aside className={styles.widgetBox}>
+      <div className={styles.brandRow}>
+        <Image src="/images/readable-icon.png" alt="Readable" width={112} height={24} className={styles.brandLogo} />
+        <span className={styles.brandLabs}>Labs</span>
+      </div>
       <p className={styles.title}>AI buyer question frequency snapshot</p>
       <p className={styles.subtitle}>Relative frequency of top questions in this category</p>
       <ul className={styles.barList}>
@@ -90,6 +96,12 @@ export default function AiQuestionFrequencyWidget({ questionsJson, frequenciesJs
           )
         })}
       </ul>
+      <div className={styles.footer}>
+        <p className={styles.source}>Source: Readable Research</p>
+        <p className={styles.contactLine}>
+          To get Readable Research data, <Link href="/contact" className={styles.contactLink}>contact us</Link>.
+        </p>
+      </div>
     </aside>
   )
 }
