@@ -26,6 +26,10 @@ function parseQuestions(value: unknown) {
   return []
 }
 
+function buildChatGptQuestionUrl(question: string) {
+  return `https://chatgpt.com/?q=${encodeURIComponent(question)}`
+}
+
 export default function AiQuestionRevealWidget({ questions, questionsJson, entityName }: AiQuestionRevealWidgetProps) {
   const [open, setOpen] = useState(false)
   const regionId = useId()
@@ -59,7 +63,16 @@ export default function AiQuestionRevealWidget({ questions, questionsJson, entit
       <div id={regionId} className={styles.content} hidden={!open}>
         <ol className={styles.list}>
           {cleanQuestions.map((question, index) => (
-            <li key={`${question}-${index}`}>{question}</li>
+            <li key={`${question}-${index}`}>
+              <a
+                href={buildChatGptQuestionUrl(question)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.questionLink}
+              >
+                {question}
+              </a>
+            </li>
           ))}
         </ol>
       </div>

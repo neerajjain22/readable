@@ -49,3 +49,11 @@
   gap: 6px;
   color: var(--color-text-body);
 }
+
+.questionLink {
+  color: inherit;
+}
+
+.questionLink:hover {
+  color: var(--color-primary);
+}

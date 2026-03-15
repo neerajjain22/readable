@@ -1,4 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client"
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises"
+import path from "node:path"
 import { generateSectionContent, type EntitySpecificityHints } from "../lib/llm.ts"
 import { generateText } from "../lib/services/llm.ts"
 import { TOP_AI_QUESTIONS_SYSTEM_PROMPT, buildTopAiQuestionsUserPrompt } from "../lib/ai/prompts/topAiQuestions.ts"
@@ -23,6 +25,8 @@ const MAX_RETRIES_PER_SUMMARY = 3
 const MIN_INTERNAL_LINKS = 3
 const MIN_EXTERNAL_LINKS = 3
 const EXTERNAL_LINK_TIMEOUT_MS = 8000
+const SECTION_CHECKPOINT_VERSION = 1
+const SECTION_CHECKPOINT_DIR = path.join(process.cwd(), ".cache", "programmatic-section-checkpoints")
 
 type TemplateWithSections = {
   id: string
@@ -49,6 +53,21 @@ type PromptEntity = {
   metadata?: Record<string, unknown> | null
 }
 
+type ResumeOptions = {
+  enabled: boolean
+  slug: string
+  templateId: string
+}
+
+type SectionCheckpoint = {
+  version: number
+  slug: string
+  templateId: string
+  sectionTitles: string[]
+  blocks: string[]
+  updatedAt: string
+}
+
 function getArgValue(flag: string) {
   const arg = process.argv.find((entry) => entry.startsWith(`${flag}=`))
   if (!arg) {
@@ -57,6 +76,100 @@ function getArgValue(flag: string) {
 
   const value = arg.slice(flag.length + 1).trim()
   return value.length > 0 ? value : undefined
+}
+
+function getSectionCheckpointPath(slug: string) {
+  return path.join(SECTION_CHECKPOINT_DIR, `${slug}.json`)
+}
+
+async function clearSectionCheckpoint(slug: string) {
+  try {
+    await unlink(getSectionCheckpointPath(slug))
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") {
+      throw error
+    }
+  }
+}
+
+function hasMatchingSections(a: string[], b: string[]) {
+  if (a.length !== b.length) {
+    return false
+  }
+
+  return a.every((item, index) => item === b[index])
+}
+
+async function readSectionCheckpoint(options: ResumeOptions | undefined, sectionTitles: string[]) {
+  if (!options?.enabled) {
+    return []
+  }
+
+  try {
+    const raw = await readFile(getSectionCheckpointPath(options.slug), "utf8")
+    const parsed = JSON.parse(raw) as Partial<SectionCheckpoint>
+
+    if (
+      parsed.version !== SECTION_CHECKPOINT_VERSION ||
+      parsed.slug !== options.slug ||
+      parsed.templateId !== options.templateId ||
+      !Array.isArray(parsed.sectionTitles) ||
+      !Array.isArray(parsed.blocks)
+    ) {
+      return []
+    }
+
+    const checkpointSectionTitles = parsed.sectionTitles
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.trim())
+    if (!hasMatchingSections(checkpointSectionTitles, sectionTitles)) {
+      return []
+    }
+
+    const rawBlocks = parsed.blocks
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.trim())
+      .slice(0, sectionTitles.length)
+
+    const blocks: string[] = []
+    for (let index = 0; index < rawBlocks.length; index += 1) {
+      const expectedPrefix = `## ${sectionTitles[index]}\n\n`
+      if (!rawBlocks[index].startsWith(expectedPrefix)) {
+        break
+      }
+
+      blocks.push(rawBlocks[index])
+    }
+
+    return blocks
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
+      return []
+    }
+
+    throw error
+  }
+}
+
+async function writeSectionCheckpoint(
+  options: ResumeOptions | undefined,
+  sectionTitles: string[],
+  blocks: string[],
+) {
+  if (!options?.enabled) {
+    return
+  }
+
+  await mkdir(SECTION_CHECKPOINT_DIR, { recursive: true })
+  const payload: SectionCheckpoint = {
+    version: SECTION_CHECKPOINT_VERSION,
+    slug: options.slug,
+    templateId: options.templateId,
+    sectionTitles,
+    blocks,
+    updatedAt: new Date().toISOString(),
+  }
+  await writeFile(getSectionCheckpointPath(options.slug), JSON.stringify(payload), "utf8")
 }
 
 function getArticleSummary(content: string) {
@@ -842,14 +955,20 @@ async function buildMdxForEntity(
   template: TemplateWithSections,
   entity: PromptEntity,
   specificity: EntitySpecificityHints,
+  resumeOptions?: ResumeOptions,
 ) {
   const sections = normalizeTemplateSections(template)
-  const blocks: string[] = []
+  const resolvedSectionTitles = sections.map((section) => generateTitle(section, entity))
+  const blocks = await readSectionCheckpoint(resumeOptions, resolvedSectionTitles)
   const topic = generateTitle(template.name, entity)
 
-  for (let index = 0; index < sections.length; index += 1) {
+  if (resumeOptions?.enabled && blocks.length > 0) {
+    console.log(`Resuming section generation: ${entity.slug} (${blocks.length}/${sections.length} sections complete)`)
+  }
+
+  for (let index = blocks.length; index < sections.length; index += 1) {
     const section = sections[index]
-    const resolvedSectionTitle = generateTitle(section, entity)
+    const resolvedSectionTitle = resolvedSectionTitles[index]
     console.log(`Generating section: ${entity.slug} -> ${resolvedSectionTitle}`)
     let sectionBody = await generateWithRetry(topic, resolvedSectionTitle, entity, specificity)
     let trimmedBody = sectionBody.trim()
@@ -862,24 +981,28 @@ async function buildMdxForEntity(
 
     if (!shouldInsertCalloutForHeading(resolvedSectionTitle)) {
       blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
+      await writeSectionCheckpoint(resumeOptions, resolvedSectionTitles, blocks)
       continue
     }
 
     const summarySourceParagraph = getSubstantiveParagraph(trimmedBody, resolvedSectionTitle)
     if (!summarySourceParagraph) {
       blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
+      await writeSectionCheckpoint(resumeOptions, resolvedSectionTitles, blocks)
       continue
     }
 
     const summary = await summarizeWithRetry(summarySourceParagraph)
     if (!summary) {
       blocks.push(`## ${resolvedSectionTitle}\n\n${trimmedBody}`)
+      await writeSectionCheckpoint(resumeOptions, resolvedSectionTitles, blocks)
       continue
     }
 
     const cta: CalloutCta = index % 2 === 0 ? "analyze" : "demo"
     const bodyWithCallout = insertCallout(trimmedBody, summarySourceParagraph, summary, cta)
     blocks.push(`## ${resolvedSectionTitle}\n\n${bodyWithCallout}`)
+    await writeSectionCheckpoint(resumeOptions, resolvedSectionTitles, blocks)
   }
 
   return blocks.join("\n\n")
@@ -1009,6 +1132,7 @@ async function resolveEntityTypeForTemplate(template: TemplateWithSections): Pro
 async function main() {
   const refreshCalloutsOnly = process.argv.includes("--refresh-callouts")
   const regenerateExisting = process.argv.includes("--regenerate-existing")
+  const resumeGeneration = process.argv.includes("--resume")
   const slugFilter = getArgValue("--slug")
   const templateFilter = getArgValue("--template")
   const entityFilter = getArgValue("--entity")
@@ -1087,7 +1211,11 @@ async function main() {
       }
 
       const title = generateTitle(template.name, promptEntity)
-      const rawContent = await buildMdxForEntity(template, promptEntity, specificity)
+      const rawContent = await buildMdxForEntity(template, promptEntity, specificity, {
+        enabled: resumeGeneration,
+        slug,
+        templateId: template.id,
+      })
       await registerInternalLinkTarget(slug, title, getArticleSummary(rawContent), prisma)
       const contentWithInternalInjection = await injectInternalLinks(rawContent, { excludeSlug: slug, maxLinks: 6 })
       const contentWithInternalMinimum = await ensureMinimumInternalLinks(contentWithInternalInjection, slug)
@@ -1151,6 +1279,10 @@ async function main() {
 
         generatedCount += 1
         console.log(`Generated draft page: ${slug}`)
+      }
+
+      if (resumeGeneration) {
+        await clearSectionCheckpoint(slug)
       }
     }
   }
