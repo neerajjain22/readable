@@ -1,6 +1,8 @@
 import styles from "./widget-pool.module.css"
 
 type QueryDistribution = {
+  entityName?: string
+  rows: Array<{ label: string; value: number }>
   bestPlatform: number
   comparisons: number
   integrations: number
@@ -19,7 +21,24 @@ function parseData(dataJson?: string | null): QueryDistribution | null {
 
   try {
     const parsed = JSON.parse(dataJson) as Partial<QueryDistribution>
+    const rows = Array.isArray(parsed.rows)
+      ? parsed.rows
+          .filter(
+            (row): row is { label: string; value: number } =>
+              Boolean(row) &&
+              typeof (row as { label?: unknown }).label === "string" &&
+              typeof (row as { value?: unknown }).value === "number",
+          )
+          .map((row) => ({
+            label: row.label.trim(),
+            value: Number(row.value) || 0,
+          }))
+          .filter((row) => row.label.length > 0)
+      : []
+
     const data: QueryDistribution = {
+      entityName: typeof parsed.entityName === "string" ? parsed.entityName : undefined,
+      rows,
       bestPlatform: Number(parsed.bestPlatform) || 0,
       comparisons: Number(parsed.comparisons) || 0,
       integrations: Number(parsed.integrations) || 0,
@@ -27,7 +46,8 @@ function parseData(dataJson?: string | null): QueryDistribution | null {
       pricing: Number(parsed.pricing) || 0,
     }
 
-    const hasSignal = Object.values(data).some((value) => value > 0)
+    const hasSignal =
+      data.rows.length > 0 || [data.bestPlatform, data.comparisons, data.integrations, data.howItWorks, data.pricing].some((value) => value > 0)
     return hasSignal ? data : null
   } catch {
     return null
@@ -44,18 +64,23 @@ export default function AiQueryDistributionWidget({ dataJson }: AiQueryDistribut
     return null
   }
 
-  const rows = [
-    { label: "Best platform queries", value: data.bestPlatform },
-    { label: "Comparison queries", value: data.comparisons },
-    { label: "Integration questions", value: data.integrations },
-    { label: "How-it-works queries", value: data.howItWorks },
-    { label: "Pricing questions", value: data.pricing },
-  ]
+  const rows =
+    Array.isArray(data.rows) && data.rows.length > 0
+      ? data.rows
+      : [
+          { label: "Best platform queries", value: data.bestPlatform },
+          { label: "Comparison queries", value: data.comparisons },
+          { label: "Integration questions", value: data.integrations },
+          { label: "How-it-works queries", value: data.howItWorks },
+          { label: "Pricing questions", value: data.pricing },
+        ]
 
   return (
     <aside className={styles.widgetBox}>
       <p className={styles.title}>What buyers ask AI assistants most</p>
-      <p className={styles.subtitle}>Estimated query mix in this category</p>
+      <p className={styles.subtitle}>
+        {data.entityName?.trim() ? `Estimated query mix for ${data.entityName.trim()}` : "Estimated query mix in this category"}
+      </p>
       <ul className={styles.barList}>
         {rows.map((row) => {
           const percent = clampPercent(row.value)

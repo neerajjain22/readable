@@ -22,6 +22,7 @@ const prisma = new PrismaClient()
 const MAX_PAGES_PER_RUN = 20
 const MAX_RETRIES_PER_SECTION = 3
 const MAX_RETRIES_PER_SUMMARY = 3
+const MAX_RETRIES_PER_WIDGET_SECTION = 2
 const MIN_INTERNAL_LINKS = 3
 const MIN_EXTERNAL_LINKS = 3
 const EXTERNAL_LINK_TIMEOUT_MS = 8000
@@ -86,7 +87,6 @@ const AEO_WIDGET_POOL: WidgetId[] = [
   "AiContentPreferenceWidget",
   "AiBuyerJourneyWidget",
   "AiQuestionFrequencyWidget",
-  "AiQuestionRevealWidget",
 ]
 
 function getArgValue(flag: string) {
@@ -308,6 +308,26 @@ function pickWidgetsFromPool(pool: WidgetId[], random: () => number) {
   }
 
   return shuffled.slice(0, pickWidgetCount(pool.length, random))
+}
+
+function pickFixedCountFromPool(pool: WidgetId[], count: number, random: () => number) {
+  if (pool.length === 0 || count <= 0) {
+    return [] as WidgetId[]
+  }
+
+  const shuffled = [...pool]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1))
+    ;[shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]]
+  }
+
+  return shuffled.slice(0, Math.min(count, shuffled.length))
+}
+
+function pickWidgetsForAeoGuide(random: () => number): WidgetId[] {
+  const nonRevealCount = random() < 0.5 ? 1 : 2
+  const nonRevealSelection = pickFixedCountFromPool(AEO_WIDGET_POOL, nonRevealCount, random)
+  return ["AiQuestionRevealWidget", ...nonRevealSelection] as WidgetId[]
 }
 
 function normalizeDistribution(values: number[]) {
@@ -893,22 +913,116 @@ function buildWidgetSelectionMetadataComment(selection: WidgetSelection) {
   return `{/* readable-widget-pool:${JSON.stringify(selection)} */}`
 }
 
+function isWidgetId(value: unknown): value is WidgetId {
+  return (
+    value === "AiCitationDistributionWidget" ||
+    value === "AiQueryDistributionWidget" ||
+    value === "AiContentPreferenceWidget" ||
+    value === "AiBuyerJourneyWidget" ||
+    value === "AiQuestionFrequencyWidget" ||
+    value === "AiQuestionRevealWidget"
+  )
+}
+
+function parseWidgetSelectionFromContent(content: string) {
+  const jsxMatch = content.match(/\{\/\*\s*readable-widget-pool:([\s\S]*?)\*\/\}/)
+  const htmlMatch = content.match(/<!--\s*readable-widget-pool:([\s\S]*?)-->/)
+  const raw = jsxMatch?.[1] || htmlMatch?.[1]
+  if (!raw) {
+    return [] as WidgetId[]
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<WidgetSelection>
+    if (!Array.isArray(parsed.selectedWidgets)) {
+      return [] as WidgetId[]
+    }
+
+    const deduped: WidgetId[] = []
+    for (const widgetId of parsed.selectedWidgets) {
+      if (!isWidgetId(widgetId)) {
+        continue
+      }
+      if (!deduped.includes(widgetId)) {
+        deduped.push(widgetId)
+      }
+    }
+    return deduped
+  } catch {
+    return [] as WidgetId[]
+  }
+}
+
+function normalizeAeoWidgetSelection(selectedWidgets: WidgetId[]): WidgetId[] {
+  const nonReveal = selectedWidgets.filter((widgetId) => widgetId !== "AiQuestionRevealWidget" && AEO_WIDGET_POOL.includes(widgetId))
+  const uniqueNonReveal = Array.from(new Set(nonReveal)).slice(0, 2) as WidgetId[]
+  return ["AiQuestionRevealWidget", ...uniqueNonReveal] as WidgetId[]
+}
+
 function buildAiCitationDistributionData(seedKey: string) {
   const random = createSeededRandom(`${seedKey}:citation`)
   const [documentation, comparison, blog, product, forums] = buildDistribution(5, random)
   return { documentation, comparison, blog, product, forums }
 }
 
-function buildAiQueryDistributionData(seedKey: string) {
-  const random = createSeededRandom(`${seedKey}:query`)
-  const [bestPlatform, comparisons, integrations, howItWorks, pricing] = buildDistribution(5, random)
-  return { bestPlatform, comparisons, integrations, howItWorks, pricing }
+function buildAiQueryLabelsForEntity(entityName: string) {
+  const normalizedEntity = normalizeString(entityName) || "this market"
+  return [
+    `Best ${normalizedEntity} options`,
+    `${normalizedEntity} comparisons`,
+    `${normalizedEntity} integration questions`,
+    `How ${normalizedEntity} works`,
+    `${normalizedEntity} pricing questions`,
+  ]
 }
 
-function buildAiContentPreferenceData(seedKey: string) {
+function buildAiQueryDistributionData(seedKey: string, entityName: string) {
+  const random = createSeededRandom(`${seedKey}:query`)
+  const [bestPlatform, comparisons, integrations, howItWorks, pricing] = buildDistribution(5, random)
+  const values = [bestPlatform, comparisons, integrations, howItWorks, pricing]
+  const labels = buildAiQueryLabelsForEntity(entityName)
+  return {
+    entityName,
+    rows: labels.map((label, index) => ({
+      label,
+      value: values[index] || 0,
+    })),
+    bestPlatform,
+    comparisons,
+    integrations,
+    howItWorks,
+    pricing,
+  }
+}
+
+function buildAiContentPreferenceLabelsForEntity(entityName: string) {
+  const normalizedEntity = normalizeString(entityName) || "this market"
+  return [
+    `${normalizedEntity} documentation`,
+    `${normalizedEntity} comparison pages`,
+    `${normalizedEntity} FAQ sections`,
+    `${normalizedEntity} blog posts`,
+    `${normalizedEntity} landing pages`,
+  ]
+}
+
+function buildAiContentPreferenceData(seedKey: string, entityName: string) {
   const random = createSeededRandom(`${seedKey}:content`)
   const [documentation, comparisonPages, faqSections, blogPosts, landingPages] = buildDistribution(5, random)
-  return { documentation, comparisonPages, faqSections, blogPosts, landingPages }
+  const values = [documentation, comparisonPages, faqSections, blogPosts, landingPages]
+  const labels = buildAiContentPreferenceLabelsForEntity(entityName)
+  return {
+    entityName,
+    rows: labels.map((label, index) => ({
+      label,
+      value: values[index] || 0,
+    })),
+    documentation,
+    comparisonPages,
+    faqSections,
+    blogPosts,
+    landingPages,
+  }
 }
 
 function buildAiBuyerJourneyData(seedKey: string) {
@@ -926,6 +1040,45 @@ function buildAiQuestionFrequencyData(seedKey: string, questionCount: number) {
   return values.slice(0, questionCount).sort((a, b) => b - a)
 }
 
+function buildWidgetPromptContext(widgetId: WidgetId, entityName: string, topAiQuestions: string[], seedKey: string) {
+  if (widgetId === "AiQuestionRevealWidget") {
+    return JSON.stringify(
+      {
+        entityName,
+        questions: topAiQuestions,
+      },
+      null,
+      2,
+    )
+  }
+
+  if (widgetId === "AiCitationDistributionWidget") {
+    return JSON.stringify(buildAiCitationDistributionData(seedKey), null, 2)
+  }
+
+  if (widgetId === "AiQueryDistributionWidget") {
+    return JSON.stringify(buildAiQueryDistributionData(seedKey, entityName), null, 2)
+  }
+
+  if (widgetId === "AiContentPreferenceWidget") {
+    return JSON.stringify(buildAiContentPreferenceData(seedKey, entityName), null, 2)
+  }
+
+  if (widgetId === "AiBuyerJourneyWidget") {
+    return JSON.stringify(buildAiBuyerJourneyData(seedKey), null, 2)
+  }
+
+  return JSON.stringify(
+    {
+      entityName,
+      questions: topAiQuestions,
+      frequencies: buildAiQuestionFrequencyData(seedKey, topAiQuestions.length),
+    },
+    null,
+    2,
+  )
+}
+
 function buildWidgetTag(widgetId: WidgetId, entityName: string, topAiQuestions: string[], seedKey: string) {
   if (widgetId === "AiQuestionRevealWidget") {
     const questionsJson = JSON.stringify(topAiQuestions)
@@ -938,12 +1091,12 @@ function buildWidgetTag(widgetId: WidgetId, entityName: string, topAiQuestions: 
   }
 
   if (widgetId === "AiQueryDistributionWidget") {
-    const dataJson = JSON.stringify(buildAiQueryDistributionData(seedKey))
+    const dataJson = JSON.stringify(buildAiQueryDistributionData(seedKey, entityName))
     return `<AiQueryDistributionWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
   }
 
   if (widgetId === "AiContentPreferenceWidget") {
-    const dataJson = JSON.stringify(buildAiContentPreferenceData(seedKey))
+    const dataJson = JSON.stringify(buildAiContentPreferenceData(seedKey, entityName))
     return `<AiContentPreferenceWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
   }
 
@@ -957,33 +1110,67 @@ function buildWidgetTag(widgetId: WidgetId, entityName: string, topAiQuestions: 
   return `<AiQuestionFrequencyWidget questionsJson="${escapeMdxAttributeValue(questionsJson)}" frequenciesJson="${escapeMdxAttributeValue(frequenciesJson)}" />`
 }
 
-function insertWidgetAfterParagraph(sectionBody: string, widgetTag: string, afterParagraphCount: number) {
-  const paragraphs = splitParagraphs(sectionBody)
-  if (paragraphs.length === 0) {
-    return `${sectionBody.trim()}\n\n${widgetTag}`.trim()
+function buildAiQueryDistributionWidgetTag(entityName: string, seedKey: string) {
+  const dataJson = JSON.stringify(buildAiQueryDistributionData(seedKey, entityName))
+  return `<AiQueryDistributionWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
+}
+
+function replaceAiQueryDistributionWidgetTag(content: string, entityName: string, seedKey: string) {
+  if (!content.includes("<AiQueryDistributionWidget")) {
+    return content
   }
 
-  const insertionPoint = Math.min(Math.max(1, afterParagraphCount), paragraphs.length)
-  const rebuilt: string[] = []
+  const replacementTag = buildAiQueryDistributionWidgetTag(entityName, seedKey)
+  return content.replace(/<AiQueryDistributionWidget\b[\s\S]*?\/>/g, replacementTag)
+}
 
-  for (let index = 0; index < paragraphs.length; index += 1) {
-    rebuilt.push(paragraphs[index])
-    if (index === insertionPoint - 1) {
-      rebuilt.push(widgetTag)
-    }
+function buildAiContentPreferenceWidgetTag(entityName: string, seedKey: string) {
+  const dataJson = JSON.stringify(buildAiContentPreferenceData(seedKey, entityName))
+  return `<AiContentPreferenceWidget dataJson="${escapeMdxAttributeValue(dataJson)}" />`
+}
+
+function replaceAiContentPreferenceWidgetTag(content: string, entityName: string, seedKey: string) {
+  if (!content.includes("<AiContentPreferenceWidget")) {
+    return content
   }
 
-  return rebuilt.join("\n\n").trim()
+  const replacementTag = buildAiContentPreferenceWidgetTag(entityName, seedKey)
+  return content.replace(/<AiContentPreferenceWidget\b[\s\S]*?\/>/g, replacementTag)
 }
 
 function stripExistingWidgetPoolTags(content: string) {
-  return content
+  const withoutMetadata = content
     .replace(/<!--\s*readable-widget-pool:[\s\S]*?-->\s*/g, "")
     .replace(/\{\/\*\s*readable-widget-pool:[\s\S]*?\*\/\}\s*/g, "")
-    .replace(
-      /<(AiCitationDistributionWidget|AiQueryDistributionWidget|AiContentPreferenceWidget|AiBuyerJourneyWidget|AiQuestionFrequencyWidget|AiQuestionRevealWidget)\b[\s\S]*?\/>\s*/g,
-      "",
-    )
+
+  const sections = splitGuideSections(withoutMetadata)
+  if (sections.length === 0) {
+    return withoutMetadata
+      .replace(
+        /<(AiCitationDistributionWidget|AiQueryDistributionWidget|AiContentPreferenceWidget|AiBuyerJourneyWidget|AiQuestionFrequencyWidget|AiQuestionRevealWidget)\b[\s\S]*?\/>\s*/g,
+        "",
+      )
+      .replace(/\{\/\*\s*readable-widget-section:[\s\S]*?\*\/\}\s*/g, "")
+      .trim()
+  }
+
+  return sections
+    .map((section) => {
+      if (section.body.includes("readable-widget-section:")) {
+        return ""
+      }
+
+      const cleanedBody = section.body
+        .replace(/\{\/\*\s*readable-widget-section:[\s\S]*?\*\/\}\s*/g, "")
+        .replace(
+          /<(AiCitationDistributionWidget|AiQueryDistributionWidget|AiContentPreferenceWidget|AiBuyerJourneyWidget|AiQuestionFrequencyWidget|AiQuestionRevealWidget)\b[\s\S]*?\/>\s*/g,
+          "",
+        )
+        .trim()
+      return `## ${section.heading}\n\n${cleanedBody}`.trim()
+    })
+    .filter(Boolean)
+    .join("\n\n")
     .trim()
 }
 
@@ -1010,7 +1197,139 @@ function extractTopQuestionsFromContent(content: string) {
   }
 }
 
-function injectWidgetPool(
+function getWidgetDisplayName(widgetId: WidgetId) {
+  if (widgetId === "AiQuestionRevealWidget") return "Top AI Questions Reveal"
+  if (widgetId === "AiCitationDistributionWidget") return "AI Citation Distribution"
+  if (widgetId === "AiQueryDistributionWidget") return "AI Query Distribution"
+  if (widgetId === "AiContentPreferenceWidget") return "AI Content Preference"
+  if (widgetId === "AiBuyerJourneyWidget") return "AI Buyer Journey"
+  return "AI Question Frequency"
+}
+
+function getWidgetSectionFallbackTitle(widgetId: WidgetId, entityName: string) {
+  if (widgetId === "AiQuestionRevealWidget") return `Top buyer questions AI gets about ${entityName}`
+  if (widgetId === "AiCitationDistributionWidget") return `Where AI finds answers in ${entityName}`
+  if (widgetId === "AiQueryDistributionWidget") return `How buyers frame ${entityName} questions in AI chat`
+  if (widgetId === "AiContentPreferenceWidget") return `Content formats AI trusts for ${entityName}`
+  if (widgetId === "AiBuyerJourneyWidget") return `How AI influences the ${entityName} buyer journey`
+  return `Most frequent AI prompts in ${entityName} research`
+}
+
+function getWidgetSectionFallbackDescription(widgetId: WidgetId, entityName: string, topAiQuestions: string[]) {
+  const questionReference = topAiQuestions.slice(0, 2).join(" and ")
+  const insight =
+    widgetId === "AiQuestionRevealWidget"
+      ? "What this means: buyer language drives AI recall and brand mention probability."
+      : "What this means: focused content patterns increase retrieval confidence in assistant answers."
+  const action = questionReference
+    ? `Teams can learn where coverage is thin and improve pages for prompts like ${questionReference}.`
+    : `Teams can learn where coverage is thin and strengthen pages buyers evaluate most.`
+
+  return [
+    `This widget summarizes how AI interprets ${entityName} research behavior by showing practical distribution signals teams can act on across content, questions, and evaluation stages.`,
+    insight,
+    action,
+  ].join("\n\n")
+}
+
+function normalizeGeneratedWidgetSectionTitle(title: string, fallbackTitle: string) {
+  const normalized = normalizeString(title).replace(/^#+\s*/, "").replace(/^"+|"+$/g, "")
+  if (!normalized) {
+    return fallbackTitle
+  }
+  return normalized.slice(0, 110)
+}
+
+function normalizeGeneratedWidgetSectionDescription(description: string, fallbackDescription: string) {
+  const withoutHeadings = description
+    .replace(/\r/g, "")
+    .replace(/^#{1,6}\s.+$/gm, "")
+    .trim()
+
+  if (!withoutHeadings) {
+    return fallbackDescription
+  }
+
+  const paragraphs = withoutHeadings
+    .split(/\n\s*\n/g)
+    .map((part) => part.trim())
+    .filter(Boolean)
+  const candidate =
+    paragraphs.length >= 2
+      ? paragraphs.join("\n\n")
+      : withoutHeadings
+          .split(/(?<=[.?!])\s+/)
+          .map((sentence) => sentence.trim())
+          .filter(Boolean)
+          .reduce<string[]>((acc, sentence, index) => {
+            const bucket = Math.floor(index / 2)
+            if (!acc[bucket]) {
+              acc[bucket] = sentence
+            } else {
+              acc[bucket] = `${acc[bucket]} ${sentence}`.trim()
+            }
+            return acc
+          }, [])
+          .join("\n\n")
+
+  const words = candidate.replace(/\n/g, " ").split(/\s+/).filter(Boolean).length
+  if (words < 50 || words > 75) {
+    return fallbackDescription
+  }
+
+  return candidate
+}
+
+async function generateWidgetSectionCopy(
+  widgetId: WidgetId,
+  entityName: string,
+  topAiQuestions: string[],
+  widgetContext: string,
+) {
+  const fallbackTitle = getWidgetSectionFallbackTitle(widgetId, entityName)
+  const fallbackDescription = getWidgetSectionFallbackDescription(widgetId, entityName, topAiQuestions)
+  const prompt = `Generate a section title and markdown description for an AI visibility guide widget.
+
+Entity: ${entityName}
+Widget: ${getWidgetDisplayName(widgetId)}
+Widget data/context:
+${widgetContext}
+
+Requirements:
+- Return strict JSON only: {"title":"","description":""}
+- Title: 6-12 words, specific, clear, no quotes
+- Description: 50-75 words total
+- Description must be valid markdown with short paragraphs (2-3 small paragraphs)
+- Explain what the widget is showing using the provided widget data/context
+- Include one very short "what this means" insight (10-15 words max)
+- Include what teams can learn/do from this insight
+- Keep wording concrete and practical (no buzzwords)
+- Do not use em dash
+`
+
+  for (let attempt = 1; attempt <= MAX_RETRIES_PER_WIDGET_SECTION; attempt += 1) {
+    try {
+      const raw = await generateText([{ role: "user", content: prompt }], {
+        model: "haiku",
+        temperature: 0.2,
+        maxTokens: 800,
+      })
+      const parsed = JSON.parse(parseJsonObject(raw)) as { title?: unknown; description?: unknown }
+      const title = normalizeGeneratedWidgetSectionTitle(String(parsed.title || ""), fallbackTitle)
+      const description = normalizeGeneratedWidgetSectionDescription(String(parsed.description || ""), fallbackDescription)
+      return { title, description }
+    } catch (error) {
+      if (attempt === MAX_RETRIES_PER_WIDGET_SECTION) {
+        return { title: fallbackTitle, description: fallbackDescription }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 350 * attempt))
+    }
+  }
+
+  return { title: fallbackTitle, description: fallbackDescription }
+}
+
+async function injectWidgetPool(
   content: string,
   entityName: string,
   topAiQuestions: string[],
@@ -1026,35 +1345,27 @@ function injectWidgetPool(
     return content
   }
 
-  const widgetTags = selectedWidgets.map((widgetId) => buildWidgetTag(widgetId, entityName, topAiQuestions, seedKey))
-  const firstSectionIndex = 0
-  const midwaySectionIndex = Math.floor(sections.length / 2)
-  const beforeFinalSectionIndex = Math.max(0, sections.length - 2)
-
-  if (widgetTags[0]) {
-    sections[firstSectionIndex] = {
-      ...sections[firstSectionIndex],
-      body: insertWidgetAfterParagraph(sections[firstSectionIndex].body, widgetTags[0], 2),
-    }
+  const widgetSectionBlocks: string[] = []
+  for (let index = 0; index < selectedWidgets.length; index += 1) {
+    const widgetId = selectedWidgets[index]
+    const slotSeedKey = `${seedKey}:slot-${index}`
+    const widgetTag = buildWidgetTag(widgetId, entityName, topAiQuestions, slotSeedKey)
+    const widgetContext = buildWidgetPromptContext(widgetId, entityName, topAiQuestions, slotSeedKey)
+    const copy = await generateWidgetSectionCopy(widgetId, entityName, topAiQuestions, widgetContext)
+    const sectionMarker = `{/* readable-widget-section:${widgetId} */}`
+    widgetSectionBlocks.push(`## ${copy.title}\n\n${sectionMarker}\n\n${widgetTag}\n\n${copy.description}`.trim())
   }
 
-  if (widgetTags[1]) {
-    sections[midwaySectionIndex] = {
-      ...sections[midwaySectionIndex],
-      body: insertWidgetAfterParagraph(sections[midwaySectionIndex].body, widgetTags[1], 1),
-    }
-  }
-
-  if (widgetTags[2]) {
-    const paragraphCount = splitParagraphs(sections[beforeFinalSectionIndex].body).length
-    sections[beforeFinalSectionIndex] = {
-      ...sections[beforeFinalSectionIndex],
-      body: insertWidgetAfterParagraph(sections[beforeFinalSectionIndex].body, widgetTags[2], Math.max(1, paragraphCount)),
-    }
-  }
-
-  const sectionContent = sections
+  const baseSections = sections
     .map((section) => `## ${section.heading}\n\n${section.body.trim()}`)
+    .filter(Boolean)
+
+  const insertionIndex = Math.min(2, baseSections.length)
+  const sectionContent = [
+    ...baseSections.slice(0, insertionIndex),
+    ...widgetSectionBlocks,
+    ...baseSections.slice(insertionIndex),
+  ]
     .join("\n\n")
     .trim()
 
@@ -1292,25 +1603,34 @@ function selectWidgetsForGuide(
   slug: string,
   entityName: string,
   topAiQuestions: string[],
-) {
+): WidgetId[] {
+  const seedKey = `${template.id}:${slug}:${entityName}:${topAiQuestions.join("|")}`
+  const random = createSeededRandom(seedKey)
+
+  if (isAeoTemplate(template)) {
+    return pickWidgetsForAeoGuide(random)
+  }
+
   const pool = getWidgetPoolForTemplate(template)
   if (pool.length === 0) {
     return [] as WidgetId[]
   }
 
-  const seedKey = `${template.id}:${slug}:${entityName}:${topAiQuestions.join("|")}`
-  const random = createSeededRandom(seedKey)
   return pickWidgetsFromPool(pool, random)
 }
 
-function applyWidgetPoolToContent(
+async function applyWidgetPoolToContent(
   content: string,
   template: TemplateWithSections,
   slug: string,
   entityName: string,
   topAiQuestions: string[],
 ) {
-  const selectedWidgets = selectWidgetsForGuide(template, slug, entityName, topAiQuestions)
+  const fromMetadata = parseWidgetSelectionFromContent(content)
+  const selectedWidgets = isAeoTemplate(template)
+    ? (fromMetadata.length > 0 ? normalizeAeoWidgetSelection(fromMetadata) : selectWidgetsForGuide(template, slug, entityName, topAiQuestions))
+    : (fromMetadata.length > 0 ? fromMetadata : selectWidgetsForGuide(template, slug, entityName, topAiQuestions))
+
   if (selectedWidgets.length === 0) {
     return content
   }
@@ -1408,7 +1728,7 @@ async function backfillWidgetPool(
         ? topAiQuestionsFromContent.slice(0, 5)
         : await generateTopAiQuestions(specificity.preferredLabel, page.title, specificity)
 
-    const contentWithWidgets = applyWidgetPoolToContent(
+    const contentWithWidgets = await applyWidgetPoolToContent(
       page.content,
       template,
       page.slug,
@@ -1443,9 +1763,167 @@ async function backfillWidgetPool(
   console.log(`Widget pool backfill completed. Updated ${updatedCount} pages, skipped ${skippedCount} pages.`)
 }
 
+async function backfillAiQueryDistributionWidget(
+  templateFilter?: string,
+  slugFilter?: string,
+  entityFilter?: string,
+) {
+  const pages = await prisma.generatedPage.findMany({
+    where: {
+      ...(slugFilter ? { slug: slugFilter } : {}),
+      ...(entityFilter
+        ? {
+            entity: {
+              OR: [{ slug: entityFilter }, { name: entityFilter }],
+            },
+          }
+        : {}),
+      content: {
+        contains: "<AiQueryDistributionWidget",
+      },
+    },
+    include: {
+      template: true,
+      entity: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  })
+
+  let updatedCount = 0
+  let skippedCount = 0
+
+  for (const page of pages) {
+    const template = page.template as TemplateWithSections
+    if (!isAeoTemplate(template)) {
+      skippedCount += 1
+      continue
+    }
+
+    if (templateFilter && template.slugPattern !== templateFilter && template.name !== templateFilter) {
+      skippedCount += 1
+      continue
+    }
+
+    const entity = page.entity as GeneratorEntity
+    const userSpecificity = getUserDefinedEntitySpecificity(entity.metadata)
+    const deterministicSpecificity = getDeterministicEntitySpecificity(entity)
+    const specificity = mergeEntitySpecificityProfiles(userSpecificity, deterministicSpecificity)
+    const seedKey = `${template.id}:${page.slug}:${specificity.preferredLabel}`
+    const nextContent = normalizeGuideTypography(
+      replaceAiQueryDistributionWidgetTag(page.content, specificity.preferredLabel, seedKey),
+    )
+
+    if (!nextContent || nextContent.trim() === page.content.trim()) {
+      skippedCount += 1
+      continue
+    }
+
+    await prisma.pageVersion.create({
+      data: {
+        pageId: page.id,
+        content: page.content,
+      },
+    })
+
+    await prisma.generatedPage.update({
+      where: { id: page.id },
+      data: {
+        content: nextContent,
+      },
+    })
+
+    updatedCount += 1
+    console.log(`Backfilled AI query distribution widget for page: ${page.slug}`)
+  }
+
+  console.log(`AI query distribution widget backfill completed. Updated ${updatedCount} pages, skipped ${skippedCount} pages.`)
+}
+
+async function backfillAiContentPreferenceWidget(
+  templateFilter?: string,
+  slugFilter?: string,
+  entityFilter?: string,
+) {
+  const pages = await prisma.generatedPage.findMany({
+    where: {
+      ...(slugFilter ? { slug: slugFilter } : {}),
+      ...(entityFilter
+        ? {
+            entity: {
+              OR: [{ slug: entityFilter }, { name: entityFilter }],
+            },
+          }
+        : {}),
+      content: {
+        contains: "<AiContentPreferenceWidget",
+      },
+    },
+    include: {
+      template: true,
+      entity: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  })
+
+  let updatedCount = 0
+  let skippedCount = 0
+
+  for (const page of pages) {
+    const template = page.template as TemplateWithSections
+    if (!isAeoTemplate(template)) {
+      skippedCount += 1
+      continue
+    }
+
+    if (templateFilter && template.slugPattern !== templateFilter && template.name !== templateFilter) {
+      skippedCount += 1
+      continue
+    }
+
+    const entity = page.entity as GeneratorEntity
+    const userSpecificity = getUserDefinedEntitySpecificity(entity.metadata)
+    const deterministicSpecificity = getDeterministicEntitySpecificity(entity)
+    const specificity = mergeEntitySpecificityProfiles(userSpecificity, deterministicSpecificity)
+    const seedKey = `${template.id}:${page.slug}:${specificity.preferredLabel}`
+    const nextContent = normalizeGuideTypography(
+      replaceAiContentPreferenceWidgetTag(page.content, specificity.preferredLabel, seedKey),
+    )
+
+    if (!nextContent || nextContent.trim() === page.content.trim()) {
+      skippedCount += 1
+      continue
+    }
+
+    await prisma.pageVersion.create({
+      data: {
+        pageId: page.id,
+        content: page.content,
+      },
+    })
+
+    await prisma.generatedPage.update({
+      where: { id: page.id },
+      data: {
+        content: nextContent,
+      },
+    })
+
+    updatedCount += 1
+    console.log(`Backfilled AI content preference widget for page: ${page.slug}`)
+  }
+
+  console.log(`AI content preference widget backfill completed. Updated ${updatedCount} pages, skipped ${skippedCount} pages.`)
+}
+
 async function main() {
   const refreshCalloutsOnly = process.argv.includes("--refresh-callouts")
   const backfillWidgetPoolOnly = process.argv.includes("--backfill-widget-pool")
+  const backfillAiQueryWidgetOnly = process.argv.includes("--backfill-ai-query-widget")
+  const backfillAiContentWidgetOnly = process.argv.includes("--backfill-ai-content-widget")
   const regenerateExisting = process.argv.includes("--regenerate-existing")
   const resumeGeneration = process.argv.includes("--resume")
   const slugFilter = getArgValue("--slug")
@@ -1459,6 +1937,16 @@ async function main() {
 
   if (backfillWidgetPoolOnly) {
     await backfillWidgetPool(templateFilter, slugFilter, entityFilter)
+    return
+  }
+
+  if (backfillAiQueryWidgetOnly) {
+    await backfillAiQueryDistributionWidget(templateFilter, slugFilter, entityFilter)
+    return
+  }
+
+  if (backfillAiContentWidgetOnly) {
+    await backfillAiContentPreferenceWidget(templateFilter, slugFilter, entityFilter)
     return
   }
 
@@ -1552,7 +2040,7 @@ async function main() {
         : []
       const contentWithWidgets =
         shouldInjectAiQuestions && topAiQuestions.length > 0
-          ? applyWidgetPoolToContent(
+          ? await applyWidgetPoolToContent(
               contentWithInlineExternal,
               template,
               slug,

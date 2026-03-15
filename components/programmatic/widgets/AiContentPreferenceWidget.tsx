@@ -1,6 +1,8 @@
 import styles from "./widget-pool.module.css"
 
 type ContentPreference = {
+  entityName?: string
+  rows: Array<{ label: string; value: number }>
   documentation: number
   comparisonPages: number
   faqSections: number
@@ -19,7 +21,24 @@ function parseData(dataJson?: string | null): ContentPreference | null {
 
   try {
     const parsed = JSON.parse(dataJson) as Partial<ContentPreference>
+    const rows = Array.isArray(parsed.rows)
+      ? parsed.rows
+          .filter(
+            (row): row is { label: string; value: number } =>
+              Boolean(row) &&
+              typeof (row as { label?: unknown }).label === "string" &&
+              typeof (row as { value?: unknown }).value === "number",
+          )
+          .map((row) => ({
+            label: row.label.trim(),
+            value: Number(row.value) || 0,
+          }))
+          .filter((row) => row.label.length > 0)
+      : []
+
     const data: ContentPreference = {
+      entityName: typeof parsed.entityName === "string" ? parsed.entityName : undefined,
+      rows,
       documentation: Number(parsed.documentation) || 0,
       comparisonPages: Number(parsed.comparisonPages) || 0,
       faqSections: Number(parsed.faqSections) || 0,
@@ -27,7 +46,11 @@ function parseData(dataJson?: string | null): ContentPreference | null {
       landingPages: Number(parsed.landingPages) || 0,
     }
 
-    const hasSignal = Object.values(data).some((value) => value > 0)
+    const hasSignal =
+      data.rows.length > 0 ||
+      [data.documentation, data.comparisonPages, data.faqSections, data.blogPosts, data.landingPages].some(
+        (value) => value > 0,
+      )
     return hasSignal ? data : null
   } catch {
     return null
@@ -45,11 +68,15 @@ export default function AiContentPreferenceWidget({ dataJson }: AiContentPrefere
   }
 
   const rows = [
-    { label: "Documentation", value: data.documentation },
-    { label: "Comparison pages", value: data.comparisonPages },
-    { label: "FAQ sections", value: data.faqSections },
-    { label: "Blog posts", value: data.blogPosts },
-    { label: "Landing pages", value: data.landingPages },
+    ...(Array.isArray(data.rows) && data.rows.length > 0
+      ? data.rows
+      : [
+          { label: "Documentation", value: data.documentation },
+          { label: "Comparison pages", value: data.comparisonPages },
+          { label: "FAQ sections", value: data.faqSections },
+          { label: "Blog posts", value: data.blogPosts },
+          { label: "Landing pages", value: data.landingPages },
+        ]),
   ]
 
   const rankedRows = [...rows].sort((a, b) => b.value - a.value)
